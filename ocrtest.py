@@ -1,11 +1,8 @@
 import pytesseract
 import cv2
-import numpy
-import os
-from PIL import Image,
+from PIL import Image
+from PIL import ImageFilter
 
-dir = os.path.dirname(__file__)
-tesseract_cmd = os.path.join(dir, '\\tesseract-exe\\tesseract')
 
 def relicarea_crop():
     relic_raw = cv2.imread("relic.png")
@@ -31,12 +28,10 @@ def get_data_from_screen():
     filtre = ImageFilter.UnsharpMask(6.8, 269, 0)
     unsharped_image = resized_image.filter(filtre)
 
-    last = unsharped_image.convert("RGB")
-
     # Find text via PyTesseract
-    pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
-    tessdata_dir_config = '--tessdata-dir "C:\\Program Files (x86)\\Tesseract-OCR\\tessdata" -l test --oem 0 '
-    text = pytesseract.image_to_string(last, config=tessdata_dir_config)
+    pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
+    tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l Roboto --oem 1 '
+    text = pytesseract.image_to_string(resized_image, config=tessdata_dir_config)
     print(text)
 
 
