@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/D3OCR.iml" filepath="$PROJECT_DIR$/.idea/D3OCR.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Warframe-OCR.iml" filepath="$PROJECT_DIR$/.idea/Warframe-OCR.iml" />
     </modules>
   </component>
 </project>
