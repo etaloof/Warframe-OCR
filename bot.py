@@ -1,27 +1,22 @@
 import discord
+from discord.ext import commands
 import sqlite3
 
 db = sqlite3.connect('relicdb')
 
-
-def sql_fetch(con):
-    cursorObj = db.cursor()
-    cursorObj.execute('SELECT name from sqlite_master where type= "table"')
-    print(cursorObj.fetchall())
+prefix = "!"
+bot = commands.Bot(command_prefix=prefix)
 
 
-sql_fetch(db)
-
-client = discord.Client()
-
-@client.event
+@bot.event
 async def on_ready():
     print("The bot is ready!")
-    await client.change_presence(activity=discord.Game("Making a bot"))
+    await bot.change_presence(activity=discord.Game("Making a bot"))
 
-@client.event
+
+@bot.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == bot.user:
         return
     if message.content == "Hello":
         await message.channel.send("World")
@@ -29,6 +24,19 @@ async def on_message(message):
         await message.channel.send("La tchoin")
     if message.content == "Clem ?":
         await message.channel.send("GRAKATA")
+    await bot.process_commands(message)
 
-client.run("NTg0NzYzODUyMzc0NDA5MjE5.XPPqJw.pU1ACVATwLloE_lxTkz7zO-pzG8")
+
+@bot.command()
+async def ping(ctx):
+    latency = bot.latency
+    print("le ping marche !")
+    await ctx.send(latency)
+
+
+@bot.command()
+async def test(ctx, arg1, arg2):
+    await ctx.send('Tu as mangé des {} et du {}'.format(arg1, arg2))
+
+bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XPUA6g.WC1uUgEvEIx8oEZP_g2Ry-7L6PE")
 
