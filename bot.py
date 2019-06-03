@@ -31,39 +31,39 @@ ref_list_quality = parse_ref_files(Quality_file)
 def syntax_check_pass(arg1, arg2, arg3):
     # Check for Era
     if arg1 not in ref_list_era:
-        return 'Arg 1 is wrong'
+        return 'Cette ère de relique n\'existe pas ! (' + arg1 + ')'
     else:
         # Check for Name
         if arg1 == 'Lith':
             if arg2 not in ref_list_lith:
-                return 'Arg 2 is wrong'
+                return 'Cette relique n\'existe pas en Lith ! (' + arg2 + ')'
             else:
                 if arg3 not in ref_list_quality:
-                    return 'Arg 3 is wrong'
+                    return 'Cette qualité de relique n\'existe pas ! (' + arg3 + ')'
                 else:
                     return True
         if arg1 == 'Meso':
             if arg2 not in ref_list_meso:
-                return 'Arg 2 is wrong'
+                return 'Cette relique n\'existe pas en Meso ! (' + arg2 + ')'
             else:
                 if arg3 not in ref_list_quality:
-                    return 'Arg 3 is wrong'
+                    return 'Cette qualité de relique n\'existe pas ! (' + arg3 + ')'
                 else:
                     return True
         if arg1 == 'Neo':
             if arg2 not in ref_list_neo:
-                return 'Arg 2 is wrong'
+                return 'Cette relique n\'existe pas en Neo ! (' + arg2 + ')'
             else:
                 if arg3 not in ref_list_quality:
-                    return 'Arg 3 is wrong'
+                    return 'Cette qualité de relique n\'existe pas ! (' + arg3 + ')'
                 else:
                     return True
         if arg1 == 'Axi':
             if arg2 not in ref_list_axi:
-                return 'Arg 2 is wrong'
+                return 'Cette relique n\'existe pas en Axi ! (' + arg2 + ')'
             else:
                 if arg3 not in ref_list_quality:
-                    return 'Arg 3 is wrong'
+                    return 'Cette qualité de relique n\'existe pas ! (' + arg3 + ')'
                 else:
                     return True
 
@@ -103,6 +103,12 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("FINIS LA COMMANDE BATAR")
+
+
 @bot.command()
 async def ping(ctx):
     latency = bot.latency
@@ -125,8 +131,9 @@ async def relicadd(ctx, a1: str, a2: str, a3: str, a4: int):
     if syntax_check_pass(a1, a2, a3) is True:
         await ctx.send('Votre relique est une {} {} {}, que vous possèdez en {} exemplaire(s)'.format(a1, a2, a3, a4))
         add_relic_to_db(a1, a2, a3, a4)
+
     else:
-        print(syntax_check_pass(a1, a2, a3))
+        await ctx.send(syntax_check_pass(a1, a2, a3))
 
 bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XPUA6g.WC1uUgEvEIx8oEZP_g2Ry-7L6PE")
 
