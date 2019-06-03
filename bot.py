@@ -2,9 +2,8 @@ import discord
 from discord.ext import commands
 import sqlite3
 
-db = sqlite3.connect('relicdb')
+# Command Checker #############################################################################
 
-# Define ref files for correction
 Era_file = 'ref_era.txt'
 Lith_file = 'ref_lith.txt'
 Meso_file = 'ref_meso.txt'
@@ -28,8 +27,50 @@ ref_list_neo = parse_ref_files(Neo_file)
 ref_list_axi = parse_ref_files(Axi_file)
 ref_list_quality = parse_ref_files(Quality_file)
 
-def syntax_check():
 
+def syntax_check_pass(arg1, arg2, arg3):
+    # Check for Era
+    if arg1 not in ref_list_era:
+        return 'Arg 1 is wrong'
+    else:
+        # Check for Name
+        if arg1 == 'Lith':
+            if arg2 not in ref_list_lith:
+                return 'Arg 2 is wrong'
+            else:
+                if arg3 not in ref_list_quality:
+                    return 'Arg 3 is wrong'
+                else:
+                    return True
+        if arg1 == 'Meso':
+            if arg2 not in ref_list_meso:
+                return 'Arg 2 is wrong'
+            else:
+                if arg3 not in ref_list_quality:
+                    return 'Arg 3 is wrong'
+                else:
+                    return True
+        if arg1 == 'Neo':
+            if arg2 not in ref_list_neo:
+                return 'Arg 2 is wrong'
+            else:
+                if arg3 not in ref_list_quality:
+                    return 'Arg 3 is wrong'
+                else:
+                    return True
+        if arg1 == 'Axi':
+            if arg2 not in ref_list_axi:
+                return 'Arg 2 is wrong'
+            else:
+                if arg3 not in ref_list_quality:
+                    return 'Arg 3 is wrong'
+                else:
+                    return True
+
+###############################################################################################
+
+
+db = sqlite3.connect('relicdb')
 
 
 def add_relic_to_db(a1, a2, a3, a4):
@@ -81,15 +122,11 @@ async def index(ctx):
 
 @bot.command()
 async def relicadd(ctx, a1: str, a2: str, a3: str, a4: int):
-    await ctx.send('Votre relique est une {} {} {}, que vous possèdez en {} exemplaire(s)'.format(a1, a2, a3, a4))
-    add_relic_to_db(a1, a2, a3, a4)
+    if syntax_check_pass(a1, a2, a3) is True:
+        await ctx.send('Votre relique est une {} {} {}, que vous possèdez en {} exemplaire(s)'.format(a1, a2, a3, a4))
+        add_relic_to_db(a1, a2, a3, a4)
+    else:
+        print(syntax_check_pass(a1, a2, a3))
 
-
-print(ref_list_era)
-print(ref_list_lith)
-print(ref_list_meso)
-print(ref_list_neo)
-print(ref_list_axi)
-print(ref_list_quality)
 bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XPUA6g.WC1uUgEvEIx8oEZP_g2Ry-7L6PE")
 
