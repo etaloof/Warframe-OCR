@@ -13,6 +13,7 @@ IDRelic integer PRIMARY KEY AUTOINCREMENT,
 Name varchar,
 Era text,
 IDOwner integer,
+Quality text,
 Quantity integer
 )''')
 
