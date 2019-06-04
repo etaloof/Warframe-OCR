@@ -85,6 +85,13 @@ def spell_correct(string):
     spell_check.check(string)
     return spell_check.correct().capitalize()
 
+
+def number_check(a4):
+    if a4 > 100:
+        return False
+    else:
+        return True
+
 ###############################################################################################
 # DB-Operations ###############################################################################
 
@@ -178,12 +185,15 @@ async def index(ctx):
 
 @bot.command()
 async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: int):
-    if syntax_check_pass(a1, a2, a3) is True:
-        add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
-        new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
-        await ctx.send('Votre relique est une {} {} {}, que vous possedez dorénavant en {} exemplaire(s)'.format(a1, a2, a3, new_quantity))
+    if number_check(a4) is True:
+        if syntax_check_pass(a1, a2, a3) is True:
+            add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
+            new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
+            await ctx.send('Votre relique est une {} {} {}, que vous possedez dorénavant en {} exemplaire(s)'.format(a1, a2, a3, new_quantity))
+        else:
+            await ctx.send(syntax_check_pass(a1, a2, a3))
     else:
-        await ctx.send(syntax_check_pass(a1, a2, a3))
+        await ctx.send('{} ? Ton mensonge ne trompe personne jeune Tenno !'.format(a4))
 
 bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XPUA6g.WC1uUgEvEIx8oEZP_g2Ry-7L6PE")
 
