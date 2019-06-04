@@ -1,8 +1,11 @@
 import discord
 from discord.ext import commands
 import sqlite3
+from spellcheck import SpellCheck
 
 # Command Checker #############################################################################
+
+spell_check = SpellCheck('words.txt')
 
 Era_file = 'ref_era.txt'
 Lith_file = 'ref_lith.txt'
@@ -77,12 +80,24 @@ def clean_disctag(name):
     rest = name.split(sep, 1)[0]
     return rest
 
+
+def spell_correct(string):
+    spell_check.check(string)
+    return spell_check.correct().capitalize()
+
 ###############################################################################################
 # DB-Operations ###############################################################################
 
 
 db = sqlite3.connect('relicdb')
 print('Connexion a la db réussie !')
+
+
+def check_relic_quantity(a1, a2, a3, owner):
+    cursor = db.cursor()
+    cursor.execute('''SELECT Quantity FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, check_user_exist(owner),))
+    result = cursor.fetchone()
+    return result[0]
 
 
 def check_user_exist(owner):
@@ -99,15 +114,17 @@ def check_user_exist(owner):
         return cursor.lastrowid
 
 
+# Ajoute une relique dans la BDD en INSERT/UPDATE (3-4 queries)
 def add_relic_to_db(a1, a2, a3, a4, owner):
     cursor = db.cursor()
-    cursor.execute('''SELECT IDRelic FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, check_user_exist(owner),))
+    relic_owner = check_user_exist(owner)
+    cursor.execute('''SELECT IDRelic FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, relic_owner,))
     result = cursor.fetchone()
     if result:
         print('La relique existe déja !')
-        cursor.execute('''UPDATE Relic SET Quantity = Quantity + 4 WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, check_user_exist(owner),))
+        cursor.execute('''UPDATE Relic SET Quantity = Quantity + ? WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a4, a2, a1, a3, relic_owner,))
     else:
-        cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (a1, a2, a3, a4, check_user_exist(owner)))
+        cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (a1, a2, a3, a4, relic_owner))
     db.commit()
 
 ###############################################################################################
@@ -161,11 +178,11 @@ async def index(ctx):
 
 
 @bot.command()
-async def relicadd(ctx, a1: capit_arg, a2: capit_arg, a3: capit_arg, a4: int):
+async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: int):
     if syntax_check_pass(a1, a2, a3) is True:
-        await ctx.send('Votre relique est une {} {} {}, que vous possèdez en {} exemplaire(s)'.format(a1, a2, a3, a4))
         add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
-
+        new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
+        await ctx.send('Votre relique est une {} {} {}, que vous possedez dorénavant en {} exemplaire(s)'.format(a1, a2, a3, new_quantity))
     else:
         await ctx.send(syntax_check_pass(a1, a2, a3))
 
