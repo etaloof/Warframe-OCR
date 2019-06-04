@@ -67,17 +67,33 @@ def syntax_check_pass(arg1, arg2, arg3):
                 else:
                     return True
 
+
+def capit_arg(string):
+    return string.capitalize()
+
+
+def clean_disctag(name):
+    sep = '#'
+    rest = name.split(sep, 1)[0]
+    return rest
+
 ###############################################################################################
+# DB-Operations ###############################################################################
 
 
 db = sqlite3.connect('relicdb')
 
+def check_user_exist():
+    
 
-def add_relic_to_db(a1, a2, a3, a4):
+def add_relic_to_db(a1, a2, a3, a4, owner):
     cursor = db.cursor()
     cursor.execute('''INSERT INTO Relic(Era, Name, Quality, Quantity)
                       VALUES(?,?,?,?)''', (a1, a2, a3, a4))
     db.commit()
+
+###############################################################################################
+# Bot-commands ###############################################################################
 
 
 prefix = "!"
@@ -127,10 +143,10 @@ async def index(ctx):
 
 
 @bot.command()
-async def relicadd(ctx, a1: str, a2: str, a3: str, a4: int):
+async def relicadd(ctx, a1: capit_arg, a2: capit_arg, a3: capit_arg, a4: int):
     if syntax_check_pass(a1, a2, a3) is True:
         await ctx.send('Votre relique est une {} {} {}, que vous possèdez en {} exemplaire(s)'.format(a1, a2, a3, a4))
-        add_relic_to_db(a1, a2, a3, a4)
+        add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
 
     else:
         await ctx.send(syntax_check_pass(a1, a2, a3))
