@@ -5,14 +5,14 @@ from spellcheck import SpellCheck
 
 # Command Checker #############################################################################
 
-spell_check = SpellCheck('words.txt')
+spell_check = SpellCheck('ref/ref_words.txt')
 
-Era_file = 'ref_era.txt'
-Lith_file = 'ref_lith.txt'
-Meso_file = 'ref_meso.txt'
-Neo_file = 'ref_neo.txt'
-Axi_file = 'ref_axi.txt'
-Quality_file = 'ref_quality.txt'
+Era_file = 'ref/ref_era.txt'
+Lith_file = 'ref/ref_lith.txt'
+Meso_file = 'ref/ref_meso.txt'
+Neo_file = 'ref/ref_neo.txt'
+Axi_file = 'ref/ref_axi.txt'
+Quality_file = 'ref/ref_quality.txt'
 
 
 def parse_ref_files(file):
@@ -146,11 +146,15 @@ async def on_message(message):
     if message.author == bot.user:
         return
     if message.content == "Hello":
-        await message.channel.send("World")
-    if message.content == "Tamer":
-        await message.channel.send("La tchoin")
+        await message.channel.send("Yo !")
+    if message.content == "Jour ?":
+        await message.channel.send("Nuit")
     if message.content == "Clem ?":
         await message.channel.send("GRAKATA")
+    if message.content == "Demokdawa":
+        await message.channel.send("LE DIEU !")
+    if message.content == "A Kadoc ?":
+        await message.channel.send("Il dit que c'est a lui de jouer...")
     await bot.process_commands(message)
 
 
@@ -165,11 +169,6 @@ async def ping(ctx):
     latency = bot.latency
     print("le ping marche !")
     await ctx.send(latency)
-
-
-@bot.command()
-async def test(ctx, arg1, arg2):
-    await ctx.send('Tu as mangé des {} et du {}'.format(arg1, arg2))
 
 
 @bot.command()
