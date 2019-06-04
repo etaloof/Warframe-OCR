@@ -82,14 +82,32 @@ def clean_disctag(name):
 
 
 db = sqlite3.connect('relicdb')
+print('Connexion a la db réussie !')
 
-def check_user_exist():
-    
+
+def check_user_exist(owner):
+    cursor = db.cursor()
+    cursor.execute('''SELECT IDUser FROM User WHERE Pseudo = ?''', (owner,))
+    result = cursor.fetchone()
+    if result:
+        print('L\'utilisateur existe déja !')
+        return result[0]
+    else:
+        print('L\'utilisateur n\'existe pas !')
+        cursor.execute('''INSERT INTO User (Pseudo) VALUES (?)''', (owner,))
+        db.commit()
+        return cursor.lastrowid
+
 
 def add_relic_to_db(a1, a2, a3, a4, owner):
     cursor = db.cursor()
-    cursor.execute('''INSERT INTO Relic(Era, Name, Quality, Quantity)
-                      VALUES(?,?,?,?)''', (a1, a2, a3, a4))
+    cursor.execute('''SELECT IDRelic FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, check_user_exist(owner),))
+    result = cursor.fetchone()
+    if result:
+        print('La relique existe déja !')
+        cursor.execute('''UPDATE Relic SET Quantity = Quantity + 4 WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, check_user_exist(owner),))
+    else:
+        cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (a1, a2, a3, a4, check_user_exist(owner)))
     db.commit()
 
 ###############################################################################################
@@ -102,8 +120,8 @@ bot = commands.Bot(command_prefix=prefix)
 
 @bot.event
 async def on_ready():
-    print("The bot is ready!")
-    await bot.change_presence(activity=discord.Game("Making a bot"))
+    print("Bot est dans la place !")
+    await bot.change_presence(activity=discord.Game("JE TRAVAILLE OK"))
 
 
 @bot.event
