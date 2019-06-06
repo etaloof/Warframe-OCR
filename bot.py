@@ -5,8 +5,10 @@ from spellcheck import SpellCheck
 
 # Command Checker #############################################################################
 
+# Define reference file for Spellchecking
 spell_check = SpellCheck('ref/ref_words.txt')
 
+# Define references files to use for Warframe Data
 Era_file = 'ref/ref_era.txt'
 Lith_file = 'ref/ref_lith.txt'
 Meso_file = 'ref/ref_meso.txt'
@@ -15,6 +17,7 @@ Axi_file = 'ref/ref_axi.txt'
 Quality_file = 'ref/ref_quality.txt'
 
 
+# Parse references files to lists
 def parse_ref_files(file):
     ref_list = []
     with open(file, "r") as fileHandler:
@@ -23,6 +26,7 @@ def parse_ref_files(file):
     return ref_list
 
 
+# Read references files for Warframe Data
 ref_list_era = parse_ref_files(Era_file)
 ref_list_lith = parse_ref_files(Lith_file)
 ref_list_meso = parse_ref_files(Meso_file)
@@ -31,6 +35,7 @@ ref_list_axi = parse_ref_files(Axi_file)
 ref_list_quality = parse_ref_files(Quality_file)
 
 
+# Check if command args exists in Warframe for "Era", "Quality" and "Name"
 def syntax_check_pass(arg1, arg2, arg3):
     # Check for Era
     if arg1 not in ref_list_era:
@@ -71,21 +76,34 @@ def syntax_check_pass(arg1, arg2, arg3):
                     return True
 
 
+# Change string "test" to "Test"
 def capit_arg(string):
     return string.capitalize()
 
 
+# Change "test#0003" to "test"
 def clean_disctag(name):
     sep = '#'
     rest = name.split(sep, 1)[0]
     return rest
 
 
+# Try to correct spelling for commands, and translate english to french for "Quality" arg
 def spell_correct(string):
     spell_check.check(string)
-    return spell_check.correct().capitalize()
+    if spell_check.correct().capitalize() == 'Intact':
+        return 'Intacte'
+    if spell_check.correct().capitalize() == 'Exceptional':
+        return 'Exceptionnelle'
+    if spell_check.correct().capitalize() == 'Flawless':
+        return 'Impeccable'
+    if spell_check.correct().capitalize() == 'Radiant':
+        return 'Éclatante'
+    else:
+        return spell_check.correct().capitalize()
 
 
+# Check if number of relic input by command is too high
 def number_check(a4):
     if a4 > 100:
         return False
@@ -100,6 +118,7 @@ db = sqlite3.connect('relicdb')
 print('Connexion a la db réussie !')
 
 
+# Return actual quantity for a specific relic of an owner
 def check_relic_quantity(a1, a2, a3, owner):
     cursor = db.cursor()
     cursor.execute('''SELECT Quantity FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, check_user_exist(owner),))
@@ -107,6 +126,7 @@ def check_relic_quantity(a1, a2, a3, owner):
     return result[0]
 
 
+# Check if user exist in db. If not exist, create it. If exist, return his "IDUser" index
 def check_user_exist(owner):
     cursor = db.cursor()
     cursor.execute('''SELECT IDUser FROM User WHERE Pseudo = ?''', (owner,))
@@ -121,7 +141,7 @@ def check_user_exist(owner):
         return cursor.lastrowid
 
 
-# Ajoute une relique dans la BDD en INSERT/UPDATE (3-4 queries)
+# Add a relic to the DB using INSERT/UPDATE (3-4 queries)
 def add_relic_to_db(a1, a2, a3, a4, owner):
     cursor = db.cursor()
     relic_owner = check_user_exist(owner)
