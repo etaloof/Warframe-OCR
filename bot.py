@@ -219,6 +219,11 @@ async def index(ctx):
 
 
 @bot.command()
+async def todo(ctx):
+    await ctx.send('https://docs.google.com/spreadsheets/d/17olsWjmOeoMx60y7jnxmEsTCpATqAbgcZ7nZBQ7FpKg/edit?usp=sharing')
+
+
+@bot.command()
 async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: int):
     if number_check(a4) is True:
         if syntax_check_pass(a1, a2, a3) is True:
