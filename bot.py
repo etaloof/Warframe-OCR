@@ -154,6 +154,20 @@ def add_relic_to_db(a1, a2, a3, a4, owner):
         cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (a1, a2, a3, a4, relic_owner))
     db.commit()
 
+
+def del_relic_on_db(a1, a2, a3, a4, owner):
+    cursor = db.cursor()
+    relic_owner = check_user_exist(owner)
+    cursor.execute('''SELECT IDRelic FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, relic_owner,))
+    result = cursor.fetchone()
+    if result:
+        print('La relique existe bel et bien !')
+        cursor.execute('''UPDATE Relic SET Quantity = Quantity - ? WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a4, a2, a1, a3, relic_owner,))
+        db.commit()
+        return True
+    else:
+        return 'Tu ne peux pas supprimer ce que tu ne possèdes pas, Tenno !'
+
 ###############################################################################################
 # Bot-commands ###############################################################################
 
@@ -213,7 +227,23 @@ async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
         else:
             await ctx.send(syntax_check_pass(a1, a2, a3))
     else:
-        await ctx.send('{} ? Ton mensonge ne trompe personne jeune Tenno !'.format(a4))
+        await ctx.send('{} ? De qui te moques-tu, Tenno !?'.format(a4))
+
+
+@bot.command()
+async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: int):
+    if number_check(a4) is True:
+        if syntax_check_pass(a1, a2, a3) is True:
+            del_state = del_relic_on_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
+            if del_state is True:
+                new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
+                await ctx.send('Vous avez supprimé {} reliques {} {} {}, que vous possedez dorénavant en {} exemplaire(s)'.format(a4, a1, a2, a3, new_quantity))
+            else:
+                await ctx.send(del_state)
+        else:
+            await ctx.send(syntax_check_pass(a1, a2, a3))
+    else:
+        await ctx.send('{} ? De qui te moques-tu, Tenno !?'.format(a4))
 
 bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XPUA6g.WC1uUgEvEIx8oEZP_g2Ry-7L6PE")
 

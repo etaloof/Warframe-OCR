@@ -82,4 +82,4 @@ class SpellCheck:
                     max_percent = percent
         
         # return the cprrected string
-        return " ".join(string_words)        
+        return " ".join(string_words)
