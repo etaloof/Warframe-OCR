@@ -7,7 +7,8 @@ page_response = requests.get(page_link, timeout=5)
 page_content = BeautifulSoup(page_response.content, "html.parser")
 
 r_relic_list = []
-for text in page_content.findAll("span", class_="relic-tooltip"):
+#for text in page_content.findAll("span", class_="relic-tooltip"):
+for text in page_content.findAll(id="mw-customcollapsible-VaultedRelicList"):
     b = text.get_text()
     r_relic_list.append(b)
 #d_relic_list = list(dict.fromkeys(r_relic_list))
