@@ -1,6 +1,6 @@
 import sqlite3
 
-db = sqlite3.connect('relicdb')
+db = sqlite3.connect('relicdb.sqlite3')
 cursor = db.cursor()
 
 cursor.execute('''CREATE TABLE if not exists User (

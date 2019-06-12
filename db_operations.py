@@ -1,6 +1,6 @@
 import sqlite3
 
-db = sqlite3.connect('relicdb')
+db = sqlite3.connect('relicdb.sqlite3')
 print('[Init] Connexion a la db réussie !')
 
 
