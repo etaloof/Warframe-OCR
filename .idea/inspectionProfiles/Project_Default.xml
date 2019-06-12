@@ -12,6 +12,7 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="cv2.*" />
+          <option value="weblic.relic.urls.relic" />
         </list>
       </option>
     </inspection_tool>
