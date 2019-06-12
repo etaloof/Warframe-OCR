@@ -2,7 +2,36 @@ import discord
 from discord.ext import commands
 import sqlite3
 from spellcheck import SpellCheck
+import asyncio
+from scrap import update_vault_list
 
+# Initialize ##################################################################################
+
+prefix = "!"
+bot = commands.Bot(command_prefix=prefix)
+print('[Init] Bot configuré !')
+
+db = sqlite3.connect('relicdb')
+print('[Init] Connexion a la db réussie !')
+
+v_relic_list = update_vault_list()
+print('[Init] Mise a jour des vaulted réussie !')
+
+###############################################################################################
+# Background Tasks ############################################################################
+
+
+async def task_vault_update(timeout):
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        try:
+            update_vault_list()
+            await asyncio.sleep(timeout)
+        except Exception as e:
+            print(str(e))
+            await asyncio.sleep(timeout)
+
+###############################################################################################
 # Command Checker #############################################################################
 
 # Define reference file for Spellchecking
@@ -110,12 +139,17 @@ def number_check(a4):
     else:
         return True
 
+
+# Check if relic is vaulted
+def is_vaulted(a1, a2):
+    if a1 + ' ' + a2 in v_relic_list:
+        return 'Vaulted'
+    else:
+        return 'Unvaulted'
+
+
 ###############################################################################################
 # DB-Operations ###############################################################################
-
-
-db = sqlite3.connect('relicdb')
-print('Connexion a la db réussie !')
 
 
 # Return actual quantity for a specific relic of an owner
@@ -172,13 +206,9 @@ def del_relic_on_db(a1, a2, a3, a4, owner):
 # Bot-commands ###############################################################################
 
 
-prefix = "!"
-bot = commands.Bot(command_prefix=prefix)
-
-
 @bot.event
 async def on_ready():
-    print("Bot est dans la place !")
+    print("[Init] Bot en ligne !")
     await bot.change_presence(activity=discord.Game("JE TRAVAILLE OK"))
 
 
@@ -228,7 +258,8 @@ async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
         if syntax_check_pass(a1, a2, a3) is True:
             add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
             new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
-            await ctx.send('Votre relique est une {} {} {}, que vous possedez dorénavant en {} exemplaire(s)'.format(a1, a2, a3, new_quantity))
+            relic_state = is_vaulted(a1, a2)
+            await ctx.send('Votre relique est une {} {} {}, que vous possedez dorénavant en {} exemplaire(s) ({})'.format(a1, a2, a3, new_quantity, relic_state))
         else:
             await ctx.send(syntax_check_pass(a1, a2, a3))
     else:
@@ -250,5 +281,6 @@ async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
     else:
         await ctx.send('{} ? De qui te moques-tu, Tenno !?'.format(a4))
 
+bot.loop.create_task(task_vault_update(7200))
 bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XPUA6g.WC1uUgEvEIx8oEZP_g2Ry-7L6PE")
 
