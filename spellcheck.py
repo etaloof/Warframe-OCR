@@ -1,6 +1,7 @@
 # import the fuzzywuzzy module
 from fuzzywuzzy import fuzz
 
+
 # spellcheck main class
 class SpellCheck:
 
