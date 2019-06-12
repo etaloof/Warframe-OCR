@@ -1,9 +1,9 @@
-pytesseract==0.2.6
-matplotlib==3.1.0
-numpy==1.16.4
 discord.py==1.1.1
-fuzzywuzzy==0.17.0
-Pillow==6.0.0
-discord==1.0.1
+matplotlib==3.1.0
 requests==2.22.0
+fuzzywuzzy==0.17.0
+pytesseract==0.2.6
+numpy==1.16.4
+Pillow==6.0.0
 beautifulsoup4==4.7.1
+discord==1.0.1

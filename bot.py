@@ -81,8 +81,7 @@ async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
         if syntax_check_pass(a1, a2, a3) is True:
             add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
             new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
-            # relic_state = is_vaulted(a1, a2)
-            relic_state = 'lel'
+            relic_state = is_vaulted(a1, a2)
             await ctx.send('Votre relique est une {} {} {}, que vous possedez dorénavant en {} exemplaire(s) ({})'.format(a1, a2, a3, new_quantity, relic_state))
         else:
             await ctx.send(syntax_check_pass(a1, a2, a3))
