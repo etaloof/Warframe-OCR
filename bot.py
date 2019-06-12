@@ -44,6 +44,7 @@ Meso_file = 'ref/ref_meso.txt'
 Neo_file = 'ref/ref_neo.txt'
 Axi_file = 'ref/ref_axi.txt'
 Quality_file = 'ref/ref_quality.txt'
+Ressources_file = 'ref/ref_ressources.txt'
 
 
 # Parse references files to lists
@@ -62,6 +63,7 @@ ref_list_meso = parse_ref_files(Meso_file)
 ref_list_neo = parse_ref_files(Neo_file)
 ref_list_axi = parse_ref_files(Axi_file)
 ref_list_quality = parse_ref_files(Quality_file)
+ref_list_ressources = parse_ref_files(Ressources_file)
 
 
 # Check if command args exists in Warframe for "Era", "Quality" and "Name"
@@ -105,9 +107,17 @@ def syntax_check_pass(arg1, arg2, arg3):
                     return True
 
 
-# Change string "test" to "Test"
+# Check ressource syntax
+def syntax_check_ressource(arg):
+    if arg not in ref_list_ressources:
+        return 'Cette ressource n\'existe pas !'
+    else:
+        return True
+
+
+# Change string "tést" to "Test"
 def capit_arg(string):
-    return string.capitalize()
+    return string.unidecode.capitalize()
 
 
 # Change "test#0003" to "test"
@@ -127,7 +137,7 @@ def spell_correct(string):
     if spell_check.correct().capitalize() == 'Flawless':
         return 'Impeccable'
     if spell_check.correct().capitalize() == 'Radiant':
-        return 'Éclatante'
+        return 'Eclatante'
     else:
         return spell_check.correct().capitalize()
 
@@ -203,7 +213,7 @@ def del_relic_on_db(a1, a2, a3, a4, owner):
         return 'Tu ne peux pas supprimer ce que tu ne possèdes pas, Tenno !'
 
 ###############################################################################################
-# Bot-commands ###############################################################################
+# Bot-commands ################################################################################
 
 
 @bot.event
@@ -280,6 +290,11 @@ async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
             await ctx.send(syntax_check_pass(a1, a2, a3))
     else:
         await ctx.send('{} ? De qui te moques-tu, Tenno !?'.format(a4))
+
+
+@bot.command()
+async def ressourcedrop(ctx):
+    await ctx.send('J\'ai pas encore fait la commande, oups !')
 
 bot.loop.create_task(task_vault_update(7200))
 bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XPUA6g.WC1uUgEvEIx8oEZP_g2Ry-7L6PE")
