@@ -1,1 +1,1 @@
-Intacte,Exceptionnelle,Impeccable,�clatante,Axi,Lith,Meso,Neo,Intact,Exceptional,Flawless,Radiant,Capteurs Neuronaux,Circuits,Ferrite,Gallium,Module de Controle,Morphics,Neurodes,Pack Polymere,Plaque d'Alliage,Plastides,R�cuperation,Rubedo,
+﻿Intacte,Exceptionnelle,Impeccable,Eclatante,Axi,Lith,Meso,Neo,Intact,Exceptional,Flawless,Radiant,Capteurs Neuronaux,Circuits,Ferrite,Gallium,Module de Controle,Morphics,Neurodes,Pack Polymere,Plaque d'Alliage,Plastides,Recuperation,Rubedo,
