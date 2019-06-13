@@ -29,12 +29,22 @@ async def task_vault_update(timeout):
 ###############################################################################################
 # Custom Convertors ################################################################################
 
-class CheckAbs(commands.Converter):
+@bot.event
+async def on_command_error(ctx, message):
+    if isinstance(message, commands.UserInputError):
+        await ctx.send(message)
+
+
+# Check if number is too high or not an absolute
+class CheckNbr(commands.Converter):
     async def convert(self, ctx, argument):
         if argument.isdigit():
-            return int(argument)
+            if int(argument) > 100:
+                raise commands.UserInputError('{} ? De qui te moques-tu, Tenno !?'.format(argument))
+            else:
+                return int(argument)
         else:
-            await ctx.send('Vous ne pouvez entrer qu\'un nombre absolu !')
+            raise commands.UserInputError('Vous ne pouvez entrer qu\'un nombre absolu !')
 
 ###############################################################################################
 # Bot-commands ################################################################################
@@ -63,10 +73,10 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("FINIS LA COMMANDE BATAR")
+#@bot.event
+#async def on_command_error(ctx, error):
+    #if isinstance(error, commands.MissingRequiredArgument):
+        #await ctx.send("FINIS LA COMMANDE BATAR")
 
 
 @bot.command()
@@ -87,33 +97,27 @@ async def todo(ctx):
 
 
 @bot.command()
-async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckAbs):
-    if number_check(a4) is True:
-        if syntax_check_pass(a1, a2, a3) is True:
-            add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
-            new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
-            relic_state = is_vaulted(a1, a2)
-            await ctx.send('Votre relique est une {} {} {}, que vous possedez dorénavant en {} exemplaire(s) ({})'.format(a1, a2, a3, new_quantity, relic_state))
-        else:
-            await ctx.send(syntax_check_pass(a1, a2, a3))
+async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckNbr):
+    if syntax_check_pass(a1, a2, a3) is True:
+        add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
+        new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
+        relic_state = is_vaulted(a1, a2)
+        await ctx.send('Votre relique est une {} {} {}, que vous possedez dorénavant en {} exemplaire(s) ({})'.format(a1, a2, a3, new_quantity, relic_state))
     else:
-        await ctx.send('{} ? De qui te moques-tu, Tenno !?'.format(a4))
+        await ctx.send(syntax_check_pass(a1, a2, a3))
 
 
 @bot.command()
-async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckAbs):
-    if number_check(a4) is True:
-        if syntax_check_pass(a1, a2, a3) is True:
-            del_state = del_relic_on_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
-            if del_state is True:
-                new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
-                await ctx.send('Vous avez supprimé {} reliques {} {} {}, que vous possedez dorénavant en {} exemplaire(s)'.format(a4, a1, a2, a3, new_quantity))
-            else:
-                await ctx.send(del_state)
+async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckNbr):
+    if syntax_check_pass(a1, a2, a3) is True:
+        del_state = del_relic_on_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
+        if del_state is True:
+            new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
+            await ctx.send('Vous avez supprimé {} reliques {} {} {}, que vous possedez dorénavant en {} exemplaire(s)'.format(a4, a1, a2, a3, new_quantity))
         else:
-            await ctx.send(syntax_check_pass(a1, a2, a3))
+            await ctx.send(del_state)
     else:
-        await ctx.send('{} ? De qui te moques-tu, Tenno !?'.format(a4))
+        await ctx.send(syntax_check_pass(a1, a2, a3))
 
 
 @bot.command()

@@ -130,7 +130,3 @@ def is_vaulted(a1, a2):
         return 'Vaulted'
     else:
         return 'Unvaulted'
-
-
-def check_int(a4):
-    pass
