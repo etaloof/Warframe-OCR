@@ -6,7 +6,7 @@ from utils import *
 
 
 def relicarea_crop():
-    relic_raw = cv2.imread("relic.png")
+    relic_raw = cv2.imread('relic.png')
     # out = cv2.rectangle(relic_raw, (97, 199), (264, 366), (0, 255, 0), 2)
     # upperY:downerY, LeftX:RightX
     # cropped = relic_raw[199:366, 97:264]
