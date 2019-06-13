@@ -8,7 +8,8 @@ print('[Init] Mise a jour des vaulted réussie !')
 
 
 # Define reference file for Spellchecking
-spell_check = SpellCheck('ref/ref_words.txt')
+# spell_check = SpellCheck('ref/ref_words.txt')
+spell_check = SpellCheck('C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\ref\\ref_words.txt')
 
 # Define references files to use for Warframe Data
 Era_file = 'ref/ref_era.txt'
@@ -129,3 +130,7 @@ def is_vaulted(a1, a2):
         return 'Vaulted'
     else:
         return 'Unvaulted'
+
+
+def check_int(a4):
+    pass

@@ -25,6 +25,17 @@ async def task_vault_update(timeout):
             print(str(e))
             await asyncio.sleep(timeout)
 
+
+###############################################################################################
+# Custom Convertors ################################################################################
+
+class CheckAbs(commands.Converter):
+    async def convert(self, ctx, argument):
+        if argument.isdigit():
+            return int(argument)
+        else:
+            await ctx.send('Vous ne pouvez entrer qu\'un nombre absolu !')
+
 ###############################################################################################
 # Bot-commands ################################################################################
 
@@ -76,7 +87,7 @@ async def todo(ctx):
 
 
 @bot.command()
-async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: int):
+async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckAbs):
     if number_check(a4) is True:
         if syntax_check_pass(a1, a2, a3) is True:
             add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
@@ -90,7 +101,7 @@ async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
 
 
 @bot.command()
-async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: int):
+async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckAbs):
     if number_check(a4) is True:
         if syntax_check_pass(a1, a2, a3) is True:
             del_state = del_relic_on_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))

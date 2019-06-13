@@ -14,7 +14,7 @@ Name varchar,
 Era text,
 IDOwner integer,
 Quality text,
-Quantity integer
+Quantity unsigned tinyint
 )''')
 
 cursor.execute('''CREATE TABLE if not exists RelicData (

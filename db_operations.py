@@ -45,12 +45,19 @@ def add_relic_to_db(a1, a2, a3, a4, owner):
 def del_relic_on_db(a1, a2, a3, a4, owner):
     cursor = db.cursor()
     relic_owner = check_user_exist(owner)
-    cursor.execute('''SELECT IDRelic FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, relic_owner,))
+    cursor.execute('''SELECT IDRelic, Quantity FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, relic_owner,))
     result = cursor.fetchone()
-    if result:
+    print(result[1] - a4)
+    if (result[1] - a4) < 0:
+        print('La relique existe bel et bien, mais 0')
+        cursor.execute('''UPDATE Relic SET Quantity = 0 WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, relic_owner,))
+        db.commit()
+        return True
+    elif result:
         print('La relique existe bel et bien !')
         cursor.execute('''UPDATE Relic SET Quantity = Quantity - ? WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a4, a2, a1, a3, relic_owner,))
         db.commit()
         return True
     else:
+        print('possède pas')
         return 'Tu ne peux pas supprimer ce que tu ne possèdes pas, Tenno !'
