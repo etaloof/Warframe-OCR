@@ -127,6 +127,6 @@ def number_check(a4):
 # Check if relic is vaulted
 def is_vaulted(a1, a2):
     if a1 + ' ' + a2 in v_relic_list:
-        return 'Vaulted'
+        return '**Vaulted**'
     else:
         return 'Unvaulted'

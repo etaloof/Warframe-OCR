@@ -102,7 +102,7 @@ async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
         add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
         new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
         relic_state = is_vaulted(a1, a2)
-        await ctx.send('Votre relique est une {} {} {}, que vous possedez dorénavant en {} exemplaire(s) ({})'.format(a1, a2, a3, new_quantity, relic_state))
+        await ctx.send('Votre relique est une {} {} {}, que vous possedez dorénavant en {} exemplaire(s) **({})**'.format(a1, a2, a3, new_quantity, relic_state))
     else:
         await ctx.send(syntax_check_pass(a1, a2, a3))
 
@@ -125,5 +125,5 @@ async def ressourcedrop(ctx):
     await ctx.send('J\'ai pas encore fait la commande, oups !')
 
 bot.loop.create_task(task_vault_update(7200))
-bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XPUA6g.WC1uUgEvEIx8oEZP_g2Ry-7L6PE")
+bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XQOniw.cRrAwuc14J3nunpqvj5gOyXfWFQ")
 
