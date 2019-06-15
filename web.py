@@ -3,7 +3,7 @@ from flask import Flask, render_template
 application = Flask(__name__)
 
 
-@application.route('/')
+@application.route('/test')
 def index():
     db = sqlite3.connect('relicdb.sqlite3')
     cursor = db.cursor()
@@ -12,7 +12,7 @@ def index():
     return render_template('test.html', data=data)
 
 
-@application.route('/table')
+@application.route('/')
 def tabledex():
     db = sqlite3.connect('relicdb.sqlite3')
     cursor = db.cursor()
