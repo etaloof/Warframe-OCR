@@ -9,7 +9,7 @@ soup = BeautifulSoup(page_response.content, "html.parser")
 def update_vault_list():
     v_relic_list = []
     table = soup.find('div', id='mw-customcollapsible-VaultedRelicList')
-    relics = table.find_all('span', class_='relic-tooltip')
+    relics = table.findAll('span', class_='relic-tooltip')
     for relic in relics:
         v_relic_list.append(relic.get('data-param'))
     return v_relic_list
