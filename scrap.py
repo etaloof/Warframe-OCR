@@ -1,9 +1,13 @@
 from bs4 import BeautifulSoup
 import requests
 
-page_link = 'https://warframe.fandom.com/wiki/Void_Relic'
-page_response = requests.get(page_link, timeout=5)
-soup = BeautifulSoup(page_response.content, "html.parser")
+f = open('relics.html', 'r', encoding="mbcs")
+s = f.read()
+soup = BeautifulSoup(s, "html.parser")
+
+# page_link = 'https://warframe.fandom.com/wiki/Void_Relic'
+# page_response = requests.get(page_link, timeout=5)
+# soup = BeautifulSoup(page_response.content, "html.parser")
 
 
 def update_vault_list():
