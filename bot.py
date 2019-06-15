@@ -125,5 +125,5 @@ async def ressourcedrop(ctx):
     await ctx.send('J\'ai pas encore fait la commande, oups !')
 
 bot.loop.create_task(task_vault_update(7200))
-bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XQOniw.cRrAwuc14J3nunpqvj5gOyXfWFQ")
+bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XQUmRg.XXveAx0-lE1CKvI6F3y-Mh1uoP4")
 
