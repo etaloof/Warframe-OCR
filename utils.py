@@ -115,7 +115,7 @@ def spell_correct(string):
     else:
         corr = spell_correct()
         corrcap = corr.capitalize()
-        return corrcap
+        return str(corrcap)
 
 
 # Check if number of relic input by command is too high
