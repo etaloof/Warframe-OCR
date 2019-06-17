@@ -61,3 +61,16 @@ def del_relic_on_db(a1, a2, a3, a4, owner):
     else:
         print('possède pas')
         return 'Tu ne peux pas supprimer ce que tu ne possèdes pas, Tenno !'
+
+
+def refine_relics(a1, a2, a3, a4, owner):
+    cursor = db.cursor()
+    relic_owner = check_user_exist(owner)
+    cursor.execute('''SELECT IDRelic FROM Relic WHERE Name = ? AND Era = ? AND Quality = 'Intacte' AND IDOwner = ? AND Quantity >= ?''', (a2, a1, relic_owner, a4))
+    result = cursor.fetchone()
+    print(result)
+    if result:
+        print('1')
+    else:
+        print('2')
+    db.commit()
