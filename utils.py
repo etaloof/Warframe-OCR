@@ -113,9 +113,7 @@ def spell_correct(string):
     if spell_check.correct().capitalize() == 'Radiant':
         return 'Eclatante'
     else:
-        corr = spell_correct()
-        corrcap = corr.capitalize()
-        return str(corrcap)
+        return spell_check.correct().capitalize()
 
 
 # Check if number of relic input by command is too high
