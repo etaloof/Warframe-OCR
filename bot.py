@@ -126,7 +126,9 @@ async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
 @bot.command()
 async def relicrefine(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckNbr):
     if syntax_check_pass(a1, a2, a3) is True:
-        refine_relics(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
+        refine_state = refine_relics(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
+        if refine_state is True:
+            await ctx.send('')
 
 
 @bot.command()
