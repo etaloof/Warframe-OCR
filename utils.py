@@ -103,6 +103,7 @@ def clean_disctag(name):
 
 # Try to correct spelling for commands, and translate english to french for "Quality" arg
 def spell_correct(string):
+    print(string)
     spell_check.check(string)
     if spell_check.correct().capitalize() == 'Intact':
         return 'Intacte'

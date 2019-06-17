@@ -95,6 +95,7 @@ async def index(ctx):
 async def todo(ctx):
     await ctx.send('https://docs.google.com/spreadsheets/d/17olsWjmOeoMx60y7jnxmEsTCpATqAbgcZ7nZBQ7FpKg/edit?usp=sharing')
 
+
 # Arg 1 = Era, Arg2 = Name, Arg3 = quality, Arg4 = Quantity
 @bot.command()
 async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckNbr):
