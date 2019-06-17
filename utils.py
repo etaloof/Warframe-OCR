@@ -103,8 +103,6 @@ def clean_disctag(name):
 
 # Try to correct spelling for commands, and translate english to french for "Quality" arg
 def spell_correct(string):
-    stringcap = string.capitalize()
-    print(stringcap)
     spell_check.check(string)
     if spell_check.correct().capitalize() == 'Intact':
         return 'Intacte'
@@ -115,9 +113,9 @@ def spell_correct(string):
     if spell_check.correct().capitalize() == 'Radiant':
         return 'Eclatante'
     else:
-        print(spell_check.correct())
-        print(spell_check.correct().capitalize())
-        return spell_check.correct().capitalize()
+        corr = spell_correct()
+        corrcap = corr.capitalize()
+        return corrcap
 
 
 # Check if number of relic input by command is too high
