@@ -29,6 +29,7 @@ def check_user_exist(owner):
 def add_relic_to_db(a1, a2, a3, a4, owner):
     cursor = db.cursor()
     relic_owner = check_user_exist(owner)
+    # TestQuery
     cursor.execute('''SELECT IDRelic FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, relic_owner,))
     result = cursor.fetchone()
     if result:
@@ -42,6 +43,7 @@ def add_relic_to_db(a1, a2, a3, a4, owner):
 def del_relic_on_db(a1, a2, a3, a4, owner):
     cursor = db.cursor()
     relic_owner = check_user_exist(owner)
+    # TestQuery
     cursor.execute('''SELECT IDRelic, Quantity FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, relic_owner,))
     result = cursor.fetchone()
     if (result[1] - a4) < 0:
@@ -65,8 +67,13 @@ def refine_relics(a1, a2, a3, a4, owner):
     if result:
         print('La relique existe et peut être raffinnée')
         cursor.execute('''UPDATE Relic SET Quantity = Quantity - ? WHERE Name = ? AND Era = ? AND Quality = 'Intacte' AND IDOwner = ?''', (a4, a2, a1, relic_owner,))
-        cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?) ON CONFLICT(Era, Name, Quality, IDOwner) DO UPDATE SET Quantity = Quantity + ?''', (a1, a2, a3, a4, relic_owner, a4))
-        # cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (a1, a2, a3, a4, relic_owner))
+        # TestQuery
+        cursor.execute('''SELECT IDRelic FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a2, a1, a3, relic_owner,))
+        result = cursor.fetchone()
+        if result:
+            cursor.execute('''UPDATE Relic SET Quantity = Quantity + ? WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (a4, a2, a1, a3, relic_owner,))
+        else:
+            cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (a1, a2, a3, a4, relic_owner))
         db.commit()
         return True
     else:
