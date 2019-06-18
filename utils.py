@@ -4,8 +4,6 @@ from scrap import update_vault_list
 # Initialize ##################################################################################
 
 v_relic_list = update_vault_list()
-print('[Init] Mise a jour des vaulted réussie !')
-
 
 # Define reference file for Spellchecking
 # spell_check = SpellCheck('ref/ref_words.txt')
