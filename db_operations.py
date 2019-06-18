@@ -67,6 +67,8 @@ def refine_relics(a1, a2, a3, a4, owner):
         cursor.execute('''UPDATE Relic SET Quantity = Quantity - ? WHERE Name = ? AND Era = ? AND Quality = 'Intacte' AND IDOwner = ?''', (a4, a2, a1, relic_owner,))
         db.commit()
         cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?) ON CONFLICT(Era, Name, Quality, IDOwner) DO UPDATE SET Quantity = Quantity + ?''', (a1, a2, a3, a4, relic_owner, a4))
+        result = cursor.fetchone()
+        print(result)
         db.commit()
         return True
     else:
