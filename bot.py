@@ -115,7 +115,8 @@ async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
         del_state = del_relic_on_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
         if del_state is True:
             new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
-            await ctx.send('Vous avez supprimé {} reliques {} {} {}, que vous possedez dorénavant en {} exemplaire(s)'.format(a4, a1, a2, a3, new_quantity))
+            relic_state = is_vaulted(a1, a2)
+            await ctx.send('Vous avez supprimé {} reliques {} {} {}, que vous possedez dorénavant en {} exemplaire(s) **({})**'.format(a4, a1, a2, a3, new_quantity, relic_state))
         else:
             await ctx.send(del_state)
     else:
@@ -129,7 +130,8 @@ async def relicrefine(ctx, a1: spell_correct, a2: spell_correct, a3: spell_corre
         refine_state = refine_relics(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
         if refine_state is True:
             new_quantity = check_relic_quantity(a1, a2, a3, clean_disctag(str(ctx.message.author)))
-            await ctx.send('Vous avez raffiné {} reliques {} {} en {}, que vous possedez dorénavant en {} exemplaires(s)'.format(a4, a1, a2, a3, new_quantity))
+            relic_state = is_vaulted(a1, a2)
+            await ctx.send('Vous avez raffiné {} reliques {} {} en {}, que vous possedez dorénavant en {} exemplaires(s) **({})**'.format(a4, a1, a2, a3, new_quantity, relic_state))
         else:
             await ctx.send(refine_state)
     else:

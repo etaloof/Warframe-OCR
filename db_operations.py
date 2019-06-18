@@ -55,7 +55,7 @@ def del_relic_on_db(a1, a2, a3, a4, owner):
         db.commit()
         return True
     else:
-        return 'Tu ne peux pas supprimer ce que tu ne possèdes pas, Tenno !'
+        return 'Tu ne peux pas supprimer une relique que tu ne possèdes pas, Tenno !'
 
 
 def refine_relics(a1, a2, a3, a4, owner):
