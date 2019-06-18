@@ -65,10 +65,10 @@ def refine_relics(a1, a2, a3, a4, owner):
     if result:
         print('La relique existe et peut être raffinnée')
         cursor.execute('''UPDATE Relic SET Quantity = Quantity - ? WHERE Name = ? AND Era = ? AND Quality = 'Intacte' AND IDOwner = ?''', (a4, a2, a1, relic_owner,))
+        db.commit()
         cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?) ON CONFLICT(Era, Name, Quality, IDOwner) DO UPDATE SET Quantity = Quantity + ?''', (a1, a2, a3, a4, relic_owner, a4))
         db.commit()
         return True
     else:
-        db.commit()
         return 'Tu ne peux pas raffiner une relique que tu ne possèdes pas, Tenno !'
 
