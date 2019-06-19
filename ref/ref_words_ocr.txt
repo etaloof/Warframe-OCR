@@ -1,1 +1,1 @@
-Relique,n1,Meso,
+Relique,Meso,Relic,Lith,Neo,Axi,N1,MESO,LITH,NEO,AXI,
