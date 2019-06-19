@@ -35,6 +35,16 @@ pos_list = [((99, 204, 139, 226), (101, 319, 259, 365)),
             ]
 
 
+def purify_result(text):
+    spell_check.check(text.casefold())
+    p_string = spell_check.correct()
+    p_string = ocr_split(p_string)
+    p_string = p_string.rstrip()
+    p_string = ocr_correct_pass1(p_string)
+    p_string = ocr_correct_pass2(p_string)
+    return p_string
+
+
 def check_for_sign(img):
     precision = 0.96
     path_to_img = r'./relic_templatev2.png'
@@ -52,10 +62,12 @@ def check_for_sign(img):
 
 
 def ocr_correct_pass2(string):
-    if 'hfeo' in string:
-        return string.replace('hfeo', 'meso', 1)
     if 'm so' in string:
         return string.replace('m so', 'meso', 1)
+    if 'me so' in string:
+        return string.replace('me so', 'meso', 1)
+    if 'mcsd' in string:
+        return string.replace('mcsd', 'meso', 1)
     else:
         return string
 
@@ -67,11 +79,15 @@ def ocr_split(string):
         return 'relic ' + string.split("relic")[0]
 
 
-def ocr_correc_pass1(string):
+def ocr_correct_pass1(string):
     if string[-1] == "t":
         return string[:-1] + "1"
     if string[-1] == "z":
         return string[:-1] + "2"
+    if string[-1] == "s":
+        return string[:-1] + "8"
+    if string[-1] == "g":
+        return string[:-1] + "8"
     else:
         return string
 
@@ -95,14 +111,13 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity):
 
     # Find text via PyTesseract
     pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-    tessdata_dir_config = '--tessdata-dir "C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\tessdata" -l Roboto --oem 3 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWZabcdefghiklmnopqrstuvwz0123456789'
+    tessdata_dir_config = '--tessdata-dir "C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\tessdata" -l Roboto --oem 3 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWZabcdefghiklmnopqrstuvwz123456789'
     # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l Roboto --oem 3  -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789'
     text = pytesseract.image_to_string(kernelled, config=tessdata_dir_config)
 
-    spell_check.check(text.casefold())
-
     # relic_list.append(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct())) + quantity))
-    print(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct()))) + ' ' + quantity)
+    print(purify_result(text) + ' ' + quantity)
+    # print(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct()))) + ' ' + quantity)
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4):
