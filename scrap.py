@@ -16,6 +16,7 @@ def update_vault_list():
     relics = table.findAll('span', class_='relic-tooltip')
     for relic in relics:
         v_relic_list.append(relic.get('data-param'))
+    print('[Init] Mise a jour des vaulted réussie !')
     return v_relic_list
 
 
