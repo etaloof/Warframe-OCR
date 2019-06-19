@@ -33,8 +33,23 @@ pos_list = [((99, 204, 139, 226), (101, 319, 259, 365)),
             ]
 
 
-def check_for_sign():
-    pass
+def check_for_sign(img):
+    precision = 0.95
+    path_to_img = r'./relic_template.png'
+    path_to_mask = r'./relic_mask.png'
+    template = cv2.imread(path_to_img, 0)
+    mask = cv2.imread(path_to_mask, 0)
+    w, h = template.shape[::-1]
+    res = cv2.matchTemplate(img, template, cv2.TM_CCORR_NORMED, mask=mask)
+    print(template.shape)
+    loc = np.where(res >= precision)
+    count = 0
+    for pt in zip(*loc[::-1]):  # Swap columns and rows
+        cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
+        count = count + 1
+    cv2.imwrite('Result.png',img)
+    print(loc)
+    print(count)
 
 
 def ocr_correct_pass2(string):
@@ -50,7 +65,7 @@ def ocr_split(string):
     if 'relique' in string:
         return 'relique' + string.split("relique")[1]
     if 'relic' in string:
-        return 'relic' + string.split("relic")[1]
+        return 'relic ' + string.split("relic")[0]
 
 
 def ocr_correc_pass1(string):
@@ -78,6 +93,8 @@ def data_pass_name(pos1, pos2, pos3, pos4):
 
     greyed_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
 
+    print(check_for_sign(greyed_image))
+
     kernel = np.ones((1, 1), np.uint8)
     img = cv2.dilate(greyed_image, kernel, iterations=1)
     kernelled = cv2.erode(img, kernel, iterations=1)
@@ -89,7 +106,7 @@ def data_pass_name(pos1, pos2, pos3, pos4):
     text = pytesseract.image_to_string(kernelled, config=tessdata_dir_config)
 
     spell_check.check(text.casefold())
-    cv2.imwrite('test_img_ocr/' + spell_check.correct() + '.jpg', kernelled)
+    # cv2.imwrite('test_img_ocr/' + spell_check.correct() + '.jpg', kernelled)
     print(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct()))))
 
 
@@ -113,15 +130,17 @@ def data_pass_nb(pos1, pos2, pos3, pos4):
     # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l Roboto --oem 3  -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789'
     text = pytesseract.image_to_string(kernelled, config=tessdata_dir_config)
 
-    spell_check.check(text)
-    cv2.imwrite('test_img_ocr/' + spell_check.correct() + '.jpg', kernelled)
+    spell_check.check(text.casefold())
+    # cv2.imwrite('test_img_ocr/' + spell_check.correct() + '.jpg', kernelled)
     print(spell_check.correct())
 
 
 def cycle_read():
     for i in pos_list:
+        nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2])
+        if nb is True:
+            pass
         data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2])
-        # data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2])
 
 
 if __name__ == '__main__':
