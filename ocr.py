@@ -99,29 +99,25 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def data_pass_name(pos1, pos2, pos3, pos4, quantity):
-    relic_raw = cv2.imread('relic4.png')
-
+    relic_raw = cv2.imread('relic.png')
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
-
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
-
     kernel = np.ones((1, 1), np.uint8)
     img = cv2.dilate(greyed_image, kernel, iterations=1)
     kernelled = cv2.erode(img, kernel, iterations=1)
-
     # Find text via PyTesseract
     pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-    tessdata_dir_config = '--tessdata-dir "C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWZabcdefghiklmnopqrstuvwz123456789'
-    # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l Roboto --oem 3  -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789'
+    tessdata_dir_config = '--tessdata-dir "C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\tessdata" -l Roboto-ori --oem 3 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWZabcdefghiklmnopqrstuvwz123456789'
+    # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l Roboto-ori --oem 3  -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789'
     text = pytesseract.image_to_string(kernelled, config=tessdata_dir_config)
-
     # relic_list.append(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct())) + quantity))
+    cv2.imwrite('test_img_ocr/' + purify_result(text) + '.jpg', kernelled)
     print(purify_result(text) + ' ' + quantity)
     # print(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct()))) + ' ' + quantity)
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4):
-    relic_raw = cv2.imread('relic4.png')
+    relic_raw = cv2.imread('relic.png')
 
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
 
@@ -133,15 +129,12 @@ def data_pass_nb(pos1, pos2, pos3, pos4):
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(greyed_image, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
-
         # Find text via PyTesseract
         pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-        tessdata_dir_config = '--tessdata-dir "C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\tessdata" -l Roboto --oem 3 -c tessedit_char_whitelist=Xx0123456789'
-        # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l Roboto --oem 3  -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789'
+        tessdata_dir_config = '--tessdata-dir "C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\tessdata" -l Roboto-ori --oem 3 -c tessedit_char_whitelist=Xx0123456789'
+        # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l Roboto-ori --oem 3  -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789'
         text = pytesseract.image_to_string(kernelled, config=tessdata_dir_config)
-
         spell_check.check(text.casefold())
-        cv2.imwrite('test_img_ocr/' + spell_check.correct() + '.jpg', kernelled)
         return spell_check.correct()
 
 

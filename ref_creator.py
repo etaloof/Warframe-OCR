@@ -2,8 +2,10 @@ import os
 import PySimpleGUI as sg
 from PIL import Image
 
+# Chemin d'accés du dossier avec les petites images
 mypath = "C:\\Users\\PRAN152\\Pictures\\organized-data\\"
 
+# Chemin d'accés du dossier (vide) avec le texte généré
 mypath2 = "C:\\Users\\PRAN152\\Pictures\\transloc\\"
 
 i = 1
