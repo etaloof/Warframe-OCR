@@ -2,6 +2,7 @@ import pytesseract
 import cv2
 import numpy as np
 from spellcheck import SpellCheck
+import uuid
 
 spell_check = SpellCheck('ref/ref_words_ocr.txt')
 
@@ -33,6 +34,19 @@ pos_list = [((99, 204, 139, 226), (101, 319, 259, 365)),
             ((750, 813, 790, 832), (747, 928, 906, 974)),
             ((966, 813, 1006, 832), (965, 928, 1124, 974))
             ]
+
+
+def apply_threshold(img, argument):
+    switcher = {
+        1: cv2.threshold(cv2.GaussianBlur(img, (9, 9), 0), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+        2: cv2.threshold(cv2.GaussianBlur(img, (7, 7), 0), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+        3: cv2.threshold(cv2.GaussianBlur(img, (5, 5), 0), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+        4: cv2.threshold(cv2.medianBlur(img, 5), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+        5: cv2.threshold(cv2.medianBlur(img, 3), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1],
+        6: cv2.adaptiveThreshold(cv2.GaussianBlur(img, (5, 5), 0), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2),
+        7: cv2.adaptiveThreshold(cv2.medianBlur(img, 3), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2),
+    }
+    return switcher.get(argument, "Invalid method")
 
 
 def purify_result(text):
@@ -102,17 +116,20 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity):
     relic_raw = cv2.imread('relic6.png')
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
+    upscaled = cv2.resize(greyed_image, None, fx=3, fy=3, interpolation=cv2.INTER_CUBIC)
     kernel = np.ones((1, 1), np.uint8)
-    img = cv2.dilate(greyed_image, kernel, iterations=1)
+    img = cv2.dilate(upscaled, kernel, iterations=1)
     kernelled = cv2.erode(img, kernel, iterations=1)
+
+    imgtresh = apply_threshold(kernelled, 7)
     # Find text via PyTesseract
     pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-    tessdata_dir_config = '--tessdata-dir "C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWZabcdefghiklmnopqrstuvwz123456789'
+    tessdata_dir_config = '--tessdata-dir "C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\tessdata" -l Roboto --oem 1 --psm 7 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWZabcdefghiklmnopqrstuvwz123456789 get.images'
     # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l Roboto-ori --oem 3  -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789'
-    text = pytesseract.image_to_string(kernelled, config=tessdata_dir_config)
+    text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
     # relic_list.append(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct())) + quantity))
-    cv2.imwrite('test_img_ocr/' + purify_result(text) + '.jpg', kernelled)
-    print(purify_result(text) + ' ' + quantity)
+    cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
+    # print(purify_result(text) + ' ' + quantity)
     # print(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct()))) + ' ' + quantity)
 
 
@@ -131,7 +148,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4):
         kernelled = cv2.erode(img, kernel, iterations=1)
         # Find text via PyTesseract
         pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-        tessdata_dir_config = '--tessdata-dir "C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789'
+        tessdata_dir_config = '--tessdata-dir "C:\\Users\\PRAN152\\Documents\\-- Perso --\\GitHub\\Warframe-OCR\\tessdata" -l Roboto --oem 1 --psm 7 -c tessedit_char_whitelist=Xx0123456789'
         # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l Roboto-ori2 --oem 3  -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789'
         text = pytesseract.image_to_string(kernelled, config=tessdata_dir_config)
         spell_check.check(text.casefold())
