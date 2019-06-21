@@ -15,7 +15,7 @@ def launch_ui(img):
 
     layout = [
                   [sg.Text('Entrez le texte'), ],
-                  [sg.InputText(focus=True, key='lel')],
+                  [sg.InputText(focus=True)],
                   [sg.Image(img)],
                   [sg.Submit()]
                  ]
@@ -32,7 +32,7 @@ for filename in os.listdir(mypath):
     im = Image.open(src)
     rgb_im = im.convert('RGB')
     rgb_im.save(dst + '.png')
-    img_view = mypath + filename[:-4] + '.png'
+    img_view = dst + '.png'
     val = launch_ui(img_view)
     outF = open(mypath2 + str(i) + '.gt.txt', "w")
     outF.write(val)
@@ -40,6 +40,5 @@ for filename in os.listdir(mypath):
     im2 = Image.open(img_view)
     rgb_im2 = im2.convert('RGB')
     rgb_im2.save(dst + '.tif')
-    os.remove(dst + '.tif')
+    os.remove(dst + '.png')
     i += 1
-
