@@ -136,15 +136,14 @@ def is_vaulted(a1, a2):
 
 # Get the image from discord url
 def image_from_url(url):
-    print('image_from_url !')
     url_response = requests.get(url, stream=True)
     nparr = np.frombuffer(url_response.content, np.uint8)
     image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     return image
 
 
+# Launch OCR processing and return all relics in a discord message
 def process_image(image):
-    print('process')
     relic_list = ocr_loop(image)
     message = ''
     for i in relic_list:
