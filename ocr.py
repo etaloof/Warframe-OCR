@@ -49,41 +49,41 @@ def apply_threshold(img, argument):
     return switcher.get(argument, "Invalid method")
 
 
-def ocr_reorganize(string):
+def ocr_extract_quality(string):
+    matchs = ("exceptionnelle", "impeccable", "eclatante", "exceptional", "flawless", "radiant")
+    if any(s in string for s in matchs):
+        return string.split("\n")[-1]
+    else:
+        return "intact"
+
+
+def ocr_extract_era(string):
     if 'relique' in string:
-        str_split = 'relique' + string.split("relique")[1]
-        if 'lith' in str_split:
-            return str_split.replace('lith', 'lith ')
-        if 'neo' in str_split:
-            return str_split.replace('neo', 'neo ')
-        if 'meso' in str_split:
-            return str_split.replace('meso', 'meso ')
-        if 'axi' in str_split:
-            return str_split.replace('axi', 'axi ')
+        return string.split("\n")[0].split("relique")[1][:-2]
     if 'relic' in string:
-        str_split = 'relic ' + string.split("relic")[0]
-        if 'lith' in str_split:
-            return str_split.replace('lith', 'lith ')
-        if 'neo' in str_split:
-            return str_split.replace('neo', 'neo ')
-        if 'meso' in str_split:
-            return str_split.replace('meso', 'meso ')
-        if 'axi' in str_split:
-            return str_split.replace('axi', 'axi ')
+        return string.split("relic")[0][:-2]
 
 
-def purify_result(text):
-    # Lowercase and remove spaces at the end
+def ocr_extract_name(string):
+    if 'relique' in string:
+        return string.split("\n")[0].split("relique")[1][-2:]
+    if 'relic' in string:
+        return string.split("relic")[0][-2:]
+
+
+def extract_vals(text):
     p_string = text.casefold().rstrip()
-    # Re-arrange the order of words
-    p_string = ocr_reorganize(p_string)
 
-    # p_string = ocr_correct_pass1(p_string)
-    # p_string = ocr_correct_pass2(p_string)
+    quality = ocr_extract_quality(p_string)
+
+    era = ocr_extract_era(p_string)
+
+    name = ocr_extract_name(p_string)
+
     # spell_check.check(p_string.casefold())
     # p_string = spell_check.correct()
 
-    return p_string
+    return era, name, quality
 
 
 def check_for_sign(img):
@@ -102,30 +102,6 @@ def check_for_sign(img):
     return count
 
 
-def ocr_correct_pass2(string):
-    if 'm so' in string:
-        return string.replace('m so', 'meso', 1)
-    if 'me so' in string:
-        return string.replace('me so', 'meso', 1)
-    if 'mcsd' in string:
-        return string.replace('mcsd', 'meso', 1)
-    else:
-        return string
-
-
-def ocr_correct_pass1(string):
-    if string[-1] == "t":
-        return string[:-1] + "1"
-    if string[-1] == "z":
-        return string[:-1] + "2"
-    if string[-1] == "s":
-        return string[:-1] + "8"
-    if string[-1] == "g":
-        return string[:-1] + "8"
-    else:
-        return string
-
-
 def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
     # upperY:downerY, LeftX:RightX
     cropped = img[upper_y:downer_y, left_x:right_x]
@@ -133,7 +109,7 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def data_pass_name(pos1, pos2, pos3, pos4, quantity):
-    relic_raw = cv2.imread('relic4.png')
+    relic_raw = cv2.imread('relic5.png')
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
@@ -146,16 +122,17 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity):
     ret, imgtresh = cv2.threshold(kernelled, 215, 255, cv2.THRESH_BINARY_INV)
     # Find text via PyTesseract
     pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-    tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 --psm 7 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
+    tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
     text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
     # relic_list.append(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct())) + quantity))
     cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
-    print(purify_result(text) + ' ' + quantity)
+    print(extract_vals(text) + (quantity,))
+    # print(purify_result(text) + ' ' + quantity)
     # print(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct()))) + ' ' + quantity)
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4):
-    relic_raw = cv2.imread('relic4.png')
+    relic_raw = cv2.imread('relic5.png')
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
@@ -173,6 +150,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4):
         pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
         tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 --psm 7 -c tessedit_char_whitelist=Xx0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
+        cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
         spell_check.check(text.casefold())
         return spell_check.correct()
 
@@ -180,6 +158,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4):
 def ocr_loop():
     for i in pos_list:
         nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2])
+        # print(nb)
         if nb is False:
             print('Relique inexistante')
         elif nb == '':
