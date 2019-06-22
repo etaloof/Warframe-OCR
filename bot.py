@@ -3,6 +3,8 @@ from discord.ext import commands
 import asyncio
 from utils import *
 from db_operations import *
+import urllib.request
+
 
 # Initialize ##################################################################################
 
@@ -145,7 +147,10 @@ async def ressourcedrop(ctx):
 
 @bot.command()
 async def ocrtest(ctx):
-    print(ctx.attachments[0]['url'])
+    url = ctx.message.attachments[0].url
+    image = image_from_url(url)
+    message = process_image(image)
+    await ctx.send(message)
 
 bot.loop.create_task(task_vault_update(7200))
 bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XQUmRg.XXveAx0-lE1CKvI6F3y-Mh1uoP4")

@@ -1,5 +1,9 @@
 from spellcheck import SpellCheck
 from scrap import update_vault_list
+from ocr import ocr_loop
+import numpy as np
+import cv2
+import requests
 
 # Initialize ##################################################################################
 
@@ -128,3 +132,21 @@ def is_vaulted(a1, a2):
         return '**Vaulted**'
     else:
         return 'Unvaulted'
+
+
+# Get the image from discord url
+def image_from_url(url):
+    print('image_from_url !')
+    url_response = requests.get(url, stream=True)
+    nparr = np.frombuffer(url_response.content, np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    return image
+
+
+def process_image(image):
+    print('process')
+    relic_list = ocr_loop(image)
+    message = ''
+    for i in relic_list:
+        message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
+    return message
