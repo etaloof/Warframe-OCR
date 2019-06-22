@@ -108,8 +108,8 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
     return cropped
 
 
-def data_pass_name(pos1, pos2, pos3, pos4, quantity):
-    relic_raw = cv2.imread('relic5.png')
+def data_pass_name(pos1, pos2, pos3, pos4, quantity, image):
+    relic_raw = image
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
@@ -124,15 +124,12 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity):
     pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
     tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
     text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
-    # relic_list.append(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct())) + quantity))
     cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
-    print(extract_vals(text) + (quantity,))
-    # print(purify_result(text) + ' ' + quantity)
-    # print(ocr_correc_pass1(ocr_correct_pass2(ocr_split(spell_check.correct()))) + ' ' + quantity)
+    relic_list.append(extract_vals(text) + (quantity,))
 
 
-def data_pass_nb(pos1, pos2, pos3, pos4):
-    relic_raw = cv2.imread('relic5.png')
+def data_pass_nb(pos1, pos2, pos3, pos4, image):
+    relic_raw = image
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
@@ -155,19 +152,17 @@ def data_pass_nb(pos1, pos2, pos3, pos4):
         return spell_check.correct()
 
 
-def ocr_loop():
+def ocr_loop(image):
+    print('ocr_loop !')
     for i in pos_list:
-        nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2])
-        # print(nb)
+        nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], image)
         if nb is False:
-            print('Relique inexistante')
+            pass
         elif nb == '':
             quantity = '1'
-            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity)
+            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, image)
         else:
             quantity = nb[1:]
-            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity)
+            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, image)
+    return relic_list
 
-
-if __name__ == '__main__':
-    ocr_loop()
