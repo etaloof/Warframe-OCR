@@ -5,6 +5,7 @@ import uuid
 from PIL import Image
 
 
+# Extract quality from the ocr result
 def ocr_extract_quality(string):
     matchs = ("exceptionnelle", "impeccable", "eclatante", "exceptional", "flawless", "radiant")
     if any(s in string for s in matchs):
@@ -13,6 +14,7 @@ def ocr_extract_quality(string):
         return "intact"
 
 
+# Extract era from the ocr result
 def ocr_extract_era(string):
     if 'relique' in string:
         return string.split("\n")[0].split("relique")[1][:-2]
@@ -20,6 +22,7 @@ def ocr_extract_era(string):
         return string.split("relic")[0][:-2]
 
 
+# Extract Name from the ocr result
 def ocr_extract_name(string):
     if 'relique' in string:
         return string.split("\n")[0].split("relique")[1][-2:]
@@ -27,6 +30,7 @@ def ocr_extract_name(string):
         return string.split("relic")[0][-2:]
 
 
+# Extract values from the ocr result
 def extract_vals(text):
     p_string = text.casefold().rstrip()
     quality = ocr_extract_quality(p_string)
@@ -35,6 +39,7 @@ def extract_vals(text):
     return era, name, quality
 
 
+# Check for specific sprite to see if the relic exist
 def check_for_sign(img):
     precision = 0.96
     path_to_img = r'./relic_templatev2.png'
@@ -51,6 +56,7 @@ def check_for_sign(img):
     return count
 
 
+# Crop an area of a relic
 def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
     # upperY:downerY, LeftX:RightX
     cropped = img[upper_y:downer_y, left_x:right_x]
@@ -62,41 +68,35 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
     upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-
     if check_for_sign(greyed_image) >= 1:
         return False
     else:
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
-
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
-        cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
         return text.casefold()
 
 
+# Detect the theme used in the UI screenshot
 def get_theme(image):
     image = Image.fromarray(image)
     print('set theme')
     if image.load()[115, 86] == (102, 169, 190):
-        print('1')
         return 'Virtuvian'
     if image.load()[115, 86] == (35, 31, 153):
-        print('2')
         return 'Stalker'
     if image.load()[115, 86] == (255, 255, 255):
-        print('3')
         return 'Ancient'
     if image.load()[115, 86] == (167, 159, 158):
-        print('4')
         return 'Equinox'
     else:
-        print('bad')
         return 'Bad'
 
 
+# Image processing for better detection after
 def create_mask(theme, img):
     if theme == 'Virtuvian':
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -155,21 +155,17 @@ class OcrCheck:
     def data_pass_name(self, pos1, pos2, pos3, pos4, quantity, image, theme):
         relic_raw = image
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
-        # greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
         upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
-
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
-        cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
         self.relic_list.append(extract_vals(text) + (quantity,))
 
     def ocr_loop(self):
         for i in self.pos_list:
-            print(self.theme)
             nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme)
             if nb is False:
                 pass
@@ -179,7 +175,6 @@ class OcrCheck:
             else:
                 quantity = nb[1:]
                 self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme)
-        print(self.relic_list)
         return self.relic_list
 
 
