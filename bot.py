@@ -3,7 +3,6 @@ from discord.ext import commands
 import asyncio
 from utils import *
 from db_operations import *
-import urllib.request
 
 
 # Initialize ##################################################################################
