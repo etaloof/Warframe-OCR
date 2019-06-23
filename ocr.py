@@ -157,6 +157,7 @@ def ocr_loop(image):
     for i in pos_list:
         print('ocr_loop')
         nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], image)
+        print('nb_pass')
         if nb is False:
             pass
         elif nb == '':
