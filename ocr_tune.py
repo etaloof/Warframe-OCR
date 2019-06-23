@@ -121,8 +121,9 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity):
 
     ret, imgtresh = cv2.threshold(kernelled, 218, 255, cv2.THRESH_BINARY_INV)
     # Find text via PyTesseract
-    pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-    tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
+    # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
+    # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
+    tessdata_dir_config = '--tessdata-dir "/home/demokdawa/Warframe-OCR/tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
     text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
     print(text)
     cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
