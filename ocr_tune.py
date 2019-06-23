@@ -109,7 +109,7 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def data_pass_name(pos1, pos2, pos3, pos4, quantity):
-    relic_raw = cv2.imread('relic6.png')
+    relic_raw = cv2.imread('test.png')
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
@@ -119,7 +119,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity):
     img = cv2.dilate(upscaled, kernel, iterations=1)
     kernelled = cv2.erode(img, kernel, iterations=1)
 
-    ret, imgtresh = cv2.threshold(kernelled, 130, 255, cv2.THRESH_BINARY_INV)
+    ret, imgtresh = cv2.threshold(kernelled, 215, 255, cv2.THRESH_BINARY_INV)
     # Find text via PyTesseract
     pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
     tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
@@ -130,7 +130,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity):
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4):
-    relic_raw = cv2.imread('relic6.png')
+    relic_raw = cv2.imread('test.png')
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
@@ -143,7 +143,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4):
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
 
-        ret, imgtresh = cv2.threshold(kernelled, 130, 255, cv2.THRESH_BINARY_INV)
+        ret, imgtresh = cv2.threshold(kernelled, 215, 255, cv2.THRESH_BINARY_INV)
         # Find text via PyTesseract
         pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
         tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 --psm 7 -c tessedit_char_whitelist=Xx0123456789 get.images'
