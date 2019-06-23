@@ -1,15 +1,35 @@
-from bs4 import BeautifulSoup
+import pytesseract
+import cv2
+import numpy as np
+from spellcheck import SpellCheck
+import uuid
+from PIL import Image
 import requests
-import re
 
-page_link = 'https://n8k6e2y6.ssl.hwcdn.net/repos/hnfvc0o3jnfvc873njb03enrf56.html'
-page_response = requests.get(page_link, timeout=5)
-page_content = BeautifulSoup(page_response.content, "html.parser")
+url = 'https://cdn.discordapp.com/attachments/521377325888307203/590826303956189204/unknown.png'
 
-r_relic_list = []
-for text in page_content.findAll('td', string=re.compile("Relic$")):
-    b = text.get_text()
-    r_relic_list.append(b)
-d_relic_list = list(dict.fromkeys(r_relic_list))
-n_relic_list = sorted(d_relic_list)
-print(n_relic_list)
+
+def image_from_url(urls):
+    url_response = requests.get(urls, stream=True)
+    nparr = np.frombuffer(url_response.content, np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    return image
+
+
+def get_theme(t):
+    if t.load()[115, 86] == (102, 169, 190):
+        return 'Brown'
+    if t.load()[115, 86] == (35, 31, 153):
+        return 'Red'
+    if t.load()[115, 86] == (255, 255, 255):
+        return 'Blue'
+    else:
+        return t.load()[115, 86]
+
+
+s = image_from_url(url)
+d = Image.fromarray(s)
+print(type(d))
+print(get_theme(d))
+
+
