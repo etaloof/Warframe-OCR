@@ -126,7 +126,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity):
     text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
     print(text)
     cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
-    # relic_list.append(extract_vals(text) + (quantity,))
+    relic_list.append(extract_vals(text) + (quantity,))
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4):
@@ -150,6 +150,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4):
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
         spell_check.check(text.casefold())
+        print(text)
         return spell_check.correct()
 
 
@@ -159,6 +160,9 @@ def ocr_loop():
         if nb is False:
             pass
         elif nb == '':
+            quantity = '1'
+            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity)
+        elif nb == '1':
             quantity = '1'
             data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity)
         else:

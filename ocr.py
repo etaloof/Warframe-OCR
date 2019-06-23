@@ -163,6 +163,9 @@ def ocr_loop(image):
         elif nb == '':
             quantity = '1'
             data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, image)
+        elif nb == '1':
+            quantity = '1'
+            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity)
         else:
             quantity = nb[1:]
             data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, image)
