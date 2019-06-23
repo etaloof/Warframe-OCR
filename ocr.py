@@ -89,6 +89,9 @@ def get_theme(image):
     if image.load()[115, 86] == (255, 255, 255):
         print('3')
         return 'Ancient'
+    if image.load()[115, 86] == (167, 159, 158):
+        print('4')
+        return 'Equinox'
     else:
         print('bad')
         return 'Bad'
@@ -108,6 +111,8 @@ def create_mask(theme, img):
         mask = cv2.inRange(hsv, lower_red, upper_red)
         return mask
     if theme == 'Ancient':
+        return img
+    if theme == 'Equinox':
         return img
 
 
