@@ -56,11 +56,11 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
     return cropped
 
 
-def data_pass_nb(pos1, pos2, pos3, pos4, image):
+def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
     relic_raw = image
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
-    upscaled = cv2.resize(greyed_image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+    upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
 
     if check_for_sign(greyed_image) >= 1:
         return False
@@ -69,7 +69,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image):
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
 
-        ret, imgtresh = cv2.threshold(kernelled, 215, 255, cv2.THRESH_BINARY_INV)
+        ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
         # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 --psm 7 -c tessedit_char_whitelist=Xx0123456789 get.images'
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
@@ -78,10 +78,31 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image):
         return text.casefold()
 
 
+def get_theme(image):
+    if str(image[115, 86]) == '[4 4 4]':
+        return 'Red'
+    if str(image[115, 86]) == '[5 0 1]':
+        return 'Brown'
+    if str(image[115, 86]) == '[57 43 20]':
+        return 'Blue'
+    else:
+        print(image[115, 86])
+
+
+def create_mask(theme, img):
+    if theme == 'Brown':
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower_brown = np.array([-3, 80, 80])
+        upper_brown = np.array([43, 255, 255])
+        mask = cv2.inRange(hsv, lower_brown, upper_brown)
+        return mask
+
+
 class OcrCheck:
     def __init__(self, image):
         self.image = image
         self.relic_list = []
+        self.theme = get_theme(self.image)
         # Ecart X entre les reliques d'une même ligne : 218, y : 201
         # Block1 = Nombre, Block2 = Nom | LeftX, UpperY, RightX, DownerY
         self.pos_list = [((99, 204, 139, 226), (101, 319, 259, 365)),
@@ -109,16 +130,16 @@ class OcrCheck:
                          ((966, 813, 1006, 832), (965, 928, 1124, 974))
                          ]
 
-    def data_pass_name(self, pos1, pos2, pos3, pos4, quantity, image):
+    def data_pass_name(self, pos1, pos2, pos3, pos4, quantity, image, theme):
         relic_raw = image
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
-        greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
-        upscaled = cv2.resize(greyed_image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+        # greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
+        upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
 
-        ret, imgtresh = cv2.threshold(kernelled, 215, 255, cv2.THRESH_BINARY_INV)
+        ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
         # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
@@ -128,15 +149,15 @@ class OcrCheck:
 
     def ocr_loop(self):
         for i in self.pos_list:
-            nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image)
+            nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme)
             if nb is False:
                 pass
             elif nb == '':
                 quantity = '1'
-                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image)
+                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme)
             else:
                 quantity = nb[1:]
-                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image)
+                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme)
         print(self.relic_list)
         return self.relic_list
 

@@ -108,68 +108,101 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
     return cropped
 
 
-def data_pass_name(pos1, pos2, pos3, pos4, quantity):
-    relic_raw = cv2.imread('test.png')
-    cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
-    greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
+def get_theme():
+    relic_raw = cv2.imread('relic3.png')
+    if str(relic_raw[115, 86]) == '[4 4 4]':
+        return 'Red'
+    if str(relic_raw[115, 86]) == '[5 0 1]':
+        return 'Brown'
+    if str(relic_raw[115, 86]) == '[57 43 20]':
+        return 'Blue'
+    else:
+        print(relic_raw[115, 86])
 
-    upscaled = cv2.resize(greyed_image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+
+def create_mask(theme, img):
+    if theme == 'Brown':
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower_brown = np.array([-3, 80, 80])
+        upper_brown = np.array([43, 255, 255])
+        mask = cv2.inRange(hsv, lower_brown, upper_brown)
+        return mask
+
+
+def data_pass_name(pos1, pos2, pos3, pos4, quantity, theme):
+    relic_raw = cv2.imread('relic3.png')
+    cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
+    # greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
+
+    upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
 
     kernel = np.ones((1, 1), np.uint8)
     img = cv2.dilate(upscaled, kernel, iterations=1)
     kernelled = cv2.erode(img, kernel, iterations=1)
 
-    ret, imgtresh = cv2.threshold(kernelled, 218, 255, cv2.THRESH_BINARY_INV)
-    # Find text via PyTesseract
-    # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-    # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
-    tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
+    # lower_red = np.array([159, 100, 100])
+    # upper_red = np.array([199, 255, 255])
+
+    ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
+
+    cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
+
+    pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
+    tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
+    # tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
     text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
     print(text)
-    cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
-    relic_list.append(extract_vals(text) + (quantity,))
+    # cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
+    # relic_list.append(extract_vals(text) + (quantity,))
 
 
-def data_pass_nb(pos1, pos2, pos3, pos4):
-    relic_raw = cv2.imread('test.png')
+def data_pass_nb(pos1, pos2, pos3, pos4, theme):
+    relic_raw = cv2.imread('relic3.png')
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
-    upscaled = cv2.resize(greyed_image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+    upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
 
     if (check_for_sign(greyed_image)) >= 1:
         return False
     else:
+
+        # lower_red = np.array([159, 100, 100])
+        # upper_red = np.array([199, 255, 255])
+
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
 
-        ret, imgtresh = cv2.threshold(kernelled, 218, 255, cv2.THRESH_BINARY_INV)
-        # Find text via PyTesseract
-        # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-        # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
-        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
-        text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
+        ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
+
         cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
+
+        # Find text via PyTesseract
+        pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
+        tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
+        # tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
+        text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         spell_check.check(text.casefold())
         print(text)
         return spell_check.correct()
 
 
 def ocr_loop():
+    theme = get_theme()
     for i in pos_list:
-        nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2])
+        nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], theme)
         if nb is False:
             pass
         elif nb == '':
             quantity = '1'
-            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity)
+            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, theme)
         elif nb == '1':
             quantity = '1'
-            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity)
+            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, theme)
         else:
             quantity = nb[1:]
-            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity)
+            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, theme)
     print(relic_list)
 
 
