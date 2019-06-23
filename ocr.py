@@ -89,6 +89,7 @@ def get_theme(image):
         print('3')
         return 'Blue'
     else:
+        print('tamer')
         print(Image.open(image).load()[115, 86])
 
 
