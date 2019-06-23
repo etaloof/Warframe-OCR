@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from spellcheck import SpellCheck
 import uuid
+from PIL import Image
 
 spell_check = SpellCheck('ref/ref_words_ocr.txt')
 
@@ -109,15 +110,8 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def get_theme():
-    relic_raw = cv2.imread('relic3.png')
-    if str(relic_raw[115, 86]) == '[4 4 4]':
-        return 'Red'
-    if str(relic_raw[115, 86]) == '[5 0 1]':
-        return 'Brown'
-    if str(relic_raw[115, 86]) == '[57 43 20]':
-        return 'Blue'
-    else:
-        print(relic_raw[115, 86])
+    relic_raw = Image.open('relic4.png').load()[115, 86]
+    print(relic_raw)
 
 
 def create_mask(theme, img):
@@ -126,6 +120,12 @@ def create_mask(theme, img):
         lower_brown = np.array([-3, 80, 80])
         upper_brown = np.array([43, 255, 255])
         mask = cv2.inRange(hsv, lower_brown, upper_brown)
+        return mask
+    if theme == 'Red':
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower_red = np.array([159, 80, 80])
+        upper_red = np.array([199, 255, 255])
+        mask = cv2.inRange(hsv, lower_red, upper_red)
         return mask
 
 
