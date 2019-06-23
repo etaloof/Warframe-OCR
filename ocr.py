@@ -139,10 +139,11 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image):
 
     upscaled = cv2.resize(greyed_image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
 
-    if (check_for_sign(greyed_image)) >= 1:
+    if check_for_sign(greyed_image) >= 1:
         print('nb_pass_finish')
         return False
     else:
+        print('choice_2')
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
