@@ -6,8 +6,6 @@ import uuid
 
 spell_check = SpellCheck('ref/ref_words_ocr.txt')
 
-relic_list = []
-
 # Ecart X entre les reliques d'une même ligne : 218, y : 201
 # Block1 = Nombre, Block2 = Nom | LeftX, UpperY, RightX, DownerY
 pos_list = [((99, 204, 139, 226), (101, 319, 259, 365)),
@@ -154,6 +152,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image):
 
 
 def ocr_loop(image):
+    relic_list = []
     for i in pos_list:
         nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], image)
         if nb is False:
