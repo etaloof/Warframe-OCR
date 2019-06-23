@@ -110,8 +110,14 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def get_theme():
-    relic_raw = Image.open('relic4.png').load()[115, 86]
-    print(relic_raw)
+    if Image.open('relic3.png').load()[115, 86] == (190, 169, 102, 255):
+        return 'Brown'
+    if Image.open('relic3.png').load()[115, 86] == (153, 31, 35, 255):
+        return 'Red'
+    if Image.open('relic3.png').load()[115, 86] == (255, 255, 255, 255):
+        return 'Blue'
+    else:
+        return 'Non'
 
 
 def create_mask(theme, img):
@@ -120,12 +126,14 @@ def create_mask(theme, img):
         lower_brown = np.array([-3, 80, 80])
         upper_brown = np.array([43, 255, 255])
         mask = cv2.inRange(hsv, lower_brown, upper_brown)
+        print('mask set')
         return mask
     if theme == 'Red':
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         lower_red = np.array([159, 80, 80])
         upper_red = np.array([199, 255, 255])
         mask = cv2.inRange(hsv, lower_red, upper_red)
+        print('mask set')
         return mask
 
 
@@ -147,9 +155,9 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, theme):
 
     cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
 
-    pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-    tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
-    # tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
+    # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
+    # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
+    tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
     text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
     print(text)
     # cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
@@ -179,9 +187,9 @@ def data_pass_nb(pos1, pos2, pos3, pos4, theme):
         cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
 
         # Find text via PyTesseract
-        pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-        tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
-        # tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
+        # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
+        # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
+        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         spell_check.check(text.casefold())
         print(text)
