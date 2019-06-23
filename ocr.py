@@ -5,6 +5,7 @@ import uuid
 from PIL import Image
 
 
+
 def ocr_extract_quality(string):
     matchs = ("exceptionnelle", "impeccable", "eclatante", "exceptional", "flawless", "radiant")
     if any(s in string for s in matchs):
@@ -78,14 +79,15 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
 
 
 def get_theme(image):
+    image = Image.fromarray(image)
     print('set theme')
-    if image.load()[115, 86] == (190, 169, 102, 255):
+    if image.load()[115, 86] == (102, 169, 190):
         print('1')
         return 'Brown'
-    if image.load()[115, 86] == (153, 31, 35, 255):
+    if image.load()[115, 86] == (35, 31, 153):
         print('2')
         return 'Red'
-    if image.load()[115, 86] == (255, 255, 255, 255):
+    if image.load()[115, 86] == (255, 255, 255):
         print('3')
         return 'Blue'
     else:
