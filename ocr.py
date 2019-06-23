@@ -87,7 +87,6 @@ def extract_vals(text):
 
 
 def check_for_sign(img):
-    print('checksign')
     precision = 0.96
     path_to_img = r'./relic_templatev2.png'
     path_to_mask = r'./relic_maskv2.png'
@@ -100,7 +99,6 @@ def check_for_sign(img):
     for pt in zip(*loc[::-1]):  # Swap columns and rows
         cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
         count = count + 1
-    print('checksign_finish')
     return count
 
 
@@ -111,7 +109,6 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def data_pass_name(pos1, pos2, pos3, pos4, quantity, image):
-    print('ocr_pass')
     relic_raw = image
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
@@ -133,7 +130,6 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, image):
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4, image):
-    print('nb_pass')
     relic_raw = image
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
@@ -141,10 +137,8 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image):
     upscaled = cv2.resize(greyed_image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
 
     if check_for_sign(greyed_image) >= 1:
-        print('nb_pass_finish')
         return False
     else:
-        print('choice_2')
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
@@ -156,13 +150,11 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image):
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
-        print('nb_pass_finish')
         return text.casefold()
 
 
 def ocr_loop(image):
     for i in pos_list:
-        print('ocr_loop')
         nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], image)
         if nb is False:
             pass
