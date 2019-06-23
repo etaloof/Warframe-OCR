@@ -1,6 +1,6 @@
 from spellcheck import SpellCheck
 from scrap import update_vault_list
-from ocr import ocr_loop
+from ocr import OcrCheck
 import numpy as np
 import cv2
 import requests
@@ -144,9 +144,9 @@ def image_from_url(url):
 
 # Launch OCR processing and return all relics in a discord message
 def process_image(image):
-    relic_list = ocr_loop(image)
+    ocr = OcrCheck(image)
     message = ''
     print('message pass')
-    for i in relic_list:
+    for i in ocr.relic_list:
         message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
     return message
