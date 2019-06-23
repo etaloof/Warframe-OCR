@@ -154,9 +154,8 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image):
         tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 --psm 7 -c tessedit_char_whitelist=Xx0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
-        spell_check.check(text.casefold())
         print('nb_pass_finish')
-        return spell_check.correct()
+        return text.casefold()
 
 
 def ocr_loop(image):
@@ -168,9 +167,6 @@ def ocr_loop(image):
         elif nb == '':
             quantity = '1'
             data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, image)
-        elif nb == '1':
-            quantity = '1'
-            data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity)
         else:
             quantity = nb[1:]
             data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, image)

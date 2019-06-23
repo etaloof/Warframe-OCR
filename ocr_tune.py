@@ -119,7 +119,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity):
     img = cv2.dilate(upscaled, kernel, iterations=1)
     kernelled = cv2.erode(img, kernel, iterations=1)
 
-    ret, imgtresh = cv2.threshold(kernelled, 215, 255, cv2.THRESH_BINARY_INV)
+    ret, imgtresh = cv2.threshold(kernelled, 218, 255, cv2.THRESH_BINARY_INV)
     # Find text via PyTesseract
     pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
     tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
@@ -143,10 +143,11 @@ def data_pass_nb(pos1, pos2, pos3, pos4):
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
 
-        ret, imgtresh = cv2.threshold(kernelled, 215, 255, cv2.THRESH_BINARY_INV)
+        ret, imgtresh = cv2.threshold(kernelled, 218, 255, cv2.THRESH_BINARY_INV)
         # Find text via PyTesseract
-        pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-        tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 --psm 7 -c tessedit_char_whitelist=Xx0123456789 get.images'
+        # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
+        # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
+        tessdata_dir_config = '--tessdata-dir "/home/demokdawa/Warframe-OCR/tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
         spell_check.check(text.casefold())
