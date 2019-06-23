@@ -70,8 +70,6 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
         kernelled = cv2.erode(img, kernel, iterations=1)
 
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
-        # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-        # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 --psm 7 -c tessedit_char_whitelist=Xx0123456789 get.images'
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
@@ -95,6 +93,12 @@ def create_mask(theme, img):
         lower_brown = np.array([-3, 80, 80])
         upper_brown = np.array([43, 255, 255])
         mask = cv2.inRange(hsv, lower_brown, upper_brown)
+        return mask
+    if theme == 'Red':
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower_red = np.array([159, 80, 80])
+        upper_red = np.array([199, 255, 255])
+        mask = cv2.inRange(hsv, lower_red, upper_red)
         return mask
 
 
@@ -140,8 +144,6 @@ class OcrCheck:
         kernelled = cv2.erode(img, kernel, iterations=1)
 
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
-        # pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract"
-        # tessdata_dir_config = '--tessdata-dir "C:\\Users\\Demokdawa\\Documents\\PythonProjects\\Warframe-OCR\\tessdata" -l roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
