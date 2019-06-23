@@ -151,6 +151,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image):
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
         spell_check.check(text.casefold())
+        print('nb_pass_finish')
         return spell_check.correct()
 
 
