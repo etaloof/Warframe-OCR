@@ -80,10 +80,13 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
 def get_theme(image):
     print('set theme')
     if Image.open(image).load()[115, 86] == (190, 169, 102, 255):
+        print('1')
         return 'Brown'
     if Image.open(image).load()[115, 86] == (153, 31, 35, 255):
+        print('2')
         return 'Red'
     if Image.open(image).load()[115, 86] == (255, 255, 255, 255):
+        print('3')
         return 'Blue'
     else:
         print(Image.open(image).load()[115, 86])
