@@ -100,6 +100,7 @@ def check_for_sign(img):
     for pt in zip(*loc[::-1]):  # Swap columns and rows
         cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
         count = count + 1
+    print('checksign_finish')
     return count
 
 
@@ -139,6 +140,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image):
     upscaled = cv2.resize(greyed_image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
 
     if (check_for_sign(greyed_image)) >= 1:
+        print('nb_pass_finish')
         return False
     else:
         kernel = np.ones((1, 1), np.uint8)
