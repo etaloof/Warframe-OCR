@@ -5,7 +5,6 @@ import uuid
 from PIL import Image
 
 
-
 def ocr_extract_quality(string):
     matchs = ("exceptionnelle", "impeccable", "eclatante", "exceptional", "flawless", "radiant")
     if any(s in string for s in matchs):
@@ -83,31 +82,33 @@ def get_theme(image):
     print('set theme')
     if image.load()[115, 86] == (102, 169, 190):
         print('1')
-        return 'Brown'
+        return 'Virtuvian'
     if image.load()[115, 86] == (35, 31, 153):
         print('2')
-        return 'Red'
+        return 'Stalker'
     if image.load()[115, 86] == (255, 255, 255):
         print('3')
-        return 'Blue'
+        return 'Ancient'
     else:
         print('bad')
         return 'Bad'
 
 
 def create_mask(theme, img):
-    if theme == 'Brown':
+    if theme == 'Virtuvian':
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         lower_brown = np.array([-3, 80, 80])
         upper_brown = np.array([43, 255, 255])
         mask = cv2.inRange(hsv, lower_brown, upper_brown)
         return mask
-    if theme == 'Red':
+    if theme == 'Stalker':
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         lower_red = np.array([159, 80, 80])
         upper_red = np.array([199, 255, 255])
         mask = cv2.inRange(hsv, lower_red, upper_red)
         return mask
+    if theme == 'Ancient':
+        return img
 
 
 class OcrCheck:

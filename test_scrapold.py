@@ -6,7 +6,7 @@ import uuid
 from PIL import Image
 import requests
 
-url = 'https://cdn.discordapp.com/attachments/521377325888307203/590826303956189204/unknown.png'
+url = 'https://cdn.discordapp.com/attachments/589088834550235158/592439778822193401/unknown.png'
 
 
 def image_from_url(urls):
