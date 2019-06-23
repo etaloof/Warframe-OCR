@@ -152,6 +152,7 @@ class OcrCheck:
 
     def ocr_loop(self):
         for i in self.pos_list:
+            print(self.theme)
             nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme)
             if nb is False:
                 pass
