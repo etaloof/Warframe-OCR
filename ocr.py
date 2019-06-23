@@ -87,6 +87,7 @@ def extract_vals(text):
 
 
 def check_for_sign(img):
+    print('checksign')
     precision = 0.96
     path_to_img = r'./relic_templatev2.png'
     path_to_mask = r'./relic_maskv2.png'
