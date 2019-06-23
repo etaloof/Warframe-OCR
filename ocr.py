@@ -2,6 +2,7 @@ import pytesseract
 import cv2
 import numpy as np
 import uuid
+from PIL import Image
 
 
 def ocr_extract_quality(string):
@@ -77,14 +78,14 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
 
 
 def get_theme(image):
-    if str(image[115, 86]) == '[4 4 4]':
-        return 'Red'
-    if str(image[115, 86]) == '[5 0 1]':
+    if Image.open(image).load()[115, 86] == (190, 169, 102, 255):
         return 'Brown'
-    if str(image[115, 86]) == '[57 43 20]':
+    if Image.open(image).load()[115, 86] == (153, 31, 35, 255):
+        return 'Red'
+    if Image.open(image).load()[115, 86] == (255, 255, 255, 255):
         return 'Blue'
     else:
-        print(image[115, 86])
+        print(Image.open(image).load()[115, 86])
 
 
 def create_mask(theme, img):

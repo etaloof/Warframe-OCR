@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from spellcheck import SpellCheck
 import uuid
-from PIL import ImageGrab
+from PIL import Image
 
 spell_check = SpellCheck('ref/ref_words_ocr.txt')
 
@@ -110,10 +110,8 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def get_theme():
-    relic_raw = cv2.imread('relic3.png')
-    color = relic_raw[115, 86]
-    hex = (color[0] << 16) + (color[1] << 8) + (color[2])
-    print(color)
+    relic_raw = Image.open('relic4.png').load()[115, 86]
+    print(relic_raw)
 
 
 def create_mask(theme, img):
