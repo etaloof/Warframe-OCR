@@ -146,8 +146,6 @@ def image_from_url(url):
 def process_image(image):
     ocr = OcrCheck(image)
     message = ''
-    print(ocr.ocr_loop)
-    print('message pass')
     for i in ocr.ocr_loop():
         message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
     return message
