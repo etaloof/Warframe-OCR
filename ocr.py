@@ -89,8 +89,8 @@ def get_theme(image):
         print('3')
         return 'Blue'
     else:
-        print('tamer')
-        print(Image.open(image).load()[115, 86])
+        print('bad')
+        return 'Bad'
 
 
 def create_mask(theme, img):
