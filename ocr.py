@@ -130,6 +130,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, image):
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4, image):
+    print('nb_pass')
     relic_raw = image
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
@@ -157,7 +158,6 @@ def ocr_loop(image):
     for i in pos_list:
         print('ocr_loop')
         nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], image)
-        print('nb_pass')
         if nb is False:
             pass
         elif nb == '':
