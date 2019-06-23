@@ -1,8 +1,8 @@
 import pytesseract
 import cv2
 import numpy as np
-import uuid
 from PIL import Image
+import time
 
 
 # Extract quality from the ocr result
@@ -64,6 +64,7 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
+    start = time.time()
     relic_raw = image
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
@@ -77,6 +78,9 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
+        end = time.time()
+        time_taken = end - start
+        print('Time: ', time_taken)
         return text.casefold()
 
 
