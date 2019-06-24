@@ -7,7 +7,7 @@ application = Flask(__name__)
 def index():
     db = sqlite3.connect('relicdb.sqlite3')
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM Relic")
+    cursor.execute('''SELECT * FROM Relic''')
     data = cursor.fetchall()
     return render_template('test.html', data=data)
 
