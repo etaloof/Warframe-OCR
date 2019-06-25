@@ -207,16 +207,13 @@ iframe {
 }
 
 .row .cell:nth-child(2) {
-  width: 160px;
+  width: 840px;
 }
 
 .row .cell:nth-child(3) {
   width: 60px;
 }
 
-.row .cell:nth-child(4) {
-  width: 190px;
-}
 
 
 .table, .row {
