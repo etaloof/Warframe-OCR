@@ -2,7 +2,13 @@ import pytesseract
 import cv2
 import numpy as np
 from PIL import Image
-from utils import spell_correction_ocr
+from spellcheck import SpellCheck
+
+
+def spell_correction_ocr(string):
+    spell_check_ocr = SpellCheck('ref/ref_words_ocr.txt')
+    spell_check_ocr.check(string)
+    return spell_check_ocr.correct().capitalize()
 
 
 # Extract quality from the ocr result
