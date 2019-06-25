@@ -2,16 +2,16 @@ import pytesseract
 import cv2
 import numpy as np
 from PIL import Image
-import time
+from utils import spell_correction_ocr
 
 
 # Extract quality from the ocr result
 def ocr_extract_quality(string):
     matchs = ("exceptionnelle", "impeccable", "eclatante", "exceptional", "flawless", "radiant")
     if any(s in string for s in matchs):
-        return string.split("\n")[-1]
+        return spell_correction_ocr(string.split("\n")[-1])
     else:
-        return "intact"
+        return "Intacte"
 
 
 # Extract era from the ocr result

@@ -149,3 +149,10 @@ def process_image(image):
     for i in ocr.ocr_loop():
         message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
     return message
+
+
+def spell_correction_ocr(string):
+    spell_check_ocr = SpellCheck('ref/ref_ocr.txt')
+    spell_check_ocr.check(string)
+    return spell_check_ocr.correct().capitalize()
+
