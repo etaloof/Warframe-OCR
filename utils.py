@@ -151,8 +151,3 @@ def process_image(image):
     return message
 
 
-def spell_correction_ocr(string):
-    spell_check_ocr = SpellCheck('ref/ref_ocr.txt')
-    spell_check_ocr.check(string)
-    return spell_check_ocr.correct().capitalize()
-
