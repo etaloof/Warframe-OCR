@@ -110,16 +110,16 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def get_theme():
-    if Image.open('relic8.png').load()[115, 86] == (190, 169, 102, 255):
+    if Image.open('relic9.png').load()[115, 86] == (190, 169, 102, 255):
         return 'Brown'
-    if Image.open('relic8.png').load()[115, 86] == (153, 31, 35, 255):
+    if Image.open('relic9.png').load()[115, 86] == (153, 31, 35, 255):
         return 'Red'
-    if Image.open('relic8.png').load()[115, 86] == (255, 255, 255, 255):
+    if Image.open('relic9.png').load()[115, 86] == (255, 255, 255, 255):
         return 'Blue'
-    if Image.open('relic8.png').load()[115, 86] == (158, 159, 167):
+    if Image.open('relic9.png').load()[115, 86] == (158, 159, 167):
         return 'Equinox'
     else:
-        print(Image.open('relic8.png').load()[115, 86])
+        print(Image.open('relic9.png').load()[115, 86])
         return 'Non'
 
 
@@ -147,7 +147,7 @@ def create_mask(theme, img):
 
 
 def data_pass_name(pos1, pos2, pos3, pos4, quantity, theme):
-    relic_raw = cv2.imread('relic8.png')
+    relic_raw = cv2.imread('relic9.png')
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     # greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
@@ -171,7 +171,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, theme):
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4, theme):
-    relic_raw = cv2.imread('relic8.png')
+    relic_raw = cv2.imread('relic9.png')
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
 
