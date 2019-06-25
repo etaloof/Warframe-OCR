@@ -50,7 +50,10 @@
 								{{item[4]}}
 							</div>
 							<div class="cell" data-title="Possesseur">
-								{{item[2]}}
+								{% for item in item[6].split(',')}
+									{{item}}
+								{% for item in item[7].split(',')}
+									{{item}}
 							</div>
 							<div class="cell" data-title="Raffinage">
 								{{item[3]}}
