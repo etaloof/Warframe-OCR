@@ -3,8 +3,18 @@ from collections import defaultdict
 
 db = sqlite3.connect('relicdb.sqlite3')
 cursor = db.cursor()
-cursor.execute('''SELECT Relic.Name, Relic.Era, User.Pseudo, Relic.Quality, Relic.Quantity, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser GROUP BY Relic.Name, Relic.Era, Relic.Quality''')
+cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser GROUP BY Relic.Name, Relic.Era, Relic.Quality''')
 results = cursor.fetchall()
 
-for i in results:
-    print('Relique ' + i[1] + ' ' + i[0] + ' ' + i[3] + ' possédée par ' + i[5].split(',')[0] + ' ' + i[6])
+# for i in results:
+
+tuple1 = ('A1', 'Meso', 'Intacte', 'kenexey,Demokdawa', '1,5')
+
+tuple_f = (tuple1[0], tuple1[1], tuple1[2], tuple1[3].split(",")[0] + '(' + tuple1[4].split(",")[0] + ')' + ' | ' + tuple1[3].split(",")[0] + '(' + tuple1[4].split(",")[0] + ')')
+
+print(tuple_f)
+
+result_list = list_of_lists = [list(elem) for elem in results]
+
+print(result_list)
+
