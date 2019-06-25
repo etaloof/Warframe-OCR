@@ -25,7 +25,7 @@ def tabledex():
         new_string = ' | '.join([f'{owner} ({value})' for owner, value in zip(a.split(','), b.split(','))])
         new_tup = (*element[:-2], new_string)
         results_f.append(new_tup)
-    
+
     return render_template('table.html', data=results_f)
 
 
