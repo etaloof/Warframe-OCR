@@ -180,6 +180,7 @@ class OcrCheck:
             else:
                 quantity = nb[1:]
                 self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme)
+        print(self.relic_list)
         return self.relic_list
 
 
