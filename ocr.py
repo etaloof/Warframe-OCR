@@ -9,7 +9,8 @@ def spell_correction_ocr(string):
     spell_check_ocr = SpellCheck('ref/ref_words_ocr.txt')
     spell_check_ocr.check(string)
     corr_string = spell_check_ocr.correct()
-    return corr_string.capitalize()
+    corr_string_cap = corr_string.capitalize()
+    return corr_string_cap
 
 
 # Extract quality from the ocr result
