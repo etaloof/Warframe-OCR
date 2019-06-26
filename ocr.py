@@ -90,7 +90,6 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
 # Detect the theme used in the UI screenshot
 def get_theme(image):
     image = Image.fromarray(image)
-    print('set theme')
     if image.load()[115, 86] == (102, 169, 190):
         return 'Virtuvian'
     if image.load()[115, 86] == (35, 31, 153):
