@@ -8,9 +8,7 @@ from spellcheck import SpellCheck
 def spell_correction_ocr(string):
     spell_check_ocr = SpellCheck('ref/ref_words_ocr.txt')
     spell_check_ocr.check(string)
-    corr_string = spell_check_ocr.correct().strip().capitalize()
-    print(corr_string)
-    return corr_string
+    return spell_check_ocr.correct().strip().capitalize()
 
 
 # Extract quality from the ocr result
@@ -25,9 +23,9 @@ def ocr_extract_quality(string):
 # Extract era from the ocr result
 def ocr_extract_era(string):
     if 'relique' in string:
-        return string.split("\n")[0].split("relique")[1][:-2]
+        return spell_correction_ocr(string.split("\n")[0].split("relique")[1][:-2])
     if 'relic' in string:
-        return string.split("relic")[0][:-2]
+        return spell_correction_ocr(string.split("relic")[0][:-2])
 
 
 # Extract Name from the ocr result
