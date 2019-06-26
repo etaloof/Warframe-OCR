@@ -47,14 +47,13 @@ def extract_vals(text):
 
 # Check for specific sprite to see if the relic exist
 def check_for_sign(img):
-    precision = 0.955
+    precision = 0.96
     path_to_img = r'./relic_templatev2.png'
     path_to_mask = r'./relic_maskv2.png'
     template = cv2.imread(path_to_img, 0)
     mask = cv2.imread(path_to_mask, 0)
     w, h = template.shape[::-1]
     res = cv2.matchTemplate(img, template, cv2.TM_CCORR_NORMED, mask=mask)
-    print(res)
     loc = np.where(res >= precision)
     count = 0
     for pt in zip(*loc[::-1]):  # Swap columns and rows
@@ -168,6 +167,7 @@ class OcrCheck:
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
+        print(text)
         self.relic_list.append(extract_vals(text) + (quantity,))
 
     def ocr_loop(self):
