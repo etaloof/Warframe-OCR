@@ -168,8 +168,10 @@ class OcrCheck:
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         if text == '':
+            print('1')
             pass
         else:
+            print('2')
             self.relic_list.append(extract_vals(text) + (quantity,))
 
     def ocr_loop(self):
