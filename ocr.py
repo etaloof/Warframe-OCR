@@ -54,6 +54,7 @@ def check_for_sign(img):
     mask = cv2.imread(path_to_mask, 0)
     w, h = template.shape[::-1]
     res = cv2.matchTemplate(img, template, cv2.TM_CCORR_NORMED, mask=mask)
+    print(res)
     loc = np.where(res >= precision)
     count = 0
     for pt in zip(*loc[::-1]):  # Swap columns and rows
