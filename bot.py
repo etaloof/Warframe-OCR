@@ -89,11 +89,13 @@ async def ping(ctx):
     await ctx.send(latency)
 
 
+# Index guide command
 @bot.command()
 async def index(ctx):
     await ctx.send('https://docs.google.com/document/d/1zRJiGvXl1rY21ri0DuirK7BovAsBw1ikc0qCLChx7gw/edit?usp=sharing')
 
 
+# To-finish command
 @bot.command()
 async def todo(ctx):
     await ctx.send('https://docs.google.com/spreadsheets/d/17olsWjmOeoMx60y7jnxmEsTCpATqAbgcZ7nZBQ7FpKg/edit?usp=sharing')
@@ -146,6 +148,7 @@ async def ressourcedrop(ctx):
     await ctx.send('J\'ai pas encore fait la commande, oups !')
 
 
+# OCR-eval command
 @bot.command()
 async def ocrtest(ctx):
     url = ctx.message.attachments[0].url
