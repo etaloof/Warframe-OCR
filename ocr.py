@@ -46,14 +46,14 @@ def ocr_extract_era(string):
 def ocr_extract_name(string):
     if 'relique' in string:
         if 'axi' in string or 'neo' in string:
-            return string.split("\n")[0].split("relique")[1][3:]
+            return string.split("\n")[0].split("relique")[1][3:].capitalize()
         if 'meso' in string or 'lith' in string:
-            return string.split("\n")[0].split("relique")[1][4:]
+            return string.split("\n")[0].split("relique")[1][4:].capitalize()
     if 'relic' in string:
         if 'axi' in string or 'neo' in string:
-            return string.split("relic")[0][3:]
+            return string.split("relic")[0][3:].capitalize()
         if 'meso' in string or 'lith' in string:
-            return string.split("relic")[0][4:]
+            return string.split("relic")[0][4:].capitalize()
 
 
 # Extract values from the ocr result
