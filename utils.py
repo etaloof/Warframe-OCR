@@ -142,12 +142,22 @@ def image_from_url(url):
     return image
 
 
-# Launch OCR processing and return all relics in a discord message
+# Get image size
+def check_image_size(image):
+    height = image.shape[0]
+    width = image.shape[1]
+    return height, width
+
+
+# Check if res is good, and start ocr process
 def process_image(image):
-    ocr = OcrCheck(image)
-    message = ''
-    for i in ocr.ocr_loop():
-        message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
-    return message
+    if check_image_size(image) == (1920, 1080):
+        ocr = OcrCheck(image)
+        message = ''
+        for i in ocr.ocr_loop():
+            message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
+        return message
+    else:
+        print(check_image_size(image))
 
 
