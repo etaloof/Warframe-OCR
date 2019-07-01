@@ -23,17 +23,38 @@ def ocr_extract_quality(string):
 # Extract era from the ocr result
 def ocr_extract_era(string):
     if 'relique' in string:
-        return spell_correction_ocr(string.split("\n")[0].split("relique")[1][:-2])
+        if 'axi' in string:
+            return 'Axi'
+        if 'neo' in string:
+            return 'Neo'
+        if 'meso' in string:
+            return 'Meso'
+        if 'lith' in string:
+            return 'Lith'
     if 'relic' in string:
-        return spell_correction_ocr(string.split("relic")[0][:-2])
+        if 'axi' in string:
+            return 'Axi'
+        if 'neo' in string:
+            return 'Neo'
+        if 'meso' in string:
+            return 'Meso'
+        if 'lith' in string:
+            return 'Lith'
 
 
 # Extract Name from the ocr result
 def ocr_extract_name(string):
     if 'relique' in string:
-        return string.split("\n")[0].split("relique")[1][-2:]
+        if 'axi' in string or 'neo' in string:
+            return string.split("\n")[0].split("relique")[1][3:]
+        if 'meso' in string or 'lith' in string:
+            return string.split("\n")[0].split("relique")[1][4:]
     if 'relic' in string:
-        return string.split("relic")[0][-2:]
+        if 'axi' in string or 'neo' in string:
+            return string.split("relic")[0][3:]
+        if 'meso' in string or 'lith' in string:
+            return string.split("relic")[0][4:]
+
 
 
 # Extract values from the ocr result
@@ -76,7 +97,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
     upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
     if check_for_sign(greyed_image) >= 1:
-        return False
+        return False+
     else:
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
