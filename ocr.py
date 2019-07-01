@@ -90,22 +90,18 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
-    print('nb_pass_started')
     relic_raw = image
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
     upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
     if check_for_sign(greyed_image) >= 1:
-        print('yes')
         return False
     else:
-        print('no')
         print(theme)
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
-        print('good')
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         return text.casefold()
@@ -183,7 +179,6 @@ class OcrCheck:
                          ]
 
     def data_pass_name(self, pos1, pos2, pos3, pos4, quantity, image, theme):
-        print('name_pass_started')
         relic_raw = image
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
         upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
@@ -194,10 +189,8 @@ class OcrCheck:
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         if text == '':
-            print('1')
             pass
         else:
-            print('2')
             self.relic_list.append(extract_vals(text) + (quantity,))
 
     def ocr_loop(self):
