@@ -146,7 +146,7 @@ def image_from_url(url):
 def check_image_size(image):
     height = image.shape[0]
     width = image.shape[1]
-    return height, width
+    return width, height
 
 
 # Check if res is good, and start ocr process
@@ -158,6 +158,6 @@ def process_image(image):
             message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
         return message
     else:
-        print(check_image_size(image))
+        return 'Le screenshot n\'est pas a la bonne résolution !'
 
 
