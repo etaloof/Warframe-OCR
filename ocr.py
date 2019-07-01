@@ -100,6 +100,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
         return False
     else:
         print('no')
+        print(theme)
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
