@@ -34,6 +34,8 @@ async def task_vault_update(timeout):
 async def on_command_error(ctx, message):
     if isinstance(message, commands.UserInputError):
         await ctx.send(message)
+    else:
+        print(message)
 
 
 # Check if number is too high or not an absolute

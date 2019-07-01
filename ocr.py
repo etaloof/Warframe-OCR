@@ -56,7 +56,6 @@ def ocr_extract_name(string):
             return string.split("relic")[0][4:]
 
 
-
 # Extract values from the ocr result
 def extract_vals(text):
     p_string = text.casefold().rstrip()
@@ -97,7 +96,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
     upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
     if check_for_sign(greyed_image) >= 1:
-        return False+
+        return False
     else:
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
