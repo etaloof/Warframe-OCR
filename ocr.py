@@ -23,17 +23,37 @@ def ocr_extract_quality(string):
 # Extract era from the ocr result
 def ocr_extract_era(string):
     if 'relique' in string:
-        return spell_correction_ocr(string.split("\n")[0].split("relique")[1][:-2])
+        if 'axi' in string:
+            return 'Axi'
+        if 'neo' in string:
+            return 'Neo'
+        if 'meso' in string:
+            return 'Meso'
+        if 'lith' in string:
+            return 'Lith'
     if 'relic' in string:
-        return spell_correction_ocr(string.split("relic")[0][:-2])
+        if 'axi' in string:
+            return 'Axi'
+        if 'neo' in string:
+            return 'Neo'
+        if 'meso' in string:
+            return 'Meso'
+        if 'lith' in string:
+            return 'Lith'
 
 
 # Extract Name from the ocr result
 def ocr_extract_name(string):
     if 'relique' in string:
-        return string.split("\n")[0].split("relique")[1][-2:]
+        if 'axi' in string or 'neo' in string:
+            return string.split("\n")[0].split("relique")[1][3:]
+        if 'meso' in string or 'lith' in string:
+            return string.split("\n")[0].split("relique")[1][4:]
     if 'relic' in string:
-        return string.split("relic")[0][-2:]
+        if 'axi' in string or 'neo' in string:
+            return string.split("relic")[0][3:]
+        if 'meso' in string or 'lith' in string:
+            return string.split("relic")[0][4:]
 
 
 # Extract values from the ocr result
@@ -70,6 +90,7 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
 
 
 def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
+    print('nb_pass_started')
     relic_raw = image
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
@@ -158,6 +179,7 @@ class OcrCheck:
                          ]
 
     def data_pass_name(self, pos1, pos2, pos3, pos4, quantity, image, theme):
+        print('name_pass_started')
         relic_raw = image
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
         upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
