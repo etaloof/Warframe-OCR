@@ -135,12 +135,14 @@ def create_mask(theme, img):
         lower_virtu = np.array([-3, 80, 80])
         upper_virtu = np.array([43, 255, 255])
         mask = cv2.inRange(hsv, lower_virtu, upper_virtu)
+        print('mask done')
         return mask
     if theme == 'Stalker':
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         lower_stalk = np.array([159, 80, 80])
         upper_stalk = np.array([199, 255, 255])
         mask = cv2.inRange(hsv, lower_stalk, upper_stalk)
+        print('mask done')
         return mask
     if theme == 'Ancient':
         return img
@@ -149,6 +151,7 @@ def create_mask(theme, img):
         lower_equi = np.array([107, 0, 0])
         upper_equi = np.array([127, 255, 255])
         mask = cv2.inRange(hsv, lower_equi, upper_equi)
+        print('mask done')
         return mask
 
 
