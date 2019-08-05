@@ -132,8 +132,11 @@ def get_theme(image):
 def create_mask(theme, img):
     if theme == 'Virtuvian':
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        print('2.1 passed')
         lower_virtu = np.array([-3, 80, 80])
+        print('2.2 passed')
         upper_virtu = np.array([43, 255, 255])
+        print('2.3 passed')
         mask = cv2.inRange(hsv, lower_virtu, upper_virtu)
         print('mask done')
         return mask
