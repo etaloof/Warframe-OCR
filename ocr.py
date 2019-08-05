@@ -101,12 +101,9 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
         print(theme)
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
-        print('1 passed')
         kernelled = cv2.erode(img, kernel, iterations=1)
-        print('2 passed')
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
-        print('3 passed')
-        cv2.imwrite('test_img_ocr/' + str(uuid.uuid1()) + '.jpg', imgtresh)
+        cv2.imwrite('test_img_ocr/' + 'number_' + str(uuid.uuid1()) + '.jpg', imgtresh)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         print(text)
@@ -131,23 +128,16 @@ def get_theme(image):
 # Image processing for better detection after
 def create_mask(theme, img):
     if theme == 'Virtuvian':
-        print('2.0 passed')
-        cv2.imwrite('test_img_ocr/' + 'imagetest' + '.jpg', img)
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        print('2.1 passed')
         lower_virtu = np.array([-3, 80, 80])
-        print('2.2 passed')
         upper_virtu = np.array([43, 255, 255])
-        print('2.3 passed')
         mask = cv2.inRange(hsv, lower_virtu, upper_virtu)
-        print('mask done')
         return mask
     if theme == 'Stalker':
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         lower_stalk = np.array([159, 80, 80])
         upper_stalk = np.array([199, 255, 255])
         mask = cv2.inRange(hsv, lower_stalk, upper_stalk)
-        print('mask done')
         return mask
     if theme == 'Ancient':
         return img
@@ -156,7 +146,6 @@ def create_mask(theme, img):
         lower_equi = np.array([107, 0, 0])
         upper_equi = np.array([127, 255, 255])
         mask = cv2.inRange(hsv, lower_equi, upper_equi)
-        print('mask done')
         return mask
 
 
@@ -200,6 +189,7 @@ class OcrCheck:
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
+        cv2.imwrite('test_img_ocr/' + 'name_' + str(uuid.uuid1()) + '.jpg', imgtresh)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         if text == '':
