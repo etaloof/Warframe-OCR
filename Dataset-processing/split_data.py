@@ -145,7 +145,7 @@ def ocr_loop(image):
  
 for img in os.listdir(path):
     print(img)
-    print(path + img)
+    print(path + '/' + img)
     if os.path.isfile(path + img):
         img_input = os.path.join(path, img)
         img_name = os.path.splitext(img_input)[0]
