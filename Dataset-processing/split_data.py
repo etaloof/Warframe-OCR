@@ -143,20 +143,20 @@ def ocr_loop(image):
                 quantity = nb[1:]
                 data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, image, theme)
  
-for img in glob.glob(path + "/*.png"):
-# for img in os.listdir(path):
-    img_input = os.path.join(path, img)
-    img_name = os.path.splitext(img_input)[0]
-    imgdata = cv2.imread(img_input)
-    print(img_name + " will process...")
-    if check_image_size(imgdata) == (1920, 1080):
-        if not os.path.exists(img_name):
-            os.mkdir(img_name)
-            ocr_loop(imgdata)
-            print(img_name + " done")
+for img in os.listdir(path):
+    if os.path.isdir(path + img)
+        img_input = os.path.join(path, img)
+        img_name = os.path.splitext(img_input)[0]
+        imgdata = cv2.imread(img_input)
+        print(img_name + " will process...")
+        if check_image_size(imgdata) == (1920, 1080):
+            if not os.path.exists(img_name):
+                os.mkdir(img_name)
+                ocr_loop(imgdata)
+                print(img_name + " done")
+            else:
+                ocr_loop(imgdata)
+                print(img_name + " done")
         else:
-            ocr_loop(imgdata)
-            print(img_name + " done")
-    else:
-        print("Erreur de la résolution image")
+            print("Erreur de la résolution image")
         
