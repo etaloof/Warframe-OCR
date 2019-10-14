@@ -144,7 +144,7 @@ def ocr_loop(image):
                 data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, image, theme)
  
 for img in os.listdir(path):
-    if os.path.isdir(path + img)
+    if os.path.isdir(path + img):
         img_input = os.path.join(path, img)
         img_name = os.path.splitext(img_input)[0]
         imgdata = cv2.imread(img_input)
