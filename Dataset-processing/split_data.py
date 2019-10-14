@@ -147,14 +147,15 @@ for img in os.listdir(path):
     img_input = os.path.join(path, img)
     img_name = os.path.splitext(img_input)[0]
     imgdata = cv2.imread(img_input)
+    print(img_name + " will process...")
     if check_image_size(imgdata) == (1920, 1080):
         if not os.path.exists(img_name):
             os.mkdir(img_name)
             ocr_loop(imgdata)
-            print(img_name + "done")
+            print(img_name + " done")
         else:
             ocr_loop(imgdata)
-            print(img_name + "done")
+            print(img_name + " done")
     else:
         print("Erreur de la résolution image")
         
