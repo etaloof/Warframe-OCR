@@ -144,9 +144,9 @@ for img in os.listdir(path):
     if check_image_size(imgdata) == (1920, 1080):
         if not os.path.exists(img_name):
             os.mkdir(img_name)
-            ocr_loop(image)
+            ocr_loop(imgdata)
         else:
-            ocr_loop(image)
+            ocr_loop(imgdata)
     else:
         print("Erreur de la résolution image")
         
