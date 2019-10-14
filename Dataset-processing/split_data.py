@@ -13,5 +13,5 @@ for img in os.listdir(path):
     imgdata = cv2.imread(img_input)
     if check_image_size(image) == (1920, 1080):
         os.mkdir(os.path.join(path, "img"))
-    else
+    else:
         print("Erreur de la résolution image")
