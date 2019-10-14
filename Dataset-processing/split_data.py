@@ -151,8 +151,10 @@ for img in os.listdir(path):
         if not os.path.exists(img_name):
             os.mkdir(img_name)
             ocr_loop(imgdata)
+            print("done")
         else:
             ocr_loop(imgdata)
+            print("done")
     else:
         print("Erreur de la résolution image")
         
