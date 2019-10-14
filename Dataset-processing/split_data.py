@@ -125,7 +125,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
         kernelled = cv2.erode(img, kernel, iterations=1)
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         cv2.imwrite(img_name + '/number_' + str(uuid.uuid1()) + '.jpg', imgtresh)
-        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
+        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         return text.casefold()
     
