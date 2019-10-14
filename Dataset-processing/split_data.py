@@ -11,7 +11,7 @@ def check_image_size(image):
 
 for img in os.listdir(path):
     img_input = os.path.join(path, img)
-    img name = os.path.splitext(img_input)[0]
+    img_name = os.path.splitext(img_input)[0]
     imgdata = cv2.imread(img_input)
     if check_image_size(imgdata) == (1920, 1080):
         os.mkdir(os.path.join(path, img name))
