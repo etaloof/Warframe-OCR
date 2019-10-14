@@ -69,8 +69,8 @@ def extract_vals(text):
 # Check for specific sprite to see if the relic exist
 def check_for_sign(img):
     precision = 0.96
-    path_to_img = r'./relic_templatev2.png'
-    path_to_mask = r'./relic_maskv2.png'
+    path_to_img = r'./relic_template.png'
+    path_to_mask = r'./relic_mask.png'
     template = cv2.imread(path_to_img, 0)
     mask = cv2.imread(path_to_mask, 0)
     w, h = template.shape[::-1]
