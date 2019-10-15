@@ -109,6 +109,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, image, theme):
     kernelled = cv2.erode(img, kernel, iterations=1)
     ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
     cv2.imwrite(img_name + '/name_' + str(uuid.uuid1()) + '.jpg', imgtresh)
+    call('tesseract {} {} lstmbox'.format(img_name + '/name_' + str(uuid.uuid1()) + '.jpg', img_name + '/name_' + str(uuid.uuid1())), shell=True)
     
     
 def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
@@ -153,11 +154,9 @@ for img in os.listdir(path):
             if not os.path.exists(img_name):
                 os.mkdir(img_name)
                 ocr_loop(imgdata)
-                call('tesseract {} {} lstmbox'.format(img_input, img_name), shell=True)
                 print(img_name + " done")
             else:
                 ocr_loop(imgdata)
-                call('tesseract {} {} lstmbox'.format(img_input, img_name), shell=True)
                 print(img_name + " done")
         else:
             print("Erreur de la résolution image")
