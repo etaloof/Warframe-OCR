@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 import uuid
 import pytesseract
-from subprocess import call
+from subprocess import run
 from pathlib import Path
 
 path = "./source"
@@ -113,7 +113,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, image, theme):
     gen_name_wo_ext = img_name + '/name_' + str(uuid.uuid1())
     gen_name_ext = img_name + '/name_' + str(uuid.uuid1()) + '.jpg'
     cv2.imwrite(gen_name_ext, imgtresh)
-    call('tesseract {} {} lstmbox'.format(gen_name_ext, gen_name_wo_ext, shell=True))
+    subprocess.run('tesseract {} {} lstmbox'.format(gen_name_ext, gen_name_wo_ext, shell=True))
     
     
 def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
