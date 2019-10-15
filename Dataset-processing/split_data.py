@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 import uuid
 import pytesseract
-import glob
+from subprocess import call
 
 path = "./source"
 
