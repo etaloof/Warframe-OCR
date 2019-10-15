@@ -7,7 +7,7 @@ import pytesseract
 from subprocess import call
 
 path = "./source"
-dirpath = os.getcwd()
+dirpath = Path(__file__).resolve().parent
 
 pos_list = [((99, 204, 139, 226), (101, 319, 259, 365)),
                          ((317, 204, 357, 226), (318, 319, 477, 365)),
