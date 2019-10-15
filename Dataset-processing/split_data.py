@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 import uuid
 import pytesseract
-from subprocess import run
+import subprocess
 from pathlib import Path
 
 path = "./source"
