@@ -153,11 +153,11 @@ for img in os.listdir(path):
             if not os.path.exists(img_name):
                 os.mkdir(img_name)
                 ocr_loop(imgdata)
-                call([tesseract img_input img_name lstmbox], shell=True)
+                call('tesseract {} {} lstmbox'.format(img_input, img_name), shell=True)
                 print(img_name + " done")
             else:
                 ocr_loop(imgdata)
-                call([tesseract img_input img_name lstmbox], shell=True)
+                call('tesseract {} {} lstmbox'.format(img_input, img_name), shell=True)
                 print(img_name + " done")
         else:
             print("Erreur de la résolution image")
