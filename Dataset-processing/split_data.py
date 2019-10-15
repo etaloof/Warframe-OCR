@@ -5,6 +5,7 @@ from PIL import Image
 import uuid
 import pytesseract
 from subprocess import call
+from pathlib import Path
 
 path = "./source"
 dirpath = Path(__file__).resolve().parent
