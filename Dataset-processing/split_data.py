@@ -111,7 +111,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, image, theme):
     ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
     gen_name_wo_ext = img_name + '/name_' + str(uuid.uuid1())
     gen_name_ext = img_name + '/name_' + str(uuid.uuid1()) + '.jpg'
-    cv2.imwrite(gen_name, imgtresh)
+    cv2.imwrite(gen_name_ext, imgtresh)
     call('tesseract {} {} lstmbox'.format(gen_name_ext, gen_name_wo_ext, shell=True))
     
     
