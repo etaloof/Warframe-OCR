@@ -7,6 +7,7 @@ import pytesseract
 from subprocess import call
 
 path = "./source"
+dirpath = os.getcwd()
 
 pos_list = [((99, 204, 139, 226), (101, 319, 259, 365)),
                          ((317, 204, 357, 226), (318, 319, 477, 365)),
@@ -108,8 +109,10 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, image, theme):
     img = cv2.dilate(upscaled, kernel, iterations=1)
     kernelled = cv2.erode(img, kernel, iterations=1)
     ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
-    cv2.imwrite(img_name + '/name_' + str(uuid.uuid1()) + '.jpg', imgtresh)
-    call('tesseract {} {} lstmbox'.format(img_name + '/name_' + str(uuid.uuid1()) + '.jpg', img_name + '/name_' + str(uuid.uuid1())), shell=True)
+    gen_name_wo_ext = img_name + '/name_' + str(uuid.uuid1())
+    gen_name_ext = img_name + '/name_' + str(uuid.uuid1()) + '.jpg'
+    cv2.imwrite(gen_name, imgtresh)
+    call('tesseract {} {} lstmbox'.format(gen_name_ext, gen_name_wo_ext, shell=True)
     
     
 def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
