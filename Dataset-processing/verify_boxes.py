@@ -31,5 +31,6 @@ for node_l1 in os.listdir(dirpath):
             if node_l2.endswith('.box'):
                 file = open(os.path.join(dirpath, node_l1, node_l2),'r')
                 img = os.path.join(dirpath, node_l1, node_l2).split('.')[0] + ".png"
-                parse_data_boxes(file, img)
+                # parse_data_boxes(file, img)
+                print(file.read())
             
