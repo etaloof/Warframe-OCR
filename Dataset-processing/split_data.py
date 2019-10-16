@@ -111,7 +111,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, image, theme):
     kernelled = cv2.erode(img, kernel, iterations=1)
     ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
     gen_name_wo_ext = img_name + '/name_' + str(uuid.uuid1())
-    gen_name_ext = img_name + '/name_' + str(uuid.uuid1()) + '.jpg'
+    gen_name_ext = gen_name_wo_ext + '.jpg'
     cv2.imwrite(gen_name_ext, imgtresh)
     subprocess.run("tesseract {} {} lstmbox".format(gen_name_ext, gen_name_wo_ext), shell=True)
     
@@ -129,10 +129,10 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
-        gen_name_wo_ext = img_name + '/number_' + str(uuid.uuid1())
-        gen_name_ext = img_name + '/number_' + str(uuid.uuid1()) + '.jpg'
-        cv2.imwrite(gen_name_ext, imgtresh)
-        subprocess.run("tesseract {} {} lstmbox".format(gen_name_ext, gen_name_wo_ext), shell=True)
+        gen_numb_wo_ext = img_name + '/number_' + str(uuid.uuid1())
+        gen_numb_ext = gen_name_wo_ext + '.jpg'
+        cv2.imwrite(gen_numb_ext, imgtresh)
+        subprocess.run("tesseract {} {} lstmbox".format(gen_numb_ext, gen_numb_wo_ext), shell=True)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         return text.casefold()
