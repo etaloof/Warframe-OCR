@@ -113,7 +113,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, image, theme):
     gen_name_wo_ext = img_name + '/name_' + str(uuid.uuid1())
     gen_name_ext = gen_name_wo_ext + '.png'
     cv2.imwrite(gen_name_ext, imgtresh)
-    subprocess.run("tesseract --psm 1 --tessdata-dir '/home/Warframe-OCR/tessdata' -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 {} {} lstmbox".format(gen_name_ext, gen_name_wo_ext), shell=True)
+    subprocess.run("tesseract --psm 4 --tessdata-dir '/home/Warframe-OCR/tessdata' -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 {} {} lstmbox".format(gen_name_ext, gen_name_wo_ext), shell=True)
     
     
 def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
