@@ -115,7 +115,7 @@ def data_pass_name(pos1, pos2, pos3, pos4, quantity, image, theme):
     kernel = np.ones((1, 1), np.uint8)
     img = cv2.dilate(upscaled, kernel, iterations=1)
     kernelled = cv2.erode(img, kernel, iterations=1)
-    cv2.imwrite("testinput_nbr.png", kernelled)
+    cv2.imwrite(img_name + '/name_' + str(uuid.uuid1()) + '_test.png', kernelled)
     ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
     gen_name_wo_ext = img_name + '/name_' + str(uuid.uuid1())
     gen_name_ext = gen_name_wo_ext + '.png'
@@ -135,7 +135,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
-        cv2.imwrite("testinput_img.png", kernelled)
+        cv2.imwrite(img_name + '/number_' + str(uuid.uuid1()) + '_test.png', kernelled)
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         gen_numb_wo_ext = img_name + '/number_' + str(uuid.uuid1())
         gen_numb_ext = gen_numb_wo_ext + '.png'
