@@ -41,7 +41,8 @@ def check_image_size(image):
     height = image.shape[0]
     width = image.shape[1]
     return width, height
- 
+
+
 # Check for specific sprite to see if the relic exist
 def check_for_sign(img):
     precision = 0.96
@@ -57,7 +58,8 @@ def check_for_sign(img):
         cv2.rectangle(img, pt, (pt[0] + w, pt[1] + h), (0, 0, 255), 2)
         count = count + 1
     return count 
-    
+
+
 # Crop an area of a relic
 def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
     # upperY:downerY, LeftX:RightX
@@ -76,9 +78,12 @@ def get_theme(image):
         return 'Ancient'
     if image.load()[115, 86] == (167, 159, 158):
         return 'Equinox'
+    if image.load()[115, 86] == ():
+        return 'Fortuna'
     else:
         return 'Bad'
-        
+
+
 # Image processing for better detection after
 def create_mask(theme, img):
     if theme == 'Virtuvian':
@@ -101,6 +106,7 @@ def create_mask(theme, img):
         upper_equi = np.array([127, 255, 255])
         mask = cv2.inRange(hsv, lower_equi, upper_equi)
         return mask
+
 
 def data_pass_name(pos1, pos2, pos3, pos4, quantity, image, theme):
     relic_raw = image
@@ -150,7 +156,8 @@ def ocr_loop(image):
             else:
                 quantity = nb[1:]
                 data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, image, theme)
- 
+
+
 for img in os.listdir(dirpath):
     if os.path.isfile(dirpath + '/' + img):
         img_input = os.path.join(dirpath, img)
