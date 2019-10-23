@@ -78,7 +78,7 @@ def get_theme(image):
         return 'Ancient'
     if image.load()[115, 86] == (167, 159, 158):
         return 'Equinox'
-    if image.load()[115, 86] == ():
+    if image.load()[115, 86] == (192, 105, 57):
         return 'Fortuna'
     else:
         return 'Bad'
@@ -104,6 +104,12 @@ def create_mask(theme, img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         lower_equi = np.array([107, 0, 0])
         upper_equi = np.array([127, 255, 255])
+        mask = cv2.inRange(hsv, lower_equi, upper_equi)
+        return mask
+    if theme == 'Fortuna':
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower_equi = np.array([198, 0, 0])
+        upper_equi = np.array([238, 255, 255])
         mask = cv2.inRange(hsv, lower_equi, upper_equi)
         return mask
 
