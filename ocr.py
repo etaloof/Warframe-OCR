@@ -111,6 +111,8 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
 
 
 # Detect the theme used in the UI screenshot
+# Themes : High Constrast - Equinox - Virtuvian - Ancient - Baruuk - Corpus - Fortuna - Grineer - Lotus - Dark lotus - Nidus - Orokin - Stalker - Tenno
+# Supported : Virtuvian - Stalker - Ancient - Equinox
 def get_theme(image):
     image = Image.fromarray(image)
     if image.load()[115, 86] == (102, 169, 190):

@@ -186,4 +186,4 @@ for img in os.listdir(dirpath):
                 print(img_name + " done")
         else:
             print("Erreur de la résolution image")
-        
+
