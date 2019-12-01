@@ -111,6 +111,8 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
 
 
 # Detect the theme used in the UI screenshot
+# Themes : High Constrast - Equinox - Virtuvian - Ancient - Baruuk - Corpus - Fortuna - Grineer - Lotus - Dark lotus - Nidus - Orokin - Stalker - Tenno
+# Supported : Virtuvian - Stalker - Ancient - Equinox
 def get_theme(image):
     image = Image.fromarray(image)
     if image.load()[115, 86] == (102, 169, 190):
@@ -145,6 +147,12 @@ def create_mask(theme, img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         lower_equi = np.array([107, 0, 0])
         upper_equi = np.array([127, 255, 255])
+        mask = cv2.inRange(hsv, lower_equi, upper_equi)
+        return mask
+    if theme == 'Fortuna':
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower_equi = np.array([108, 80, 80])
+        upper_equi = np.array([152, 255, 255])
         mask = cv2.inRange(hsv, lower_equi, upper_equi)
         return mask
 
