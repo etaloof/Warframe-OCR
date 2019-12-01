@@ -5,7 +5,6 @@ from PIL import Image
 import uuid
 import pytesseract
 import subprocess
-from pathlib import Path
 
 path = "./source"
 dirpath = os.getcwd() + '/source'
@@ -111,8 +110,8 @@ def create_mask(theme, img):
         return mask
     if theme == 'Fortuna':
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_equi = np.array([198, 80, 80])
-        upper_equi = np.array([238, 255, 255])
+        lower_equi = np.array([108, 80, 80])
+        upper_equi = np.array([152, 255, 255])
         mask = cv2.inRange(hsv, lower_equi, upper_equi)
         cv2.imwrite('/home/Warframe-OCR/Dataset-processing/source/fortuna_mask.png', mask)
         return mask

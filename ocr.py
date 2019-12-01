@@ -149,6 +149,12 @@ def create_mask(theme, img):
         upper_equi = np.array([127, 255, 255])
         mask = cv2.inRange(hsv, lower_equi, upper_equi)
         return mask
+    if theme == 'Fortuna':
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower_equi = np.array([108, 80, 80])
+        upper_equi = np.array([152, 255, 255])
+        mask = cv2.inRange(hsv, lower_equi, upper_equi)
+        return mask
 
 
 class OcrCheck:
