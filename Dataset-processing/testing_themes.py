@@ -47,7 +47,7 @@ def prepare_img(img_src):
     kernel = np.ones((1, 1), np.uint8)
     img = cv2.dilate(upscaled, kernel, iterations=1)
     kernelled = cv2.erode(img, kernel, iterations=1)
-    ret, imgtresh = cv2.threshold(create_mask("Fortuna", kernelled), 218, 255, cv2.THRESH_BINARY_INV)
+    ret, imgtresh = cv2.threshold(create_mask("Stalker", kernelled), 218, 255, cv2.THRESH_BINARY_INV)
     cv2.imwrite("theme_result.png", imgtresh)
 
 
