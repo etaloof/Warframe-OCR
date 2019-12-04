@@ -104,7 +104,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
         kernelled = cv2.erode(img, kernel, iterations=1)
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         cv2.imwrite('test_img_ocr/' + 'number_' + str(uuid.uuid1()) + '.jpg', imgtresh)
-        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=Xx0123456789 get.images'
+        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l wf_model --oem 1 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         print(text)
         return text.casefold()
@@ -114,6 +114,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
 # Themes : High Constrast - Equinox - Virtuvian - Ancient - Baruuk - Corpus - Fortuna - Grineer - Lotus - Dark lotus - Nidus - Orokin - Stalker - Tenno
 # Supported : Virtuvian - Stalker - Ancient - Equinox
 def get_theme(image):
+    print('testlol')
     image = Image.fromarray(image)
     if image.load()[115, 86] == (102, 169, 190):
         return 'Virtuvian'
@@ -123,6 +124,8 @@ def get_theme(image):
         return 'Ancient'
     if image.load()[115, 86] == (167, 159, 158):
         return 'Equinox'
+    if image.load()[115, 86] == (192, 105, 57):
+        return 'Fortuna'
     else:
         return 'Bad'
 
@@ -198,7 +201,7 @@ class OcrCheck:
         kernelled = cv2.erode(img, kernel, iterations=1)
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         cv2.imwrite('test_img_ocr/' + 'name_' + str(uuid.uuid1()) + '.jpg', imgtresh)
-        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 -c tessedit_char_whitelist=ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789 get.images'
+        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l wf_model --oem 1  get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         if text == '':
             pass
