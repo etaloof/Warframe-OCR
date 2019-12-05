@@ -98,7 +98,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
     if check_for_sign(greyed_image) >= 1:
         return False
     else:
-        print(theme)
+        print('| Theme used is : ' + theme + ' |')
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
@@ -106,7 +106,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
         cv2.imwrite('test_img_ocr/' + 'number_' + str(uuid.uuid1()) + '.jpg', imgtresh)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l wf_model --oem 1 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
-        print(text)
+        print('[ Tesseract output for NB is : ' + text + ' ]')
         return text.casefold()
 
 
@@ -114,7 +114,6 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
 # Themes : High Constrast - Equinox - Virtuvian - Ancient - Baruuk - Corpus - Fortuna - Grineer - Lotus - Dark lotus - Nidus - Orokin - Stalker - Tenno
 # Supported : Virtuvian - Stalker - Ancient - Equinox
 def get_theme(image):
-    print('testlol')
     image = Image.fromarray(image)
     if image.load()[115, 86] == (102, 169, 190):
         return 'Virtuvian'
@@ -203,6 +202,7 @@ class OcrCheck:
         cv2.imwrite('test_img_ocr/' + 'name_' + str(uuid.uuid1()) + '.jpg', imgtresh)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l wf_model --oem 1  get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
+	print('[ Tesseract output for TEXT is : ' + text + ' ]')
         if text == '':
             pass
         else:
