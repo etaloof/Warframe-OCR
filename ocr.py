@@ -223,10 +223,10 @@ class OcrCheck:
         if textocr == '':
             pass
         else:
-            stripocr = textocr.rstrip()
-            stripnbr = quantity.rstrip()
+            stripocr = textocr.replace('\n','')
+            stripnbr = quantity.replace('\n','')
             # self.relic_list.append(extract_vals(text) + (quantity))
-            self.relic_list.append(str(stripocr) + ' ' + str(stripnbr))
+            self.relic_list.append(stripocr + ' ' + stripnbr)
 
     def ocr_loop(self):
         for i in self.pos_list:
