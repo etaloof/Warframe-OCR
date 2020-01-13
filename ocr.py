@@ -4,6 +4,23 @@ import numpy as np
 from PIL import Image
 from spellcheck import SpellCheck
 import uuid
+import logging
+
+# Enable logging
+log = logging.getLogger("BlackBot_log")
+log.setLevel(logging.DEBUG)
+
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s - %(message)s", "%Y-%m-%d %H:%M:%S")
+console.setFormatter(formatter)
+log.addHandler(console)
+
+fh = logging.FileHandler('Warframe-Bot.log')
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s.%(msecs)03d - %(name)s:%(lineno)d - %(levelname)s - %(message)s", "%Y-%m-%d %H:%M:%S")
+fh.setFormatter(formatter)
+log.addHandler(fh)
 
 
 def spell_correction_ocr(string):
@@ -98,7 +115,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
     if check_for_sign(greyed_image) >= 1:
         return False
     else:
-        print('| Theme used is : ' + theme + ' |')
+        log.debug('[ Theme used is : ' + theme + ' ]')  # DEBUG
         kernel = np.ones((1, 1), np.uint8)
         img = cv2.dilate(upscaled, kernel, iterations=1)
         kernelled = cv2.erode(img, kernel, iterations=1)
@@ -106,7 +123,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
         cv2.imwrite('test_img_ocr/' + 'number_' + str(uuid.uuid1()) + '.jpg', imgtresh)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l wf_model --oem 1 get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
-        print('[ Tesseract output for NB is : ' + text + ' ]')
+        log.debug('[ Tesseract output for NB is : ' + text + ' ]')
         return text.casefold()
 
 
@@ -153,8 +170,8 @@ def create_mask(theme, img):
         return mask
     if theme == 'Fortuna':
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_equi = np.array([108, 80, 80])
-        upper_equi = np.array([152, 255, 255])
+        lower_equi = np.array([80, 80, 84])
+        upper_equi = np.array([120, 199, 255])
         mask = cv2.inRange(hsv, lower_equi, upper_equi)
         return mask
 
@@ -202,11 +219,12 @@ class OcrCheck:
         cv2.imwrite('test_img_ocr/' + 'name_' + str(uuid.uuid1()) + '.jpg', imgtresh)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l wf_model --oem 1  get.images'
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
-        print('[ Tesseract output for TEXT is : ' + text + ' ]')
+        log.debug('[ Tesseract output for TEXT is : ' + text + ' ]')
         if text == '':
             pass
         else:
-            self.relic_list.append(extract_vals(text) + (quantity,))
+            # self.relic_list.append(extract_vals(text) + (quantity,))
+            self.relic_list.append(text + (quantity,))
 
     def ocr_loop(self):
         for i in self.pos_list:

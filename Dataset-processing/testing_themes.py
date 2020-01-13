@@ -39,7 +39,12 @@ def create_mask(theme, img):
         cv2.imwrite('fortuna_mask.png', mask)
         return mask
     if theme == 'test':
-        return img
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower_equi = np.array([80, 80, 84])
+        upper_equi = np.array([120, 199, 255])
+        mask = cv2.inRange(hsv, lower_equi, upper_equi)
+        cv2.imwrite('fortuna_mask.png', mask)
+        return mask
 
 
 def prepare_img(img_src):
@@ -47,7 +52,7 @@ def prepare_img(img_src):
     kernel = np.ones((1, 1), np.uint8)
     img = cv2.dilate(upscaled, kernel, iterations=1)
     kernelled = cv2.erode(img, kernel, iterations=1)
-    ret, imgtresh = cv2.threshold(create_mask("Stalker", kernelled), 218, 255, cv2.THRESH_BINARY_INV)
+    ret, imgtresh = cv2.threshold(create_mask("test", kernelled), 218, 255, cv2.THRESH_BINARY_INV)
     cv2.imwrite("theme_result.png", imgtresh)
 
 
