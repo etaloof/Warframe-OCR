@@ -155,7 +155,8 @@ def process_image(image):
         ocr = OcrCheck(image)
         message = ''
         for i in ocr.ocr_loop():
-            message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
+            # message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
+            message += str(i)
         return message
     else:
         return 'Le screenshot n\'est pas a la bonne résolution !'
