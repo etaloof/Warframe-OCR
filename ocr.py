@@ -224,7 +224,7 @@ class OcrCheck:
             pass
         else:
             # self.relic_list.append(extract_vals(text) + (quantity))
-            self.relic_list.append(str(text + ' ' + quantity))
+            self.relic_list.append(str(text.rstrip + ' ' + quantity.rstrip))
 
     def ocr_loop(self):
         for i in self.pos_list:
