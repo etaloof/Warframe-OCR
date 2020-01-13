@@ -219,7 +219,7 @@ class OcrCheck:
         cv2.imwrite('test_img_ocr/' + 'name_' + str(uuid.uuid1()) + '.jpg', imgtresh)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l wf_model --oem 1  get.images'
         textocr = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
-        log.debug('[ Tesseract output for TEXT is : ' + text + ' ]')
+        log.debug('[ Tesseract output for TEXT is : ' + textocr + ' ]')
         if textocr == '':
             pass
         else:
