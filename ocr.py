@@ -218,13 +218,13 @@ class OcrCheck:
         ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
         cv2.imwrite('test_img_ocr/' + 'name_' + str(uuid.uuid1()) + '.jpg', imgtresh)
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l wf_model --oem 1  get.images'
-        text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
+        textocr = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
         log.debug('[ Tesseract output for TEXT is : ' + text + ' ]')
-        if text == '':
+        if textocr == '':
             pass
         else:
             # self.relic_list.append(extract_vals(text) + (quantity))
-            self.relic_list.append(text.rstrip + ' ' + quantity.rstrip)
+            self.relic_list.append(textocr.rstrip + ' ' + quantity.rstrip)
 
     def ocr_loop(self):
         for i in self.pos_list:
