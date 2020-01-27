@@ -10,17 +10,16 @@ import requests
 v_relic_list = update_vault_list()
 
 # Define reference file for Spellchecking
-# spell_check = SpellCheck('ref/ref_words.txt')
-spell_check = SpellCheck('ref/ref_words.txt')
+spell_check = SpellCheck('ref/other_ref/ref_words.txt')
 
 # Define references files to use for Warframe Data
-Era_file = 'ref/ref_era.txt'
-Lith_file = 'ref/ref_lith.txt'
-Meso_file = 'ref/ref_meso.txt'
-Neo_file = 'ref/ref_neo.txt'
-Axi_file = 'ref/ref_axi.txt'
-Quality_file = 'ref/ref_quality.txt'
-Ressources_file = 'ref/ref_ressources.txt'
+Era_file = 'ref/other_ref/ref_era.txt'
+Lith_file = 'ref/other_ref/ref_lith.txt'
+Meso_file = 'ref/other_ref/ref_meso.txt'
+Neo_file = 'ref/other_ref/ref_neo.txt'
+Axi_file = 'ref/other_ref/ref_axi.txt'
+Quality_file = 'ref/other_ref/ref_quality.txt'
+Ressources_file = 'ref/other_ref/ref_ressources.txt'
 
 
 # Parse references files to lists
@@ -106,6 +105,7 @@ def clean_disctag(name):
 # Try to correct spelling for commands, and translate english to french for "Quality" arg
 def spell_correct(string):
     spell_check.check(string)
+    corrected = spell_check.correct()
     if spell_check.correct().capitalize() == 'Intact':
         return 'Intacte'
     if spell_check.correct().capitalize() == 'Exceptional':
@@ -155,8 +155,9 @@ def process_image(image):
         ocr = OcrCheck(image)
         message = ''
         for i in ocr.ocr_loop():
-            # message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
-            message += str(i + '\n')
+            # message += str('Relique ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
+            message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
+            # message += str(i + '\n')
         return message
     else:
         return 'Le screenshot n\'est pas a la bonne résolution !'
