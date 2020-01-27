@@ -1,1 +1,0 @@
-/home/Warframe-OCR/font-processing/roboto_train/fra.Roboto_Condensed_Condensed.exp0.lstmf
