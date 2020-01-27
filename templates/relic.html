@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>BlackStones - Relic List</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+<!--===============================================================================================-->
+</head>
+<body class="bodyclass">
+	<div>
+		{% for item in data %}
+		<div class="expandableShort relicdisplaybar expandable">
+			<div style="margin-left:5px;">
+				{% if item[1] == "Lith" %}
+				<img class="relicicon" src="{{ url_for('static', filename='images/Lith.png') }}" style="width:68px;height:85px;">
+				{% elif item[1] == "Meso" %}
+				<img class="relicicon" src="{{ url_for('static', filename='images/Meso.png') }}" style="width:68px;height:85px;">
+				{% elif item[1] == "Neo" %}
+				<img class="relicicon" src="{{ url_for('static', filename='images/Neo.png') }}" style="width:68px;height:85px;">
+				{% elif item[1] == "Axi" %}
+				<img class="relicicon" src="{{ url_for('static', filename='images/Axi.png') }}" style="width:68px;height:85px;">
+				{% endif %}
+				<span class="relictitle">{{item[1]}} {{item[0]}}</span>
+				<span class="relictitle">{{item[2]}}</span>
+			</div>
+			<table class="relicdtable">
+				<tbody>
+					<tr>
+						<td class="dropcommon">{{item[4]}}</td>
+						<td class="plat">
+							<div><img alt="plat" class="platicon" src="{{ url_for('static', filename='images/plat.png') }}">{{item[10]}}</div>
+						</td>
+						<td class="ducat">
+							<div><img alt="ducat" class="ducaticon" src="{{ url_for('static', filename='images/ducat.png') }}">{{item[11]}}</div>
+						</td>
+						<td class="dropuncommon">{{item[7]}}</td>
+						<td class="plat">
+							<div><img alt="plat" class="platicon" src="{{ url_for('static', filename='images/plat.png') }}">{{item[16]}}</div>
+						</td>
+						<td class="ducat">
+							<div><img alt="ducat" class="ducaticon" src="{{ url_for('static', filename='images/ducat.png') }}">{{item[17]}}</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="dropcommon">{{item[5]}}</td>
+						<td class="plat">
+							<div><img alt="plat" class="platicon" src="{{ url_for('static', filename='images/plat.png') }}">{{item[12]}}</div>
+						</td>
+						<td class="ducat">
+							<div><img alt="ducat" class="ducaticon" src="{{ url_for('static', filename='images/ducat.png') }}">{{item[13]}}</div>
+						</td>
+						<td class="dropuncommon">{{item[8]}}</td>
+						<td class="plat">
+							<div><img alt="plat" class="platicon" src="{{ url_for('static', filename='images/plat.png') }}">{{item[18]}}</div>
+						</td>
+						<td class="ducat">
+							<div><img alt="ducat" class="ducaticon" src="{{ url_for('static', filename='images/ducat.png') }}">{{item[19]}}</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="dropcommon">{{item[6]}}</td>
+						<td class="plat">
+							<div><img alt="plat" class="platicon" src="{{ url_for('static', filename='images/plat.png') }}">{{item[14]}}</div>
+						</td>
+						<td class="ducat">
+							<div><img alt="ducat" class="ducaticon" src="{{ url_for('static', filename='images/ducat.png') }}">{{item[15]}}</div>
+						</td>
+						<td class="droprare">{{item[9]}}</td>
+						<td class="plat">
+							<div><img alt="plat" class="platicon" src="{{ url_for('static', filename='images/plat.png') }}">{{item[20]}}</div>
+						</td>
+						<td class="ducat">
+							<div><img alt="ducat" class="ducaticon" src="{{ url_for('static', filename='images/ducat.png') }}">{{item[21]}}</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div style="margin:auto">
+				<span class="possessors">{{item[3]}}</span>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+	
+<!--===============================================================================================-->	
+	<script src="{{ url_for('static', filename='vendor/jquery/jquery-3.2.1.min.js') }}"></script>
+<!--===============================================================================================-->
+	<script src="{{ url_for('static', filename='vendor/bootstrap/js/popper.js') }}"></script>
+	<script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+<!--===============================================================================================-->
+	<script src="{{ url_for('static', filename='vendor/select2/select2.min.js') }}"></script>
+<!--===============================================================================================-->
+	<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+	
+</body>
+</html>
+
