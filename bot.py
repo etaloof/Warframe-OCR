@@ -163,5 +163,5 @@ async def ocrtest(ctx):
     await ctx.send(message)
 
 bot.loop.create_task(task_vault_update(7200))
-bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XiDCoQ.K040E2BLMOuVp2ic-pSQ6K-lHq8")
+bot.run("")
 
