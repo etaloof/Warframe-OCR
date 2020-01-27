@@ -93,6 +93,12 @@ async def ping(ctx):
 @bot.command()
 async def index(ctx):
     await ctx.send('https://docs.google.com/document/d/1zRJiGvXl1rY21ri0DuirK7BovAsBw1ikc0qCLChx7gw/edit?usp=sharing')
+    
+    
+# Index guide command
+@bot.command()
+async def doc(ctx):
+    await ctx.send('https://docs.google.com/spreadsheets/d/1nvXMWn3Ep95QCp317le8EpDU2XgqLTdCcMJtipolz8k/edit?usp=sharing')
 
 
 # To-finish command
@@ -157,5 +163,5 @@ async def ocrtest(ctx):
     await ctx.send(message)
 
 bot.loop.create_task(task_vault_update(7200))
-bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XRHvzQ.P5eSh6d81zAsms2WsyvCAybSYrU")
+bot.run("NTg0NzYzODUyMzc0NDA5MjE5.XiDCoQ.K040E2BLMOuVp2ic-pSQ6K-lHq8")
 

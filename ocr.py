@@ -5,6 +5,9 @@ from PIL import Image
 from spellcheck import SpellCheck
 import uuid
 import logging
+import shutil
+import names
+from random import randint
 
 # Enable logging
 log = logging.getLogger("BlackBot_log")
@@ -23,24 +26,29 @@ fh.setFormatter(formatter)
 log.addHandler(fh)
 
 
-def spell_correction_ocr(string):
-    spell_check_ocr = SpellCheck('ref/ref_words_ocr.txt')
+# Try to correct mistakes
+def spell_correction_ocr(string, corr_model):
+    spell_check_ocr = SpellCheck(corr_model)
     spell_check_ocr.check(string)
     return spell_check_ocr.correct().strip().capitalize()
 
 
-# Extract quality from the ocr result
+# Extract quality from the ocr result (NO SPELLCHECK FOR NOW)
 def ocr_extract_quality(string):
-    matchs = ("exceptionnelle", "impeccable", "eclatante", "exceptional", "flawless", "radiant")
-    if any(s in string for s in matchs):
-        return spell_correction_ocr(string.split("\n")[-1])
+    if any(s in string for s in ['exceptionnelle', 'éxceptionnelle', 'exceptional']):
+        return 'Exceptionnelle'
+    if any(s in string for s in ['eclatante', 'éclatante', 'radiant']):
+        return 'Eclatante'
+    if any(s in string for s in ['impeccable', 'flawless']):
+        return 'Impeccable'
     else:
-        return "Intacte"
+        return 'Intacte'
 
 
-# Extract era from the ocr result
+# Extract era from the ocr result (WITH SPELLCHECK)
 def ocr_extract_era(string):
-    if 'relique' in string:
+    rel_c = spell_correction_ocr(string.split(" ")[0].lower(), 'ref/ref_1_ocr.txt').lower()
+    if 'relique' in rel_c:
         if 'axi' in string:
             return 'Axi'
         if 'neo' in string:
@@ -49,7 +57,7 @@ def ocr_extract_era(string):
             return 'Meso'
         if 'lith' in string:
             return 'Lith'
-    if 'relic' in string:
+    if 'relic' in rel_c:
         if 'axi' in string:
             return 'Axi'
         if 'neo' in string:
@@ -60,18 +68,13 @@ def ocr_extract_era(string):
             return 'Lith'
 
 
-# Extract Name from the ocr result
+# Extract Name from the ocr result (NO SPELLCHECK)
 def ocr_extract_name(string):
-    if 'relique' in string:
-        if 'axi' in string or 'neo' in string:
-            return string.split("\n")[0].split("relique")[1][3:].capitalize()
-        if 'meso' in string or 'lith' in string:
-            return string.split("\n")[0].split("relique")[1][4:].capitalize()
-    if 'relic' in string:
-        if 'axi' in string or 'neo' in string:
-            return string.split("relic")[0][3:].capitalize()
-        if 'meso' in string or 'lith' in string:
-            return string.split("relic")[0][4:].capitalize()
+    rel_c = spell_correction_ocr(string.split(" ")[0].lower(), 'ref/ref_1_ocr.txt').lower()
+    if 'relique' in rel_c:
+        return ' '.join(string.split(" ")[2:])[:2].capitalize()
+    if 'relic' in rel_c:
+        return string.split(" ")[1][:2].capitalize()
 
 
 # Extract values from the ocr result
@@ -107,7 +110,10 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
     return cropped
 
 
-def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
+def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
+    # Generate rID
+    rid = str(randint(100, 999))
+    
     relic_raw = image
     cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
@@ -115,15 +121,26 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme):
     if check_for_sign(greyed_image) >= 1:
         return False
     else:
-        log.debug('[ Theme used is : ' + theme + ' ]')  # DEBUG
-        kernel = np.ones((1, 1), np.uint8)
-        img = cv2.dilate(upscaled, kernel, iterations=1)
-        kernelled = cv2.erode(img, kernel, iterations=1)
-        ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
-        cv2.imwrite('test_img_ocr/' + 'number_' + str(uuid.uuid1()) + '.jpg', imgtresh)
-        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l wf_model --oem 1 get.images'
+        log.debug('[' + id + '] ' + '[ Theme used is : ' + theme + ' ]')  # DEBUG
+        
+        # kernel = np.ones((1, 1), np.uint8)
+        # erode = cv2.erode(upscaled, kernel, iterations=1)
+        # dilate = cv2.dilate(erode, kernel, iterations=1)
+        
+        ret, imgtresh = cv2.threshold(create_mask(theme, upscaled), 218, 255, cv2.THRESH_BINARY_INV)
+        
+        cv2.imwrite('test_img_ocr/number/' + 'number_' + id + '_' + rid + '.jpg', imgtresh)
+        
+        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 get.images'
+
         text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
-        log.debug('[ Tesseract output for NB is : ' + text + ' ]')
+        
+        # Write the pre-input tif
+        tiffname = '/home/Warframe-OCR/test_img_ocr/tiffs/nb_' + id + '_' + rid + '.tif'
+        shutil.move("/home/Warframe-OCR/tessinput.tif", tiffname)
+        
+        log.debug('[' + id + '] ' + '[ Tesseract output for NB is : ' + text + ' ]')
+        
         return text.casefold()
 
 
@@ -181,6 +198,7 @@ class OcrCheck:
         self.image = image
         self.relic_list = []
         self.theme = get_theme(self.image)
+        self.imgID = names.get_last_name()
         # Ecart X entre les reliques d'une même ligne : 218, y : 201
         # Block1 = Nombre, Block2 = Nom | LeftX, UpperY, RightX, DownerY
         self.pos_list = [((99, 204, 139, 226), (101, 319, 259, 365)),
@@ -208,37 +226,55 @@ class OcrCheck:
                          ((966, 813, 1006, 832), (965, 928, 1124, 974))
                          ]
 
-    def data_pass_name(self, pos1, pos2, pos3, pos4, quantity, image, theme):
+    def data_pass_name(self, pos1, pos2, pos3, pos4, quantity, image, theme, id):
+        # Generate rID
+        rid = str(randint(100, 999))
+        # Taking the full image -> cropping -> upscaling -> dilate / erode -> ?
         relic_raw = image
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
         upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-        kernel = np.ones((1, 1), np.uint8)
-        img = cv2.dilate(upscaled, kernel, iterations=1)
-        kernelled = cv2.erode(img, kernel, iterations=1)
-        ret, imgtresh = cv2.threshold(create_mask(theme, kernelled), 218, 255, cv2.THRESH_BINARY_INV)
-        cv2.imwrite('test_img_ocr/' + 'name_' + str(uuid.uuid1()) + '.jpg', imgtresh)
-        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l wf_model --oem 1  get.images'
+        
+        # Write the raw img
+        cv2.imwrite('test_img_ocr/brut/' + 'name_' + rid + '.jpg', upscaled) # BRUT
+        
+        # kernel = np.ones((1, 1), np.uint8)
+        # erode = cv2.erode(upscaled, kernel, iterations=1)
+        # dilate = cv2.dilate(erode, kernel, iterations=1)
+        # cv2.imwrite('test_img_ocr/after_opening/' + 'name_' + str(uuid.uuid1()) + '.jpg', dilate) # AFTER_OPENING
+        
+        # Treshold the img with the mask
+        ret, imgtresh = cv2.threshold(create_mask(theme, upscaled), 218, 255, cv2.THRESH_BINARY_INV)
+        # Write the mask img
+        cv2.imwrite('test_img_ocr/mask/' + 'name_' + id + '_' + rid + '.jpg', create_mask(theme, upscaled)) # MASK
+        # Write the mask applied img with treshold
+        cv2.imwrite('test_img_ocr/after_masking/' + 'name_' + id + '_' + rid + '.jpg', imgtresh) # AFTER_MASKING
+        # Actual OCR
+        tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 get.images -c tessedit_char_blacklist=jJyY'
         textocr = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
-        log.debug('[ Tesseract output for TEXT is : ' + textocr + ' ]')
+        # Write the pre-input tif
+        tiffname = '/home/Warframe-OCR/test_img_ocr/tiffs/name_' + id + '_' + rid + '.tif'
+        shutil.move("/home/Warframe-OCR/tessinput.tif", tiffname)
+        # Write log for result
+        log.debug('[' + id + '] ' + '[ Tesseract output for TEXT is : ' + textocr + ' ]') # DEBUG
         if textocr == '':
             pass
         else:
             stripocr = textocr.replace('\n','')
             stripnbr = quantity.replace('\n','')
-            # self.relic_list.append(extract_vals(text) + (quantity))
-            self.relic_list.append(stripocr + ' ' + stripnbr)
+            self.relic_list.append(extract_vals(stripocr) + tuple(stripnbr))
+            # self.relic_list.append(stripocr + ' ' + stripnbr)
 
     def ocr_loop(self):
         for i in self.pos_list:
-            nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme)
+            nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme, self.imgID)
             if nb is False:
                 pass
             elif nb == '':
                 quantity = '1'
-                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme)
+                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
             else:
                 quantity = nb[1:]
-                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme)
+                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
         log.debug(self.relic_list)
         return self.relic_list
 
