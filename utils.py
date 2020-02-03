@@ -1,6 +1,8 @@
 from spellcheck import SpellCheck
 from scrap import update_vault_list
 from ocr import OcrCheck
+from db_operations import relic_from_screen
+from db_operations import relic_from_screen_overwrite
 import numpy as np
 import cv2
 import requests
@@ -82,6 +84,46 @@ def syntax_check_pass(arg1, arg2, arg3):
                     return True
 
 
+# Data-validity check for OCR results for "Era", "Quality" and "Name"
+def ocr_data_validation(era, name, quality):
+    # Check for Era
+    if era not in ref_list_era:
+        return False
+    else:
+        # Check for Name
+        if era == 'Lith':
+            if name not in ref_list_lith:
+                return False
+            else:
+                if quality not in ref_list_quality:
+                    return False
+                else:
+                    return True
+        if era == 'Meso':
+            if name not in ref_list_meso:
+                return False
+            else:
+                if quality not in ref_list_quality:
+                    return False
+                else:
+                    return True
+        if era == 'Neo':
+            if name not in ref_list_neo:
+                return False
+            else:
+                if quality not in ref_list_quality:
+                    return False
+                else:
+                    return True
+        if era == 'Axi':
+            if name not in ref_list_axi:
+                return False
+            else:
+                if quality not in ref_list_quality:
+                    return False
+                else:
+                    return True
+
 # Check ressource syntax
 def syntax_check_ressource(arg):
     if arg not in ref_list_ressources:
@@ -150,16 +192,26 @@ def check_image_size(image):
 
 
 # Check if res is good, and start ocr process
-def process_image(image):
+def process_image(image, author, mode):
     if check_image_size(image) == (1920, 1080):
         ocr = OcrCheck(image)
-        message = ''
-        for i in ocr.ocr_loop():
-            # message += str('Relique ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
-            message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
-            # message += str(i + '\n')
-        return message
+        ocr_data = ocr.ocr_loop()
+        if type(ocr_data) is not list:
+            return ocr_data
+        else:
+            message = ''
+            for i in ocr_data:
+                if i[0] == 'OcrError' or i[1] == 'OcrError' or i[3] == 'OcrError':
+                    message += str('La relique numero ' + str((ocr_data.index(i) + 1)) + ' n\'a pas été détectée correctement !\n')
+                elif ocr_data_validation(i[0], i[1], i[2]) is False:
+                    message += str('La relique numero ' + str((ocr_data.index(i) + 1)) + ' n\'a pas été détectée correctement !\n')
+                else:
+                    message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
+                    if mode is True:
+                        relic_from_screen_overwrite(i[0], i[1], i[2], i[3], author)
+                    else:
+                        relic_from_screen(i[0], i[1], i[2], i[3], author)
+                
+            return message
     else:
         return 'Le screenshot n\'est pas a la bonne résolution !'
-
-

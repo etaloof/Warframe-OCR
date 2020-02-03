@@ -1,6 +1,7 @@
 import discord
-from discord.ext import commands
+from discord.ext import tasks, commands
 import asyncio
+import functools
 from utils import *
 from db_operations import *
 
@@ -9,6 +10,7 @@ from db_operations import *
 
 prefix = "!"
 bot = commands.Bot(command_prefix=prefix)
+bot.remove_command('help')
 print('[Init] Bot configuré !')
 
 
@@ -16,17 +18,13 @@ print('[Init] Bot configuré !')
 # Background Tasks ############################################################################
 
 
-async def task_vault_update(timeout):
+@tasks.loop(seconds=3600)
+async def vault_update():
     await bot.wait_until_ready()
-    while not bot.is_closed():
-        try:
-            update_vault_list()
-            await asyncio.sleep(timeout)
-        except Exception as e:
-            print(str(e))
-            await asyncio.sleep(timeout)
-
-
+    thing = functools.partial(update_vault_list)
+    await bot.loop.run_in_executor(None, thing)
+    
+    
 ###############################################################################################
 # Custom Convertors ################################################################################
 
@@ -56,7 +54,7 @@ class CheckNbr(commands.Converter):
 @bot.event
 async def on_ready():
     print("[Init] Bot en ligne !")
-    await bot.change_presence(activity=discord.Game("JE TRAVAILLE OK"))
+    await bot.change_presence(activity=discord.Game("Ordis travaille, opérateur"))
 
 
 @bot.event
@@ -79,32 +77,20 @@ async def on_message(message):
 #@bot.event
 #async def on_command_error(ctx, error):
     #if isinstance(error, commands.MissingRequiredArgument):
-        #await ctx.send("FINIS LA COMMANDE BATAR")
+        #await ctx.send("J'ai pas pigé un broc de ce que vous bavez !")
 
 
 @bot.command()
 async def ping(ctx):
     latency = bot.latency
-    print("le ping marche !")
+    print("Bip Boup je suis la !")
     await ctx.send(latency)
-
-
-# Index guide command
-@bot.command()
-async def index(ctx):
-    await ctx.send('https://docs.google.com/document/d/1zRJiGvXl1rY21ri0DuirK7BovAsBw1ikc0qCLChx7gw/edit?usp=sharing')
     
     
 # Index guide command
 @bot.command()
 async def doc(ctx):
     await ctx.send('https://docs.google.com/spreadsheets/d/1nvXMWn3Ep95QCp317le8EpDU2XgqLTdCcMJtipolz8k/edit?usp=sharing')
-
-
-# To-finish command
-@bot.command()
-async def todo(ctx):
-    await ctx.send('https://docs.google.com/spreadsheets/d/17olsWjmOeoMx60y7jnxmEsTCpATqAbgcZ7nZBQ7FpKg/edit?usp=sharing')
 
 
 # Arg 1 = Era, Arg2 = Name, Arg3 = Quality, Arg4 = Quantity
@@ -156,12 +142,46 @@ async def ressourcedrop(ctx):
 
 # OCR-eval command
 @bot.command()
-async def ocrtest(ctx):
+async def scanrelic(ctx):
     url = ctx.message.attachments[0].url
-    image = image_from_url(url)
-    message = process_image(image)
+    message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)), False)
+    await ctx.send(message)
+    
+    
+# OCR-eval command
+@bot.command()
+async def baserelic(ctx):
+    url = ctx.message.attachments[0].url
+    message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)), True)
     await ctx.send(message)
 
-bot.loop.create_task(task_vault_update(7200))
-bot.run("")
+
+# OCR-eval command
+@bot.command()
+async def clearrelic(ctx):
+    message = relic_owner_clear(clean_disctag(str(ctx.message.author)))
+    await ctx.send(message)
+    
+# !halp command for help
+@bot.command()
+async def halp(ctx):
+    embed = discord.Embed(title="Bienvenue sur le merveilleux 🤖 pour Warframe !",
+                              description="Je suis la pour vous aider 😄", color=0xd5d500)
+    embed.add_field(name="!clearrelic", value="Supprime toutes vos reliques. ⚠️", inline=True)
+    embed.add_field(name="!baserelic", value="Ajoute des reliques depuis un screen et ecrase les anciennes. ⚠️", inline=True)
+    embed.add_field(name="!scanrelic", value="Ajoute des reliques depuis un screen et ajoute aux anciennes.", inline=True)
+    embed.add_field(name="!relicadd", value="Ajoute un montant d'une certaine relique. Ex : ***!relicadd Lith A2 Eclatante 3***", inline=True)
+    embed.add_field(name="!relicdel", value="Supprime un montant d'une certaine relique. Ex : ***!relicdel Lith A2 Eclatante 4***", inline=True)
+    embed.add_field(name="!relicrefine", value="Permet de raffiner une relique. Ex : ***!relicrefine Lith A2 Eclatante 2***", inline=True)
+    embed.add_field(name="!ressourcedrop", value="Cette commande n'existe pas encore, désolay", inline=True)
+    embed.add_field(name="!doc", value="Vous envoie le lien du doc.", inline=True)
+    embed.set_footer(
+        text="Pour les commandes !baserelic et !scanrelic il suffit d'attacher un screenshot de vos reliques en 1920x1080. \n "
+        "Il faut un fullscreen pour que ca fonctionne. Supporte l'anglais et le francais. Les reliques sont visibles sur le site : \n"
+        "relic.zenma-serv.net")
+        
+    await ctx.channel.send(embed=embed)
+
+update_vault_list()
+bot.run("NTg0NzYzODUyMzc0NDA5MjE5.Xi9vQQ.N8-I_QJiDkwvk8JMViI8df1Jelg")
 
