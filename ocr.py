@@ -26,6 +26,7 @@ formatter = logging.Formatter("%(asctime)s.%(msecs)03d - %(name)s:%(lineno)d - %
 fh.setFormatter(formatter)
 log.addHandler(fh)
 
+
 class OcrCheck:
     def __init__(self, image):
         self.image = image
@@ -59,14 +60,12 @@ class OcrCheck:
                          ((966, 813, 1006, 832), (965, 928, 1124, 974))
                          ]
                          
-                         
     # Try to correct mistakes
     def spell_correction_ocr(self, string, corr_model):
         spell_check_ocr = SpellCheck(corr_model)
         spell_check_ocr.check(string)
         return spell_check_ocr.correct().strip().capitalize()
-        
-        
+
     # Extract quality from the ocr result (NO SPELLCHECK FOR NOW)
     def ocr_extract_quality(self, string):
         if any(s in string for s in ['exceptionnelle', 'éxceptionnelle', 'exceptional']):
@@ -77,7 +76,6 @@ class OcrCheck:
             return 'Impeccable'
         else:
             return 'Intacte'
-            
             
     # Extract era from the ocr result (WITH SPELLCHECK)
     def ocr_extract_era(self, string):
@@ -101,8 +99,7 @@ class OcrCheck:
             if 'meso' in string:
                 return 'Meso'
             if 'lith' in string:
-                return 'Lith'                     
-
+                return 'Lith'
                 
     # Extract Name from the ocr result (NO SPELLCHECK)
     def ocr_extract_name(self, string):
@@ -112,7 +109,6 @@ class OcrCheck:
             return ' '.join(string.split(" ")[2:])[:3].capitalize().rstrip()
         if 'relic' in rel_eng:
             return string.split(" ")[1][:3].capitalize().rstrip()
-            
             
     # Extract values from the ocr result
     def extract_vals(self, text):
@@ -134,8 +130,7 @@ class OcrCheck:
             name = 'OcrError'
             
         return era, name, quality
-        
-        
+
     # Check for specific sprite to see if the relic exist
     def check_for_sign(self, img):
         precision = 0.96
@@ -152,13 +147,11 @@ class OcrCheck:
             count = count + 1
         return count
         
-        
     # Crop an area of a relic
     def relicarea_crop(self, upper_y, downer_y, left_x, right_x, img):
         # upperY:downerY, LeftX:RightX
         cropped = img[upper_y:downer_y, left_x:right_x]
         return cropped
-    
     
     # Detect the theme used in the UI screenshot
     # Themes : High Constrast - Equinox - Virtuvian - Ancient - Baruuk - Corpus - Fortuna - Grineer - Lotus - Dark lotus - Nidus - Orokin - Stalker - Tenno
@@ -177,7 +170,6 @@ class OcrCheck:
             return 'Fortuna'
         else:
             return 'Ce theme n\'est pas supporté pour l\'instant.'
-            
             
     # Image processing for better detection after
     def create_mask(self, theme, img):
@@ -207,7 +199,6 @@ class OcrCheck:
             upper_equi = np.array([120, 199, 255])
             mask = cv2.inRange(hsv, lower_equi, upper_equi)
             return mask
-            
             
     def data_pass_name(self, pos1, pos2, pos3, pos4, quantity, image, theme, id):
         # Generate rID
@@ -242,10 +233,9 @@ class OcrCheck:
         if textocr == '':
             pass
         else:
-            stripocr = textocr.replace('\n','')
+            stripocr = textocr.replace('\n', ' ')
             self.relic_list.append(self.extract_vals(stripocr) + (quantity,))
-            
-            
+
     def data_pass_nb(self, pos1, pos2, pos3, pos4, image, theme, id):
         # Generate rID
         rid = str(randint(100, 999))
@@ -281,7 +271,6 @@ class OcrCheck:
             
             return corrected_nbr.casefold()
         
-
     def ocr_loop(self):
         for i in self.pos_list:
             if self.theme not in ['Virtuvian', 'Stalker', 'Fortuna', 'Equinox']:
