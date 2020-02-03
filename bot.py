@@ -184,4 +184,3 @@ async def halp(ctx):
 
 update_vault_list()
 bot.run("NTg0NzYzODUyMzc0NDA5MjE5.Xi9vQQ.N8-I_QJiDkwvk8JMViI8df1Jelg")
-

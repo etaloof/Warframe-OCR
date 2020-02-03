@@ -108,11 +108,10 @@ class OcrCheck:
     def ocr_extract_name(self, string):
         rel_eng = self.spell_correction_ocr(' '.join(string.split(" ")[2:])[:5].lower(), 'ref/ref_1_ocr.txt').lower()
         rel_fr = self.spell_correction_ocr(string.split(" ")[0].lower(), 'ref/ref_1_ocr.txt').lower()
-        print(rel_eng)
         if 'relique' in rel_fr:
-            return ' '.join(string.split(" ")[2:])[:2].capitalize()
+            return ' '.join(string.split(" ")[2:])[:3].capitalize().rstrip()
         if 'relic' in rel_eng:
-            return string.split(" ")[1][:2].capitalize()
+            return string.split(" ")[1][:3].capitalize().rstrip()
             
             
     # Extract values from the ocr result
