@@ -1,6 +1,7 @@
 import pytesseract
 import cv2
 import numpy as np
+import shutil
 
 
 # Image processing for better detection after
@@ -40,5 +41,7 @@ upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
 ret, imgtresh = cv2.threshold(create_mask('Virtuvian', upscaled), 218, 255, cv2.THRESH_BINARY_INV)
 tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 --psm 6 get.images'
 textocr = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
+tiffname = '/home/Warframe-OCR/test_img_ocr/test.tif'
+shutil.move("/home/Warframe-OCR/tessinput.tif", tiffname)
 
 print(textocr)
