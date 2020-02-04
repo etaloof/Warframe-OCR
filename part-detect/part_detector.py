@@ -50,6 +50,6 @@ cv2.imwrite('part-detect/after_masking/after-mask.jpg', imgtresh)
 tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 --psm 6 get.images'
 textocr = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
 tiffname = '/home/Warframe-OCR/part-detect/test.tif'
-shutil.move("/home/Warframe-OCR/tessinput.tif", tiffname)
+shutil.move("/home/Warframe-OCR/part-detect/tessinput.tif", tiffname)
 
 print(textocr)
