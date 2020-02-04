@@ -34,7 +34,7 @@ def create_mask(theme, img):
         return mask
 
 
-file = 'theme_source.png'
+file = '1.png'
 image = cv2.imread(file)
 
 upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
