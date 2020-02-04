@@ -38,10 +38,18 @@ file = '1.png'
 image = cv2.imread(file)
 
 upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+
+cv2.imwrite('part-detect/raw.jpg', upscaled)
+
 ret, imgtresh = cv2.threshold(create_mask('Virtuvian', upscaled), 218, 255, cv2.THRESH_BINARY_INV)
+
+cv2.imwrite('part-detect/mask.jpg', create_mask('Virtuvian', upscaled))
+
+cv2.imwrite('part-detect/after_masking/after-mask.jpg', imgtresh)
+
 tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 --psm 6 get.images'
 textocr = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
-tiffname = '/home/Warframe-OCR/test_img_ocr/test.tif'
+tiffname = '/home/Warframe-OCR/part-detect/test.tif'
 shutil.move("/home/Warframe-OCR/tessinput.tif", tiffname)
 
 print(textocr)
