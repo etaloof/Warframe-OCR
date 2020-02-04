@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 from PIL import Image
 from spellcheck import SpellCheck
-import uuid
 import logging
 import shutil
 import names
