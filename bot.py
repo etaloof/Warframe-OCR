@@ -1,5 +1,6 @@
 import discord
 from discord.ext import tasks, commands
+from discord.utils import get
 import asyncio
 import functools
 from utils import *
@@ -46,6 +47,15 @@ class CheckNbr(commands.Converter):
                 return int(argument)
         else:
             raise commands.UserInputError('Vous ne pouvez entrer qu\'un nombre absolu !')
+            
+            
+def check_bot_channel():
+    def predicate(ctx):
+        if ctx.guild.id == 290252322028650497:
+            raise commands.UserInputError("C'est pas encore prêt :p")
+        else:
+            return True
+    return commands.check(predicate)
 
 ###############################################################################################
 # Bot-commands ################################################################################
@@ -72,14 +82,33 @@ async def on_message(message):
     if message.content == "A Kadoc ?":
         await message.channel.send("Il dit que c'est a lui de jouer...")
     await bot.process_commands(message)
-
-
-#@bot.event
-#async def on_command_error(ctx, error):
-    #if isinstance(error, commands.MissingRequiredArgument):
-        #await ctx.send("J'ai pas pigé un broc de ce que vous bavez !")
-
-
+    
+    
+@bot.event
+async def on_command_error(ctx, error):
+    pass
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("J'ai pas pigé un broc de ce que vous bavez !")  
+        
+@bot.event
+async def on_reaction_add(reaction, user):
+    if reaction.emoji == "":
+        pass
+    else:
+        pass
+        
+    await add_roles(*roles, reason=None, atomic=True)
+    
+    perrin = get(user.server.roles, id="567876192229785610")
+    veil = get(user.server.roles, id="567876192229785610")
+    meridian = get(user.server.roles, id="567876192229785610")
+    loka = get(user.server.roles, id="567876192229785610")
+    suda = get(user.server.roles, id="567876192229785610")
+    hexis = get(user.server.roles, id="567876192229785610")
+        
+        
+        
+        
 @bot.command()
 async def ping(ctx):
     latency = bot.latency
@@ -95,6 +124,7 @@ async def doc(ctx):
 
 # Arg 1 = Era, Arg2 = Name, Arg3 = Quality, Arg4 = Quantity
 @bot.command()
+@check_bot_channel()
 async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckNbr):
     if syntax_check_pass(a1, a2, a3) is True:
         add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
@@ -107,6 +137,7 @@ async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
 
 # Arg 1 = Era, Arg2 = Name, Arg3 = Quality, Arg4 = Quantity
 @bot.command()
+@check_bot_channel()
 async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckNbr):
     if syntax_check_pass(a1, a2, a3) is True:
         del_state = del_relic_on_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
@@ -122,6 +153,7 @@ async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
 
 # Arg 1 = Era, Arg2 = Name, Arg3 = Quality, Arg4 = Quantity
 @bot.command()
+@check_bot_channel()
 async def relicrefine(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckNbr):
     if syntax_check_pass(a1, a2, a3) is True:
         refine_state = refine_relics(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
@@ -142,25 +174,55 @@ async def ressourcedrop(ctx):
 
 # OCR-eval command
 @bot.command()
+@check_bot_channel()
 async def scanrelic(ctx):
     url = ctx.message.attachments[0].url
     message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)), False)
     await ctx.send(message)
     
+
+# OCR-eval command
+@bot.command()
+@check_bot_channel()
+async def scanrelictest(ctx):
+    url = ctx.message.attachments[0].url
+    message = process_image(image_from_url(url), 'test', False)
+    await ctx.send(message)
+    
     
 # OCR-eval command
 @bot.command()
+@check_bot_channel()
 async def baserelic(ctx):
     url = ctx.message.attachments[0].url
     message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)), True)
     await ctx.send(message)
+    
+    
+# OCR-eval command
+@bot.command()
+@check_bot_channel()
+async def baserelictest(ctx):
+    url = ctx.message.attachments[0].url
+    message = process_image(image_from_url(url), 'test', True)
+    await ctx.send(message)
 
 
 # OCR-eval command
 @bot.command()
+@check_bot_channel()
 async def clearrelic(ctx):
     message = relic_owner_clear(clean_disctag(str(ctx.message.author)))
     await ctx.send(message)
+    
+    
+# OCR-eval command
+@bot.command()
+@check_bot_channel()
+async def clearrelictest(ctx):
+    message = relic_owner_clear('test')
+    await ctx.send(message)
+
     
 # !halp command for help
 @bot.command()

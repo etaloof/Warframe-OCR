@@ -148,8 +148,10 @@ def get_theme(image):
 def create_mask(theme, img):
     if theme == 'Virtuvian':
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_virtu = np.array([-3, 80, 80])
-        upper_virtu = np.array([43, 255, 255])
+        #lower_virtu = np.array([-3, 80, 80])
+        #upper_virtu = np.array([43, 255, 255])
+        lower_virtu = np.array([20, 90, 110])
+        upper_virtu = np.array([43, 135, 255])
         mask = cv2.inRange(hsv, lower_virtu, upper_virtu)
         return mask
     if theme == 'Stalker':
