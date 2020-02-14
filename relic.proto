@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+service DataSender {
+rpc send_data(Empty) returns(MyData) {};
+}
+
+message MyData {
+bytes data = 1;
+}
+
+message Empty {};
