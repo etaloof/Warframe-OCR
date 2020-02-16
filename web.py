@@ -2,6 +2,7 @@ import sqlite3
 from flask import Flask, render_template
 application = Flask(__name__)
 
+
 @application.route('/')
 def index():
     db = sqlite3.connect('relicdb.sqlite3')

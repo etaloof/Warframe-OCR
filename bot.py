@@ -1,7 +1,6 @@
 import discord
 from discord.ext import tasks, commands
 from discord.utils import get
-import asyncio
 import functools
 from utils import *
 from db_operations import *
@@ -89,15 +88,17 @@ async def on_command_error(ctx, error):
     pass
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("J'ai pas pigé un broc de ce que vous bavez !")  
-        
+
+
 @bot.event
 async def on_reaction_add(reaction, user):
+    custom_emoji = get(ctx.message.server.emojis, name="custom_emoji")
     if reaction.emoji == "":
         pass
     else:
         pass
         
-    await add_roles(*roles, reason=None, atomic=True)
+    await add_roles(roles, reason=None, atomic=True)
     
     perrin = get(user.server.roles, id="567876192229785610")
     veil = get(user.server.roles, id="567876192229785610")
@@ -228,7 +229,7 @@ async def clearrelictest(ctx):
 @bot.command()
 async def halp(ctx):
     embed = discord.Embed(title="Bienvenue sur le merveilleux 🤖 pour Warframe !",
-                              description="Je suis la pour vous aider 😄", color=0xd5d500)
+                          description="Je suis la pour vous aider 😄", color=0xd5d500)
     embed.add_field(name="!clearrelic", value="Supprime toutes vos reliques. ⚠️", inline=True)
     embed.add_field(name="!baserelic", value="Ajoute des reliques depuis un screen et ecrase les anciennes. ⚠️", inline=True)
     embed.add_field(name="!scanrelic", value="Ajoute des reliques depuis un screen et ajoute aux anciennes.", inline=True)

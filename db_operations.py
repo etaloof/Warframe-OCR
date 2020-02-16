@@ -94,6 +94,7 @@ def relic_from_screen(era, name, quality, quantity, owner):
         cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (era, name, quality, quantity, relic_owner))
     db.commit()
 
+
 # Add relic from screen and overwrite the quantity if already exist
 def relic_from_screen_overwrite(era, name, quality, quantity, owner):
     cursor = db.cursor()
@@ -106,7 +107,8 @@ def relic_from_screen_overwrite(era, name, quality, quantity, owner):
     else:
         cursor.execute('''INSERT INTO Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (era, name, quality, quantity, relic_owner))
     db.commit()
-    
+
+
 def relic_owner_clear(owner):
     cursor = db.cursor()
     relic_owner = check_user_exist(owner)
@@ -115,7 +117,8 @@ def relic_owner_clear(owner):
     return 'Toutes tes reliques ont étés supprimées.'
     
 ##############################################################################################################
-##Scrapper part##
+#Scrapper part#
+
 
 def write_relic(r_era, r_name, r_reward_c1, r_reward_c2, r_reward_c3, r_reward_u1, r_reward_u2, r_reward_r1):
     cursor = db.cursor()
@@ -126,13 +129,14 @@ def write_relic(r_era, r_name, r_reward_c1, r_reward_c2, r_reward_c3, r_reward_u
     else:
         cursor.execute('''INSERT INTO RelicData (Era, Name, c_1, c_2, c_3, u_1, u_2, r_1) VALUES (?,?,?,?,?,?,?,?)''', (r_era, r_name, r_reward_c1, r_reward_c2, r_reward_c3, r_reward_u1, r_reward_u2, r_reward_r1,))
     db.commit()
-    
-def write_part(itemName, plat_price, ducats_price):
+
+
+def write_part(item_name, plat_price, ducats_price):
     cursor = db.cursor()
-    cursor.execute('''SELECT IDPrimePart FROM PrimePartData WHERE Name = ?''', (itemName,))
+    cursor.execute('''SELECT IDPrimePart FROM PrimePartData WHERE Name = ?''', (item_name,))
     result = cursor.fetchone()
     if result:
-        cursor.execute('''UPDATE PrimePartData SET PricePlat = ?, PriceDucats = ? WHERE Name = ?''', (plat_price, ducats_price, itemName,))
+        cursor.execute('''UPDATE PrimePartData SET PricePlat = ?, PriceDucats = ? WHERE Name = ?''', (plat_price, ducats_price, item_name,))
     else:
-        cursor.execute('''INSERT INTO PrimePartData (Name, PricePlat, PriceDucats) VALUES (?,?,?)''', (itemName, plat_price, ducats_price,))
+        cursor.execute('''INSERT INTO PrimePartData (Name, PricePlat, PriceDucats) VALUES (?,?,?)''', (item_name, plat_price, ducats_price,))
     db.commit()

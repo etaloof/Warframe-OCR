@@ -124,6 +124,7 @@ def ocr_data_validation(era, name, quality):
                 else:
                     return True
 
+
 # Check ressource syntax
 def syntax_check_ressource(arg):
     if arg not in ref_list_ressources:
@@ -147,7 +148,6 @@ def clean_disctag(name):
 # Try to correct spelling for commands, and translate english to french for "Quality" arg
 def spell_correct(string):
     spell_check.check(string)
-    corrected = spell_check.correct()
     if spell_check.correct().capitalize() == 'Intact':
         return 'Intacte'
     if spell_check.correct().capitalize() == 'Exceptional':

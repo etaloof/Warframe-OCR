@@ -1,4 +1,3 @@
-import json
 import requests
 from db_operations import *
 
@@ -13,6 +12,7 @@ data_drop = requests.get(url=wf_data_url).json()
 # Procédure -> Insérer la relique et ses 5 rewards, puis ensuite insérer les items correspondant en table avant de passer a la relique suivante
 # 25.33, 11.00, 2.00
 
+
 def check_name(name):
     
     check_list = ['Systems', 'Chassis', 'Neuroptics', 'Receiver', 'Stock', 'Barrel', 'Link', 'Carapace', 'Cerebrum',
@@ -21,19 +21,20 @@ def check_name(name):
     # Special check for extra 'blueprints'
     if any(ele in name for ele in check_list):
         if ' Blueprint' in name:
-            itemName = name.replace(' Blueprint','')
+            itemName = name.replace(' Blueprint', '')
         else:
             itemName = name
     # Special check for Kavasa and Kubrow
     elif "Kavasa" in name:
         if "Kubrow" in name:
-            itemName = name.replace('Kubrow ','')
+            itemName = name.replace('Kubrow ', '')
         else:
-            itemName = name.replace('Prime','Prime Collar')
+            itemName = name.replace('Prime', 'Prime Collar')
     else:
         itemName = name
         
     return itemName
+
 
 def process_item(item_name):
 
@@ -65,6 +66,7 @@ def process_item(item_name):
                 pass
         
         return price_plat, price_ducats
+
 
 for relic in data_drop['relics']:
     if relic['state'] == 'Intact':

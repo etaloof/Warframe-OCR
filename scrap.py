@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-import requests
 
 f = open('relics.html', 'r', encoding="UTF-8")
 s = f.read()
