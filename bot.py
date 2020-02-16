@@ -93,7 +93,7 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_raw_reaction_add(payload):
     # perrin_emoji = '<:PerrinSequence:678378425001443343>'
-    perrin_emoji = '<:PerrinSequence:678716809092005909>'
+    perrin_emoji = 678716809092005909
     veil_emoji = '<:RedVeil:678378424925945856>'
     meridian_emoji = '<:SteelMeridian:678378424976277564>'
     loka_emoji = '<:NewLoka:678378424955306004>'
@@ -106,12 +106,12 @@ async def on_raw_reaction_add(payload):
 
     if payload.message_id == 678241832186019890:
         print('this is the right message')
-        print(payload.emoji.url)
+        print(payload.emoji.id)
         if payload.emoji == meridian_emoji:
             pass
         if payload.emoji == veil_emoji:
             pass
-        if payload.emoji == perrin_emoji:
+        if payload.emoji.id == perrin_emoji:
             print('the perrin emoji was entered')
             await member.add_roles(perrin, reason=None, atomic=True)
         if payload.emoji == loka_emoji:
