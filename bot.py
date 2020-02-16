@@ -121,6 +121,8 @@ async def on_raw_reaction_add(payload):
             pass
         if payload.emoji == hexis_emoji:
             pass
+        else:
+            print('this is not perrin emoji')
     else:
         print('this is the bad message')
 
