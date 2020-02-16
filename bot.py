@@ -117,7 +117,7 @@ async def on_raw_reaction_add(payload):
         if payload.emoji == hexis_emoji:
             pass
 
-    perrin = get(payload.memmber.server.roles, id="677886031642755073")
+    # perrin = get(payload.memmber.server.roles, id="677886031642755073")
     # veil = get(user.server.roles, id="677885546684743700")
     #meridian = get(user.server.roles, id="677886858579017741")
     #loka = get(user.server.roles, id="677886156108595229")
