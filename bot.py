@@ -106,8 +106,7 @@ async def on_raw_reaction_add(payload):
 
     if payload.message_id == 678241832186019890:
         print('this is the right message')
-        print(type(payload.emoji))
-        print(type(perrin_emoji))
+        print(payload.emoji.name)
         if payload.emoji == meridian_emoji:
             pass
         if payload.emoji == veil_emoji:
