@@ -101,6 +101,7 @@ async def on_raw_reaction_add(payload):
     hexis_emoji = '<:ArbitersOfHexis:678378425073008695>'
 
     guild = bot.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
     perrin = get(guild.roles, id="6678721000686223409")
 
     if payload.message_id == 677890289456906250:
@@ -109,7 +110,7 @@ async def on_raw_reaction_add(payload):
         if payload.emoji == veil_emoji:
             pass
         if payload.emoji == perrin_emoji:
-            await Member.add_roles(perrin, reason=None, atomic=True)
+            await member.add_roles(perrin, reason=None, atomic=True)
         if payload.emoji == loka_emoji:
             pass
         if payload.emoji == suda_emoji:
