@@ -99,32 +99,31 @@ async def on_raw_reaction_add(payload):
     suda_emoji = '<:CephalonSuda:678378424967888906>'
     hexis_emoji = '<:ArbitersOfHexis:678378425073008695>'
 
-    print(type(payload))
-    print(payload.message_id)
-    print(payload.emoji)
+    print(payload.member)
+    perrin = get(payload.memmber.server.roles, id="6678721000686223409")
+    print(perrin)
 
     if payload.message_id == 677890289456906250:
-        pass
+        if payload.emoji == meridian_emoji:
+            pass
+            # await add_roles(perrin, reason=None, atomic=True)
+        if payload.emoji == veil_emoji:
+            pass
+        if payload.emoji == perrin_emoji:
+            pass
+        if payload.emoji == loka_emoji:
+            pass
+        if payload.emoji == suda_emoji:
+            pass
+        if payload.emoji == hexis_emoji:
+            pass
 
-    #perrin = get(user.server.roles, id="677886031642755073")
-    #veil = get(user.server.roles, id="677885546684743700")
+    perrin = get(payload.memmber.server.roles, id="677886031642755073")
+    # veil = get(user.server.roles, id="677885546684743700")
     #meridian = get(user.server.roles, id="677886858579017741")
     #loka = get(user.server.roles, id="677886156108595229")
     #suda = get(user.server.roles, id="677887426332590080")
     #hexis = get(user.server.roles, id="677885889774616607")
-
-    #if reaction.emoji == perrin_emoji:
-    #    await bot.add_roles(perrin, reason=None, atomic=True)
-    #elif reaction.emoji == veil_emoji:
-    #    await add_roles(perrin, reason=None, atomic=True)
-    #elif reaction.emoji == meridian_emoji:
-    #    pass
-    #elif reaction.emoji == loka_emoji:
-    #    pass
-    #elif reaction.emoji == hexis_emoji:
-    #    pass
-    #elif reaction.emoji == suda_emoji:
-    #    pass
         
 
 @bot.command()
