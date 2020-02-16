@@ -1,6 +1,7 @@
 import discord
 from discord.ext import tasks, commands
 from discord.utils import get
+from discord import Member
 import functools
 from utils import *
 from db_operations import *
@@ -99,14 +100,12 @@ async def on_raw_reaction_add(payload):
     suda_emoji = '<:CephalonSuda:678378424967888906>'
     hexis_emoji = '<:ArbitersOfHexis:678378425073008695>'
 
-    print(payload.member)
-    perrin = get(payload.message_id.server.roles, id="6678721000686223409")
-    print(perrin)
+    guild = bot.get_guild(payload.guild_id)
+    perrin = get(guild.roles, id="6678721000686223409")
 
     if payload.message_id == 677890289456906250:
         if payload.emoji == meridian_emoji:
-            pass
-            # await add_roles(perrin, reason=None, atomic=True)
+            await Member.add_roles(perrin, reason=None, atomic=True)
         if payload.emoji == veil_emoji:
             pass
         if payload.emoji == perrin_emoji:
