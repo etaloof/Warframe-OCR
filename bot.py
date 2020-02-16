@@ -91,25 +91,37 @@ async def on_command_error(ctx, error):
 
 
 @bot.event
-async def on_reaction_add(reaction, user):
-    custom_emoji = get(ctx.message.server.emojis, name="custom_emoji")
-    if reaction.emoji == "":
-        pass
-    else:
-        pass
+async def on_raw_reaction_add(payload):
+    perrin_emoji = '<:PerrinSequence:678378425001443343>'
+    veil_emoji = '<:RedVeil:678378424925945856>'
+    meridian_emoji = '<:SteelMeridian:678378424976277564>'
+    loka_emoji = '<:NewLoka:678378424955306004>'
+    suda_emoji = '<:CephalonSuda:678378424967888906>'
+    hexis_emoji = '<:ArbitersOfHexis:678378425073008695>'zqq
+
+    print(payload)
+
+    #perrin = get(user.server.roles, id="677886031642755073")
+    #veil = get(user.server.roles, id="677885546684743700")
+    #meridian = get(user.server.roles, id="677886858579017741")
+    #loka = get(user.server.roles, id="677886156108595229")
+    #suda = get(user.server.roles, id="677887426332590080")
+    #hexis = get(user.server.roles, id="677885889774616607")
+
+    #if reaction.emoji == perrin_emoji:
+    #    await bot.add_roles(perrin, reason=None, atomic=True)
+    #elif reaction.emoji == veil_emoji:
+    #    await add_roles(perrin, reason=None, atomic=True)
+    #elif reaction.emoji == meridian_emoji:
+    #    pass
+    #elif reaction.emoji == loka_emoji:
+    #    pass
+    #elif reaction.emoji == hexis_emoji:
+    #    pass
+    #elif reaction.emoji == suda_emoji:
+    #    pass
         
-    await add_roles(roles, reason=None, atomic=True)
-    
-    perrin = get(user.server.roles, id="567876192229785610")
-    veil = get(user.server.roles, id="567876192229785610")
-    meridian = get(user.server.roles, id="567876192229785610")
-    loka = get(user.server.roles, id="567876192229785610")
-    suda = get(user.server.roles, id="567876192229785610")
-    hexis = get(user.server.roles, id="567876192229785610")
-        
-        
-        
-        
+
 @bot.command()
 async def ping(ctx):
     latency = bot.latency
