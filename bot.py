@@ -114,8 +114,7 @@ async def on_raw_reaction_add(payload):
         if payload.emoji.id == veil_emoji:
             pass
         if payload.emoji.id == perrin_emoji:
-            pass
-            # await member.add_roles(perrin, reason=None, atomic=True)
+            await member.add_roles(perrin, reason=None, atomic=True)
         if payload.emoji.id == loka_emoji:
             pass
         if payload.emoji.id == suda_emoji:
