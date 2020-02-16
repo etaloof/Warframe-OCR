@@ -104,11 +104,13 @@ async def on_raw_reaction_add(payload):
     perrin = get(guild.roles, id="6678721000686223409")
 
     if payload.message_id == 678241832186019890:
+        print('this is the right message')
         if payload.emoji == meridian_emoji:
             pass
         if payload.emoji == veil_emoji:
             pass
         if payload.emoji == perrin_emoji:
+            print('the perrin emoji was entered')
             await member.add_roles(perrin, reason=None, atomic=True)
         if payload.emoji == loka_emoji:
             pass
@@ -116,6 +118,8 @@ async def on_raw_reaction_add(payload):
             pass
         if payload.emoji == hexis_emoji:
             pass
+    else:
+        print('this is the bad message')
 
     # perrin = get(payload.memmber.server.roles, id="677886031642755073")
     # veil = get(user.server.roles, id="677885546684743700")
