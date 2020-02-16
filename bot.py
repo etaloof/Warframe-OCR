@@ -105,11 +105,11 @@ async def on_raw_reaction_add(payload):
 
     if payload.message_id == 677890289456906250:
         if payload.emoji == meridian_emoji:
-            await Member.add_roles(perrin, reason=None, atomic=True)
+            pass
         if payload.emoji == veil_emoji:
             pass
         if payload.emoji == perrin_emoji:
-            pass
+            await Member.add_roles(perrin, reason=None, atomic=True)
         if payload.emoji == loka_emoji:
             pass
         if payload.emoji == suda_emoji:
