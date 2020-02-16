@@ -100,7 +100,7 @@ async def on_raw_reaction_add(payload):
     hexis_emoji = '<:ArbitersOfHexis:678378425073008695>'
 
     print(payload.member)
-    perrin = get(payload.memmber.server.roles, id="6678721000686223409")
+    perrin = get(payload.member.server.roles, id="6678721000686223409")
     print(perrin)
 
     if payload.message_id == 677890289456906250:
