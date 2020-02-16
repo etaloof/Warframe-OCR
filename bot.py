@@ -92,6 +92,7 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_raw_reaction_add(payload):
+    message_to_track = 678241832186019890
     # perrin_emoji = '<:PerrinSequence:678378425001443343>'
     perrin_emoji = 678716809092005909
     veil_emoji = '<:RedVeil:678378424925945856>'
@@ -103,22 +104,23 @@ async def on_raw_reaction_add(payload):
     guild = bot.get_guild(payload.guild_id)
     member = guild.get_member(payload.user_id)
     perrin = get(guild.roles, id="6678721000686223409")
+    print(guild)
+    print(perrin)
+    print(member)
 
-    if payload.message_id == 678241832186019890:
-        print('this is the right message')
-        print(payload.emoji.id)
-        if payload.emoji == meridian_emoji:
+    if payload.message_id == message_to_track:
+        if payload.emoji.id == meridian_emoji:
             pass
-        if payload.emoji == veil_emoji:
+        if payload.emoji.id == veil_emoji:
             pass
         if payload.emoji.id == perrin_emoji:
-            print('the perrin emoji was entered')
-            await member.add_roles(perrin, reason=None, atomic=True)
-        if payload.emoji == loka_emoji:
             pass
-        if payload.emoji == suda_emoji:
+            # await member.add_roles(perrin, reason=None, atomic=True)
+        if payload.emoji.id == loka_emoji:
             pass
-        if payload.emoji == hexis_emoji:
+        if payload.emoji.id == suda_emoji:
+            pass
+        if payload.emoji.id == hexis_emoji:
             pass
         else:
             print('this is not perrin emoji')
