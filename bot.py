@@ -100,6 +100,7 @@ async def on_raw_reaction_add(payload):
     hexis_emoji = '<:ArbitersOfHexis:678378425073008695>'
 
     print(payload)
+    print(payload.name)
 
     #perrin = get(user.server.roles, id="677886031642755073")
     #veil = get(user.server.roles, id="677885546684743700")
