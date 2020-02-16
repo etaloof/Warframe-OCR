@@ -103,7 +103,7 @@ async def on_raw_reaction_add(payload):
 
     guild = bot.get_guild(payload.guild_id)
     member = guild.get_member(payload.user_id)
-    perrin = get(guild.roles, id="678721000686223409")
+    perrin = get(guild.roles, name="test_perrin")
     print(guild)
     print(perrin)
     print(member)
