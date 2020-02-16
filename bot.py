@@ -1,7 +1,6 @@
 import discord
 from discord.ext import tasks, commands
 from discord.utils import get
-from discord import Member
 import functools
 from utils import *
 from db_operations import *
@@ -104,7 +103,7 @@ async def on_raw_reaction_add(payload):
     member = guild.get_member(payload.user_id)
     perrin = get(guild.roles, id="6678721000686223409")
 
-    if payload.message_id == 677890289456906250:
+    if payload.message_id == 678241832186019890:
         if payload.emoji == meridian_emoji:
             pass
         if payload.emoji == veil_emoji:
