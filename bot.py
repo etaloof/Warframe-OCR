@@ -97,7 +97,7 @@ async def on_raw_reaction_add(payload):
     meridian_emoji = '<:SteelMeridian:678378424976277564>'
     loka_emoji = '<:NewLoka:678378424955306004>'
     suda_emoji = '<:CephalonSuda:678378424967888906>'
-    hexis_emoji = '<:ArbitersOfHexis:678378425073008695>'zqq
+    hexis_emoji = '<:ArbitersOfHexis:678378425073008695>'
 
     print(payload)
 
