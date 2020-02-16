@@ -99,9 +99,7 @@ async def on_raw_reaction_add(payload):
     suda_emoji = '<:CephalonSuda:678378424967888906>'
     hexis_emoji = '<:ArbitersOfHexis:678378425073008695>'
 
-    print(payload)
-    print(payload.name)
-
+    print(type(payload))
     #perrin = get(user.server.roles, id="677886031642755073")
     #veil = get(user.server.roles, id="677885546684743700")
     #meridian = get(user.server.roles, id="677886858579017741")
