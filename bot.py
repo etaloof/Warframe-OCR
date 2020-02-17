@@ -104,12 +104,12 @@ async def on_raw_reaction_add(payload):
     guild = bot.get_guild(payload.guild_id)
     member = guild.get_member(payload.user_id)
 
-    veil = get(guild.roles, name="Le Voile Rouge")
+    veil = get(guild.roles, id=677885546684743700)
     meridian = get(guild.roles, id=677886858579017741)
-    suda = get(guild.roles, name="Le Cephalon Suda")
-    hexis = get(guild.roles, name="Les Arbitres de Hexis")
-    perrin = get(guild.roles, name="La Séquence Perrin")
-    loka = get(guild.roles, name="Le Nouveau Loka")
+    suda = get(guild.roles, id=677887426332590080)
+    hexis = get(guild.roles, id=677885889774616607)
+    perrin = get(guild.roles, id=677886031642755073)
+    loka = get(guild.roles, id=677886156108595229)
 
     if payload.message_id == message_to_track:
         if payload.emoji.id == meridian_emoji:
@@ -140,12 +140,12 @@ async def on_raw_reaction_remove(payload):
     guild = bot.get_guild(payload.guild_id)
     member = guild.get_member(payload.user_id)
 
-    veil = get(guild.roles, name="Le Voile Rouge")
-    meridian = get(guild.roles, name="Le Méridien d'Acier")
-    suda = get(guild.roles, name="Le Cephalon Suda")
-    hexis = get(guild.roles, name="Les Arbitres de Hexis")
-    perrin = get(guild.roles, name="La Séquence Perrin")
-    loka = get(guild.roles, name="Le Nouveau Loka")
+    veil = get(guild.roles, id=677885546684743700)
+    meridian = get(guild.roles, id=677886858579017741)
+    suda = get(guild.roles, id=677887426332590080)
+    hexis = get(guild.roles, id=677885889774616607)
+    perrin = get(guild.roles, id=677886031642755073)
+    loka = get(guild.roles, id=677886156108595229)
 
     if payload.message_id == message_to_track:
         if payload.emoji.id == meridian_emoji:
