@@ -92,7 +92,7 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_raw_reaction_add(payload):
-    message_to_track = 677890289456906250
+    message_to_track = 678911976252112926
 
     perrin_emoji = 678378425001443343
     veil_emoji = 678378424925945856
@@ -128,7 +128,7 @@ async def on_raw_reaction_add(payload):
 
 @bot.event
 async def on_raw_reaction_remove(payload):
-    message_to_track = 677890289456906250
+    message_to_track = 678911976252112926
 
     perrin_emoji = 678378425001443343
     veil_emoji = 678378424925945856
