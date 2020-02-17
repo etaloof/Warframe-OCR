@@ -28,12 +28,12 @@ async def vault_update():
 ###############################################################################################
 # Custom Convertors ################################################################################
 
-@bot.event
-async def on_command_error(ctx, message):
-    if isinstance(message, commands.UserInputError):
-        await ctx.send(message)
-    else:
-        print(message)
+#@bot.event
+#async def on_command_error(ctx, message):
+#    if isinstance(message, commands.UserInputError):
+#        await ctx.send(message)
+#    else:
+#        print(message)
 
 
 # Check if number is too high or not an absolute
@@ -83,11 +83,11 @@ async def on_message(message):
     await bot.process_commands(message)
     
     
-@bot.event
-async def on_command_error(ctx, error):
-    pass
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("J'ai pas pigé un broc de ce que vous bavez !")  
+#@bot.event
+#async def on_command_error(ctx, error):
+#    pass
+#    if isinstance(error, commands.MissingRequiredArgument):
+#        await ctx.send("J'ai pas pigé un broc de ce que vous bavez !")  
 
 
 @bot.event

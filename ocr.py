@@ -180,10 +180,6 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
     if check_for_sign(greyed_image) >= 1:
         return False
     else:
-        if get_treshold(cropped_img, theme):
-            print('treshold_works')
-        else:
-            print('treshold dont work')
         
         log.debug('[' + id + '] ' + '[ Theme used is : ' + theme + ' ]')  # DEBUG
 
@@ -243,7 +239,7 @@ class OcrCheck:
         # Crop relic parts
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, image)
         # Write the raw img
-        cv2.imwrite('test_img_ocr/brut/' + 'name_' + rid + '.jpg', upscaled)  # BRUT      
+        cv2.imwrite('test_img_ocr/brut/' + 'name_' + rid + '.jpg', cropped_img)  # BRUT      
         # Write the mask applied img with treshold
         cv2.imwrite('test_img_ocr/after_masking/' + 'name_' + img_id + '_' + rid + '.jpg', get_treshold(cropped_img, theme))  # AFTER_MASKING
         # Actual OCR
