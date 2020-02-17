@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-input_file = r"ressources\4.png"
+input_file = r"ressources\26.png"
 image = cv2.imread(input_file)
 
 #UI-COLORS####################################################################################################
@@ -35,10 +35,11 @@ def get_theme(image, color_treshold):
     
 ##############################################################################################################
 def tresh(image, theme):
+    treshold = 55
     e = [item for item in ui_color_list if item[3] == theme][0] 
     upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
-    lowerBound = np.array([(e[2] - 30), (e[1] - 30), (e[0] - 30)]) # BGR
-    upperBound = np.array([(e[2] + 30), (e[1] + 30), (e[0] + 30)]) # BGR
+    lowerBound = np.array([(e[2] - treshold), (e[1] - treshold), (e[0] - treshold)]) # BGR
+    upperBound = np.array([(e[2] + treshold), (e[1] + treshold), (e[0] + treshold)]) # BGR
     filter = cv2.inRange(upscaled, lowerBound, upperBound)
     tresh = cv2.bitwise_not(filter)
     kernel = np.ones((3, 3), np.uint8)
