@@ -92,47 +92,75 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_raw_reaction_add(payload):
-    message_to_track = 678241832186019890
-    # perrin_emoji = '<:PerrinSequence:678378425001443343>'
-    perrin_emoji = 678716809092005909
-    veil_emoji = '<:RedVeil:678378424925945856>'
-    meridian_emoji = '<:SteelMeridian:678378424976277564>'
-    loka_emoji = '<:NewLoka:678378424955306004>'
-    suda_emoji = '<:CephalonSuda:678378424967888906>'
-    hexis_emoji = '<:ArbitersOfHexis:678378425073008695>'
+    message_to_track = 677890289456906250
+
+    perrin_emoji = 678378425001443343
+    veil_emoji = 678378424925945856
+    meridian_emoji = 678378424976277564
+    loka_emoji = 678378424955306004
+    suda_emoji = 678378424967888906
+    hexis_emoji = 678378425073008695
 
     guild = bot.get_guild(payload.guild_id)
     member = guild.get_member(payload.user_id)
-    perrin = get(guild.roles, name="test_perrin")
-    print(guild)
-    print(perrin)
-    print(member)
+
+    veil = get(guild.roles, name="Le Voile Rouge")
+    meridian = get(guild.roles, name="Le Méridien d'Acier")
+    suda = get(guild.roles, name="Le Cephalon Suda")
+    hexis = get(guild.roles, name="Les Arbitres de Hexis")
+    perrin = get(guild.roles, name="La Séquence Perrin")
+    loka = get(guild.roles, name="Le Nouveau Loka")
 
     if payload.message_id == message_to_track:
         if payload.emoji.id == meridian_emoji:
-            pass
-        if payload.emoji.id == veil_emoji:
-            pass
-        if payload.emoji.id == perrin_emoji:
+            await member.add_roles(meridian, reason=None, atomic=True)
+        elif payload.emoji.id == veil_emoji:
+            await member.add_roles(veil, reason=None, atomic=True)
+        elif payload.emoji.id == perrin_emoji:
             await member.add_roles(perrin, reason=None, atomic=True)
-        if payload.emoji.id == loka_emoji:
-            pass
-        if payload.emoji.id == suda_emoji:
-            pass
-        if payload.emoji.id == hexis_emoji:
-            pass
-        else:
-            print('this is not perrin emoji')
-    else:
-        print('this is the bad message')
+        elif payload.emoji.id == loka_emoji:
+            await member.add_roles(loka, reason=None, atomic=True)
+        elif payload.emoji.id == suda_emoji:
+            await member.add_roles(suda, reason=None, atomic=True)
+        elif payload.emoji.id == hexis_emoji:
+            await member.add_roles(hexis, reason=None, atomic=True)
 
-    # perrin = get(payload.memmber.server.roles, id="677886031642755073")
-    # veil = get(user.server.roles, id="677885546684743700")
-    #meridian = get(user.server.roles, id="677886858579017741")
-    #loka = get(user.server.roles, id="677886156108595229")
-    #suda = get(user.server.roles, id="677887426332590080")
-    #hexis = get(user.server.roles, id="677885889774616607")
-        
+
+@bot.event
+async def on_raw_reaction_remove(payload):
+    message_to_track = 677890289456906250
+
+    perrin_emoji = 678378425001443343
+    veil_emoji = 678378424925945856
+    meridian_emoji = 678378424976277564
+    loka_emoji = 678378424955306004
+    suda_emoji = 678378424967888906
+    hexis_emoji = 678378425073008695
+
+    guild = bot.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
+
+    veil = get(guild.roles, name="Le Voile Rouge")
+    meridian = get(guild.roles, name="Le Méridien d'Acier")
+    suda = get(guild.roles, name="Le Cephalon Suda")
+    hexis = get(guild.roles, name="Les Arbitres de Hexis")
+    perrin = get(guild.roles, name="La Séquence Perrin")
+    loka = get(guild.roles, name="Le Nouveau Loka")
+
+    if payload.message_id == message_to_track:
+        if payload.emoji.id == meridian_emoji:
+            await member.remove_roles(meridian, reason=None, atomic=True)
+        elif payload.emoji.id == veil_emoji:
+            await member.remove_roles(veil, reason=None, atomic=True)
+        elif payload.emoji.id == perrin_emoji:
+            await member.remove_roles(perrin, reason=None, atomic=True)
+        elif payload.emoji.id == loka_emoji:
+            await member.remove_roles(loka, reason=None, atomic=True)
+        elif payload.emoji.id == suda_emoji:
+            await member.remove_roles(suda, reason=None, atomic=True)
+        elif payload.emoji.id == hexis_emoji:
+            await member.remove_roles(hexis, reason=None, atomic=True)
+
 
 @bot.command()
 async def ping(ctx):
