@@ -25,6 +25,51 @@ formatter = logging.Formatter("%(asctime)s.%(msecs)03d - %(name)s:%(lineno)d - %
 fh.setFormatter(formatter)
 log.addHandler(fh)
 
+##############################################################################################################
+#UI-COLORS####################################################################################################
+
+# RGB Format
+ui_color_list = [
+    (189, 168, 101, 'Virtuvian'),   # Vitruvian
+    (150, 31, 35, 'Stalker'),       # Stalker 
+    (238, 193, 105, 'Baruk'),       # Baruk
+    (35, 200, 245, 'Corpus'),       # Corpus
+    (57, 105, 192, 'Fortuna'),      # Fortuna
+    (255, 189, 102, 'Grineer'),     # Grineer
+    (36, 184, 242, 'Lotus'),        # Lotus
+    (140, 38, 92, 'Nidus'),         # Nidus
+    (20, 41, 29, 'Orokin'),         # Orokin
+    (9, 78, 106, 'Tenno'),          # Tenno
+    (2, 127, 217, 'High contrast'), # High contrast
+    (255, 255, 255, 'Legacy'),      # Legacy
+    (158, 159, 167, 'Equinox')      # Equinox
+]
+
+# Check ui theme from screenshot (Image Format : OPENCV)
+def get_theme(image, color_treshold):
+    input_clr = image[86, 115] # Y,X  RES-DEPENDANT
+    for e in ui_color_list:
+        if abs(input_clr[2] - e[0]) < color_treshold and abs(input_clr[1] - e[1]) < color_treshold and abs(input_clr[0] - e[2]) < color_treshold:
+            return e[3]
+        else:
+            pass
+    
+##############################################################################################################
+#####TRESHOLD#####################################################################################################
+            
+def get_treshold(image, theme):
+    e = [item for item in ui_color_list if item[3] == theme][0] 
+    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
+    lowerBound = np.array([(e[2] - 30), (e[1] - 30), (e[0] - 30)]) # BGR
+    upperBound = np.array([(e[2] + 30), (e[1] + 30), (e[0] + 30)]) # BGR
+    filter = cv2.inRange(upscaled, lowerBound, upperBound)
+    tresh = cv2.bitwise_not(filter)
+    kernel = np.ones((3, 3), np.uint8)
+    tresh = cv2.erode(tresh, kernel, iterations=1)
+    return tresh
+
+##############################################################################################################
+
 
 # Extract values from the ocr result
 def extract_vals(text):
@@ -125,63 +170,11 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
     return cropped
 
 
-# Detect the theme used in the UI screenshot
-# Themes : High Constrast - Equinox - Virtuvian - Ancient - Baruuk - Corpus - Fortuna - Grineer - Lotus - Dark lotus - Nidus - Orokin - Stalker - Tenno
-# Supported : Virtuvian - Stalker - Ancient (Bugged) - Equinox
-def get_theme(image):
-    image = Image.fromarray(image)
-    if image.load()[115, 86] == (102, 169, 190):
-        return 'Virtuvian'
-    if image.load()[115, 86] == (35, 31, 153):
-        return 'Stalker'
-    if image.load()[115, 86] == (255, 255, 255):
-        return 'Le theme ANCIENT n\'est pas supporté pour l\'instant.' # Ancient
-    if image.load()[115, 86] == (167, 159, 158):
-        return 'Equinox'
-    if image.load()[115, 86] == (192, 105, 57):
-        return 'Fortuna'
-    else:
-        return 'Ce theme n\'est pas supporté pour l\'instant.'
-
-
-# Image processing for better detection after
-def create_mask(theme, img):
-    if theme == 'Virtuvian':
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        #lower_virtu = np.array([-3, 80, 80])
-        #upper_virtu = np.array([43, 255, 255])
-        lower_virtu = np.array([20, 90, 110])
-        upper_virtu = np.array([43, 135, 255])
-        mask = cv2.inRange(hsv, lower_virtu, upper_virtu)
-        return mask
-    if theme == 'Stalker':
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_stalk = np.array([159, 80, 80])
-        upper_stalk = np.array([199, 255, 255])
-        mask = cv2.inRange(hsv, lower_stalk, upper_stalk)
-        return mask
-    if theme == 'Ancient':
-        return img
-    if theme == 'Equinox':
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_equi = np.array([107, 0, 0])
-        upper_equi = np.array([127, 255, 255])
-        mask = cv2.inRange(hsv, lower_equi, upper_equi)
-        return mask
-    if theme == 'Fortuna':
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_equi = np.array([80, 80, 84])
-        upper_equi = np.array([120, 199, 255])
-        mask = cv2.inRange(hsv, lower_equi, upper_equi)
-        return mask
-
-
 def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
     # Generate rID
     rid = str(randint(100, 999))
-
-    relic_raw = image
-    cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
+    # Crop the relic part
+    cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, image)
     greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
     upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
     if check_for_sign(greyed_image) >= 1:
@@ -189,17 +182,11 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
     else:
         log.debug('[' + id + '] ' + '[ Theme used is : ' + theme + ' ]')  # DEBUG
 
-        # kernel = np.ones((1, 1), np.uint8)
-        # erode = cv2.erode(upscaled, kernel, iterations=1)
-        # dilate = cv2.dilate(erode, kernel, iterations=1)
-
-        ret, imgtresh = cv2.threshold(create_mask(theme, upscaled), 218, 255, cv2.THRESH_BINARY_INV)
-
-        cv2.imwrite('test_img_ocr/number/' + 'number_' + id + '_' + rid + '.jpg', imgtresh)
+        cv2.imwrite('test_img_ocr/number/' + 'number_' + id + '_' + rid + '.jpg', get_treshold(cropped_img, theme))
 
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --psm 6 --oem 1 get.images'
 
-        text = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
+        text = pytesseract.image_to_string(get_treshold(cropped_img, theme), config=tessdata_dir_config)
 
         # Write the pre-input tif
         tiffname = '/home/Warframe-OCR/test_img_ocr/tiffs/nb_' + id + '_' + rid + '.tif'
@@ -216,7 +203,7 @@ class OcrCheck:
     def __init__(self, image):
         self.image = image
         self.relic_list = []
-        self.theme = get_theme(self.image)
+        self.theme = get_theme(self.image, 30)
         self.imgID = names.get_last_name()
         # Ecart X entre les reliques d'une même ligne : 218, y : 201
         # Block1 = Nombre, Block2 = Nom | LeftX, UpperY, RightX, DownerY
@@ -248,28 +235,15 @@ class OcrCheck:
     def data_pass_name(self, pos1, pos2, pos3, pos4, quantity, image, theme, img_id):
         # Generate rID
         rid = str(randint(100, 999))
-        # Taking the full image -> cropping -> upscaling -> dilate / erode -> ?
-        relic_raw = image
-        cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, relic_raw)
-        upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-        
+        # Crop relic parts
+        cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, image)
         # Write the raw img
-        cv2.imwrite('test_img_ocr/brut/' + 'name_' + rid + '.jpg', upscaled)  # BRUT
-        
-        # kernel = np.ones((1, 1), np.uint8)
-        # erode = cv2.erode(upscaled, kernel, iterations=1)
-        # dilate = cv2.dilate(erode, kernel, iterations=1)
-        # cv2.imwrite('test_img_ocr/after_opening/' + 'name_' + str(uuid.uuid1()) + '.jpg', dilate) # AFTER_OPENING
-        
-        # Treshold the img with the mask
-        ret, imgtresh = cv2.threshold(create_mask(theme, upscaled), 218, 255, cv2.THRESH_BINARY_INV)
-        # Write the mask img
-        cv2.imwrite('test_img_ocr/mask/' + 'name_' + img_id + '_' + rid + '.jpg', create_mask(theme, upscaled))  # MASK
+        cv2.imwrite('test_img_ocr/brut/' + 'name_' + rid + '.jpg', upscaled)  # BRUT      
         # Write the mask applied img with treshold
-        cv2.imwrite('test_img_ocr/after_masking/' + 'name_' + img_id + '_' + rid + '.jpg', imgtresh)  # AFTER_MASKING
+        cv2.imwrite('test_img_ocr/after_masking/' + 'name_' + img_id + '_' + rid + '.jpg', get_treshold(cropped_img, theme))  # AFTER_MASKING
         # Actual OCR
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 --psm 6 get.images -c tessedit_char_blacklist=jJyY'
-        textocr = pytesseract.image_to_string(imgtresh, config=tessdata_dir_config)
+        textocr = pytesseract.image_to_string(get_treshold(cropped_img, theme), config=tessdata_dir_config)
         # Write the pre-input tif
         tiffname = '/home/Warframe-OCR/test_img_ocr/tiffs/name_' + img_id + '_' + rid + '.tif'
         shutil.move("/home/Warframe-OCR/tessinput.tif", tiffname)
@@ -283,17 +257,14 @@ class OcrCheck:
 
     def ocr_loop(self):
         for i in self.pos_list:
-            if self.theme not in ['Virtuvian', 'Stalker', 'Fortuna', 'Equinox']:
-                return self.theme
+            nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme, self.imgID)
+            if nb is False:
+                pass
+            elif nb == '':
+                quantity = '1'
+                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
             else:
-                nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme, self.imgID)
-                if nb is False:
-                    pass
-                elif nb == '':
-                    quantity = '1'
-                    self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
-                else:
-                    quantity = nb
-                    self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
+                quantity = nb
+                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
         log.debug(self.relic_list)
         return self.relic_list

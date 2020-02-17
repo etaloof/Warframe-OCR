@@ -1,4 +1,7 @@
-input_file = "/ressources/1.png"
+import cv2
+import numpy as np
+
+input_file = r"ressources\4.png"
 image = cv2.imread(input_file)
 
 #UI-COLORS####################################################################################################
@@ -20,6 +23,7 @@ ui_color_list = [
     (158, 159, 167, 'Equinox')      # Equinox
 ]
 
+
 # Check ui theme from screenshot (Image Format : OPENCV)
 def get_theme(image, color_treshold):
     input_clr = image[86, 115] # Y,X  RES-DEPENDANT
@@ -30,28 +34,18 @@ def get_theme(image, color_treshold):
             pass
     
 ##############################################################################################################
-
-# Check ui theme from screenshot
-def check_pix(input_pix_clr, input_theme, color_treshold):
-    e = (189, 168, 101, 'Virtuvian')
-    if abs(input_pix_clr[2] - e[0]) < color_treshold and abs(input_pix_clr[1] - e[1]) < color_treshold and abs(input_pix_clr[0] - e[2]) < color_treshold:
-        return True
-    else:
-        return False
-            
-def tresh(image):
-    h = image.shape[0] # Hauteur
-    w = image.shape[1] # Largeur
-    for y in range(0, h):
-        for x in range(0, w):
-            pix_crl = image[y, x]
-            if check_pix(pix_crl, 'Stalker', 30) is True:
-                image[y, x] = 0
-            else:
-                image[y, x] = 255
-    
-    return image
-    
+def tresh(image, theme):
+    e = [item for item in ui_color_list if item[3] == theme][0] 
+    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
+    lowerBound = np.array([(e[2] - 30), (e[1] - 30), (e[0] - 30)]) # BGR
+    upperBound = np.array([(e[2] + 30), (e[1] + 30), (e[0] + 30)]) # BGR
+    filter = cv2.inRange(upscaled, lowerBound, upperBound)
+    tresh = cv2.bitwise_not(filter)
+    kernel = np.ones((3, 3), np.uint8)
+    tresh = cv2.erode(tresh, kernel, iterations=1)
+    return tresh
  
 theme = get_theme(image, 30)
 print(theme)
+tresh = tresh(image, theme)
+cv2.imwrite('tresh.png', tresh)
