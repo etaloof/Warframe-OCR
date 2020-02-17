@@ -180,6 +180,11 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
     if check_for_sign(greyed_image) >= 1:
         return False
     else:
+        if get_treshold(cropped_img, theme):
+            print('treshold_works')
+        else:
+            print('treshold dont work')
+        
         log.debug('[' + id + '] ' + '[ Theme used is : ' + theme + ' ]')  # DEBUG
 
         cv2.imwrite('test_img_ocr/number/' + 'number_' + id + '_' + rid + '.jpg', get_treshold(cropped_img, theme))
