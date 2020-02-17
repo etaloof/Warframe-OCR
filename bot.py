@@ -105,7 +105,7 @@ async def on_raw_reaction_add(payload):
     member = guild.get_member(payload.user_id)
 
     veil = get(guild.roles, name="Le Voile Rouge")
-    meridian = get(guild.roles, id="677886858579017741")
+    meridian = get(guild.roles, id=677886858579017741)
     suda = get(guild.roles, name="Le Cephalon Suda")
     hexis = get(guild.roles, name="Les Arbitres de Hexis")
     perrin = get(guild.roles, name="La Séquence Perrin")
