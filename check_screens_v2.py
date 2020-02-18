@@ -146,8 +146,10 @@ def test_things(image, theme):
     #print(color_p[0] * 360)
     
     HueOK = np.logical_and(hsl_arr[...,0]>44, hsl_arr[...,0]<48)
-    SaturationOK = hsl_arr[...,1] >= (0.25 * 255)
+    #SaturationOK = hsl_arr[...,1] >= (0.25 * 255)
     #LightnessOK = hsl_arr[...,2] >= (0.42 * 255)
+    SaturationOK = hsl_arr[...,2] >= (0.25 * 255)
+    LightnessOK = hsl_arr[...,1] >= (0.42 * 255)
     
     combinedMask = HueOK & SaturationOK
     final_arr = np.where(combinedMask,0,255)
