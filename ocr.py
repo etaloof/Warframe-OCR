@@ -266,8 +266,9 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
         shutil.move("/home/Warframe-OCR/tessinput.tif", tiffname)
 
         log.debug('[' + id + '] ' + '[ Tesseract output for NB is : ' + text + ' ]')
-
-        corrected_nbr = re.sub("[^0-9]", "", text)
+        
+        corrected_nbr = re.sub("G", "6", text)  # Replacing letter G by 6
+        corrected_nbr = re.sub("[^0-9]", "", corrected_nbr)  # Removing non-numbers characters from the OCR-test
 
         return corrected_nbr.casefold()
 

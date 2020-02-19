@@ -7,7 +7,7 @@ import matplotlib
 
 np.set_printoptions(threshold=sys.maxsize)
 
-input_file = r"ressources\1.png"
+input_file = r"name_984.jpg"
 image = cv2.imread(input_file) # BGR
 
 #UI-COLORS####################################################################################################
