@@ -122,8 +122,8 @@ def tresh2(image, theme):
     combinedMask = HueOK & SaturationOK & LightnessOK
     tresh = np.where(combinedMask, 0, 255)
     tresh = np.uint8(tresh)
-    kernel = np.ones((2, 2), np.uint8)
-    tresh = cv2.erode(tresh, kernel, iterations=1)
+    kernel = np.ones((3, 3), np.uint8)
+    tresh = cv2.morphologyEx(tresh, cv2.MORPH_OPEN, kernel)
     
     cv2.imwrite('test_1.png', tresh)
     
