@@ -259,7 +259,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
 
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --psm 6 --oem 1 get.images'
 
-        text = pytesseract.image_to_string(get_treshold_2(cropped_img, theme), config=tessdata_dir_config)
+        text = pytesseract.image_to_string(get_treshold(cropped_img, theme), config=tessdata_dir_config)
 
         # Write the pre-input tif
         tiffname = '/home/Warframe-OCR/test_img_ocr/tiffs/nb_' + id + '_' + rid + '.tif'
