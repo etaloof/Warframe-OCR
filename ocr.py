@@ -133,11 +133,11 @@ def get_treshold_2(image, theme):
     
     combinedMask = HueOK & SaturationOK & LightnessOK
     tresh = np.where(combinedMask, 0, 255)
-    tresh = np.uint8(final_arr)
+    tresh = np.uint8(tresh)
     kernel = np.ones((2, 2), np.uint8)
-    tresh = cv2.erode(final_arr, kernel, iterations=1)
+    tresh = cv2.erode(tresh, kernel, iterations=1)
     
-    return final_arr
+    return tresh
 
 ##############################################################################################################
 
