@@ -316,7 +316,7 @@ class OcrCheck:
         cv2.imwrite('test_img_ocr/after_masking/' + 'name_' + img_id + '_' + rid + '.jpg', get_treshold(cropped_img, theme))  # AFTER_MASKING
         # Actual OCR
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 --psm 6 get.images -c tessedit_char_blacklist=jJyY'
-        textocr = pytesseract.image_to_string(get_treshold_2(cropped_img, theme), config=tessdata_dir_config)
+        textocr = pytesseract.image_to_string(get_treshold(cropped_img, theme), config=tessdata_dir_config)
         # Write the pre-input tif
         tiffname = '/home/Warframe-OCR/test_img_ocr/tiffs/name_' + img_id + '_' + rid + '.tif'
         shutil.move("/home/Warframe-OCR/tessinput.tif", tiffname)
