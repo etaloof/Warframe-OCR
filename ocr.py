@@ -42,7 +42,7 @@ ui_color_list_primary = [
     (  9,  78, 106, 'Tenno'),          # Tenno
     (  2, 127, 217, 'High contrast'), # High contrast
     (255, 255, 255, 'Legacy'),      # Legacy
-    (158, 159, 167, 'Equinox')      # Equinox
+    (158, 159, 167, 'Equinox'),      # Equinox
     (140, 119, 147, 'Dark Lotus')   # Dark Lotus
 ]
 
