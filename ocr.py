@@ -8,6 +8,7 @@ import shutil
 import names
 from random import randint
 import re
+from colour import Color
 
 # Enable logging
 log = logging.getLogger("BlackBot_log")
