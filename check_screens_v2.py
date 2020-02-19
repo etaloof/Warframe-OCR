@@ -13,7 +13,7 @@ image = cv2.imread(input_file) # BGR
 #UI-COLORS####################################################################################################
 
 # RGB Format
-ui_color_list = [
+ui_color_list_primary = [
     (189, 168, 101, 'Virtuvian'),   # Vitruvian
     (150, 31, 35, 'Stalker'),       # Stalker 
     (238, 193, 105, 'Baruk'),       # Baruk
@@ -30,7 +30,7 @@ ui_color_list = [
     (140, 119, 147, 'Dark lotus')   # Dark lotus
 ]
 
-ui_color_list_2 = [
+ui_color_list_secondary = [
     (245, 227, 173, 'Virtuvian'),   
     (255,  61,  51, 'Stalker'),     
     (236, 211, 162, 'Baruk'),       
@@ -51,7 +51,7 @@ ui_color_list_2 = [
 # Check ui theme from screenshot (Image Format : OPENCV)
 def get_theme(image, color_treshold):
     input_clr = image[86, 115] # Y,X  RES-DEPENDANT
-    for e in ui_color_list:
+    for e in ui_color_list_primary:
         if abs(input_clr[2] - e[0]) < color_treshold and abs(input_clr[1] - e[1]) < color_treshold and abs(input_clr[0] - e[2]) < color_treshold:
             return e[3]
         else:
@@ -75,17 +75,22 @@ def tresh(image, theme):
 
 def tresh2(image, theme):
 
-    e_primary = [item for item in ui_color_list if item[3] == theme][0]
-    e_secondary = [item for item in ui_color_list_2 if item[3] == theme][0]
-
+    e_primary = [item for item in ui_color_list_primary if item[3] == theme][0]
+    e_secondary = [item for item in ui_color_list_secondary if item[3] == theme][0]
+    
     c_primary = Color(rgb=(e_primary[0]/255, e_primary[1]/255, e_primary[2]/255))
     c_secondary = Color(rgb=(e_secondary[0]/255, e_secondary[1]/255, e_secondary[2]/255))
-
-    print(round(c_primary.hue * 360))
+    
+    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
+    hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS) # Hue, Lighness, Saturation
 
     if theme == 'Virtuvian':
-        # return abs(test.GetHue() - c_primary.hue) < 2 # && test.GetSaturation() >= 0.25 && test.GetBrightness() >= 0.42;
-        pass
+        p_hue = round(c_primary.hue * 360)/2
+        print(p_hue)
+        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4, hsl_arr[..., 0] < p_hue + 4)
+        SaturationOK = hsl_arr[..., 2] >= (0.25 * 2.55)
+        LightnessOK = hsl_arr[..., 1] >= (0.42 * 2.55)
+        print('ok')
     if theme == 'Stalker':
         pass
     if theme == 'Baruk':
@@ -112,6 +117,17 @@ def tresh2(image, theme):
         pass
     if theme == 'Dark lotus':
         pass
+     
+    
+    combinedMask = HueOK & SaturationOK & LightnessOK
+    tresh = np.where(combinedMask, 0, 255)
+    tresh = np.uint8(tresh)
+    kernel = np.ones((2, 2), np.uint8)
+    tresh = cv2.erode(tresh, kernel, iterations=1)
+    
+    cv2.imwrite('test_1.png', tresh)
+    
+    return tresh
     
     
 def print_array(data):
