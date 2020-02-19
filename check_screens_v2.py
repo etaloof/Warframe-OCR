@@ -58,6 +58,8 @@ def get_theme(image, color_treshold):
             pass
     
 ##############################################################################################################
+
+
 def tresh(image, theme):
     treshold = 55
     e = [item for item in ui_color_list if item[3] == theme][0] 
@@ -69,7 +71,8 @@ def tresh(image, theme):
     kernel = np.ones((3, 3), np.uint8)
     tresh = cv2.erode(tresh, kernel, iterations=1)
     return tresh
-    
+
+
 def tresh2(image, theme):
 
     e_primary = [item for item in ui_color_list if item[3] == theme][0]
@@ -83,7 +86,6 @@ def tresh2(image, theme):
     b = a < 1
     
     np.savetxt("array.txt", a)
-    
 
     if theme == 'Virtuvian':
         # return abs(test.GetHue() - c_primary.hue) < 2 # && test.GetSaturation() >= 0.25 && test.GetBrightness() >= 0.42;
@@ -122,7 +124,8 @@ def print_array(data):
         for data_slice in data:
             np.savetxt(outfile, data_slice, fmt='%-7.2f')
             outfile.write('# New slice\n')
-            
+
+
 def test_things(image, theme):
     # Warframe-Info values are in HSL format, need to convert everything.
     hsl_arr = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
@@ -135,33 +138,32 @@ def test_things(image, theme):
     h = c_primary.hue * 360
     s = c_primary.saturation 
     l = c_primary.luminance
-    
-    print(h)
-    print(s)
-    print(l)
+
+
     #color_p = colorsys.rgb_to_hls(e_p[0]/255., e_p[1]/255., e_p[2]/255.)
     #color_s = colorsys.rgb_to_hls(e_s[0]/255., e_s[1]/255., e_s[2]/255.)
     
     #print(color_p[0])
     #print(color_p[0] * 360)
     
-    HueOK = np.logical_and(hsl_arr[...,0]>44, hsl_arr[...,0]<48)
-    #SaturationOK = hsl_arr[...,1] >= (0.25 * 255)
-    #LightnessOK = hsl_arr[...,2] >= (0.42 * 255)
-    SaturationOK = hsl_arr[...,2] >= (0.25 * 255)
-    LightnessOK = hsl_arr[...,1] >= (0.42 * 255)
+    HueOK = np.logical_and(hsl_arr[..., 0] > 44, hsl_arr[..., 0] < 48)
+    SaturationOK = hsl_arr[..., 1] >= (0.25 * 255)
+    LightnessOK = hsl_arr[..., 2] >= (0.42 * 255)
     
-    combinedMask = HueOK & SaturationOK
-    final_arr = np.where(combinedMask,0,255)
+    combinedMask = HueOK & SaturationOK & LightnessOK
+    final_arr = np.where(combinedMask, 0, 255)
+
+    tmp = (HueOK * 255).astype(np.uint8)
+    print(tmp.shape)
+    print(hsl_arr[3, 3])
+
+    cv2.imwrite('test.png', final_arr)
     
-    print_array(final_arr)
+    # print_array(final_arr)
     
-    final_img = cv2.cvtColor(final_arr, cv2.COLOR_HLS2BGR)
+    # final_img = cv2.cvtColor(final_arr, cv2.COLOR_HLS2BGR)
     
-    cv2.imshow('test', final_img)
-    
-    return final_img
-    
+    # cv2.imshow('test', final_img)
             
 theme = get_theme(image, 30)
 print(theme)

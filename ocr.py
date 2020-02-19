@@ -55,13 +55,14 @@ def get_theme(image, color_treshold):
             pass
     
 ##############################################################################################################
-#####TRESHOLD#####################################################################################################
-            
+#####TRESHOLD#################################################################################################
+
+
 def get_treshold(image, theme):
     e = [item for item in ui_color_list if item[3] == theme][0] 
-    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
-    lowerBound = np.array([(e[2] - 30), (e[1] - 30), (e[0] - 30)]) # BGR
-    upperBound = np.array([(e[2] + 30), (e[1] + 30), (e[0] + 30)]) # BGR
+    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
+    lowerBound = np.array([(e[2] - 30), (e[1] - 30), (e[0] - 30)])  # BGR
+    upperBound = np.array([(e[2] + 30), (e[1] + 30), (e[0] + 30)])  # BGR
     filter = cv2.inRange(upscaled, lowerBound, upperBound)
     tresh = cv2.bitwise_not(filter)
     kernel = np.ones((3, 3), np.uint8)
