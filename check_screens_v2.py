@@ -81,11 +81,7 @@ def tresh2(image, theme):
     c_primary = Color(rgb=(e_primary[0]/255, e_primary[1]/255, e_primary[2]/255))
     c_secondary = Color(rgb=(e_secondary[0]/255, e_secondary[1]/255, e_secondary[2]/255))
 
-    a = image
-        
-    b = a < 1
-    
-    np.savetxt("array.txt", a)
+    print(round(c_primary.hue * 360))
 
     if theme == 'Virtuvian':
         # return abs(test.GetHue() - c_primary.hue) < 2 # && test.GetSaturation() >= 0.25 && test.GetBrightness() >= 0.42;
@@ -129,16 +125,16 @@ def print_array(data):
 def test_things(image, theme):
     # Warframe-Info values are in HSL format, need to convert everything.
     ori_array = image
-    hsl_arr = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+    hsl_arr = cv2.cvtColor(image, cv2.COLOR_BGR2HLS) # Hue, Lighness, Saturation
     # Declare colors from RBG lists 1 & 2
-    e_primary = [item for item in ui_color_list if item[3] == theme][0]
-    e_secondary = [item for item in ui_color_list_2 if item[3] == theme][0]
-    c_primary = Color(rgb=(e_primary[0]/255, e_primary[1]/255, e_primary[2]/255))
-    c_secondary = Color(rgb=(e_secondary[0]/255, e_secondary[1]/255, e_secondary[2]/255))
+    #e_primary = [item for item in ui_color_list if item[3] == theme][0]
+    #e_secondary = [item for item in ui_color_list_2 if item[3] == theme][0]
+    #c_primary = Color(rgb=(e_primary[0]/255, e_primary[1]/255, e_primary[2]/255))
+    #c_secondary = Color(rgb=(e_secondary[0]/255, e_secondary[1]/255, e_secondary[2]/255))
     # Get HLS values from item
-    h = c_primary.hue * 360
-    s = c_primary.saturation 
-    l = c_primary.luminance
+    #h = c_primary.hue * 360
+    #s = c_primary.saturation 
+    #l = c_primary.luminance
 
 
     #color_p = colorsys.rgb_to_hls(e_p[0]/255., e_p[1]/255., e_p[2]/255.)
@@ -147,13 +143,18 @@ def test_things(image, theme):
     #print(color_p[0])
     #print(color_p[0] * 360)
     
-    HueOK = np.logical_and(hsl_arr[..., 0] > 44, hsl_arr[..., 0] < 48)
-    SaturationOK = hsl_arr[..., 1] >= (0.25 * 255)
-    LightnessOK = hsl_arr[..., 2] >= (0.42 * 255)
+    HueOK = np.logical_and(hsl_arr[..., 0] > (42/2), hsl_arr[..., 0] < (50/2))
+    SaturationOK = hsl_arr[..., 2] >= (0.25 * 2.55)
+    LightnessOK = hsl_arr[..., 1] >= (0.42 * 2.55)
     
     combinedMask = HueOK & SaturationOK & LightnessOK
     final_arr = np.where(combinedMask, 0, 255)
-
+    
+    final_arr = np.uint8(final_arr)
+    
+    kernel = np.ones((2, 2), np.uint8)
+    final_arr = cv2.erode(final_arr, kernel, iterations=1)
+    
     tmp = (HueOK * 255).astype(np.uint8)
     print(tmp.shape)
     print(ori_array[3, 3])
@@ -171,5 +172,5 @@ def test_things(image, theme):
 theme = get_theme(image, 30)
 print(theme)
 #X, X, nth rgb value
-test_things(image, theme)
+tresh2(image, theme)
 #cv2.imwrite('tresh.png', tresh)
