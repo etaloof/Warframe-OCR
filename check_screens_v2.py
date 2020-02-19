@@ -128,6 +128,7 @@ def print_array(data):
 
 def test_things(image, theme):
     # Warframe-Info values are in HSL format, need to convert everything.
+    ori_array = image
     hsl_arr = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
     # Declare colors from RBG lists 1 & 2
     e_primary = [item for item in ui_color_list if item[3] == theme][0]
@@ -155,7 +156,9 @@ def test_things(image, theme):
 
     tmp = (HueOK * 255).astype(np.uint8)
     print(tmp.shape)
+    print(ori_array[3, 3])
     print(hsl_arr[3, 3])
+
 
     cv2.imwrite('test.png', final_arr)
     
