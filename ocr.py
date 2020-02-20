@@ -326,7 +326,7 @@ class OcrCheck:
         if textocr == '':
             pass
         else:
-            corrected_text = re.sub("G", "6", text)  # Replacing letter G by 6
+            corrected_text = re.sub("G", "6", textocr)  # Replacing letter G by 6
             corrected_text = re.sub("\n", " ", corrected_text)
             self.relic_list.append(extract_vals(corrected_text) + (quantity,))
 
