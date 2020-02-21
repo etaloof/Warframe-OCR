@@ -1,4 +1,4 @@
-from spellcheck import SpellCheck
+from spellchecker import SpellChecker
 from scrap import update_vault_list
 from ocr import OcrCheck
 from db_operations import relic_from_screen
@@ -12,7 +12,8 @@ import requests
 v_relic_list = update_vault_list()
 
 # Define reference file for Spellchecking
-spell_check = SpellCheck('ref/other_ref/ref_words.txt')
+spell_check = SpellChecker(distance=1)
+spell_check.word_frequency.load_text_file('ref/other_ref/ref_words.txt')
 
 # Define references files to use for Warframe Data
 Era_file = 'ref/other_ref/ref_era.txt'
@@ -147,17 +148,16 @@ def clean_disctag(name):
 
 # Try to correct spelling for commands, and translate english to french for "Quality" arg
 def spell_correct(string):
-    spell_check.check(string)
-    if spell_check.correct().capitalize() == 'Intact':
+    if spell_check_ocr.correction(string).capitalize() == 'Intact':
         return 'Intacte'
-    if spell_check.correct().capitalize() == 'Exceptional':
+    if spell_check_ocr.correction(string).capitalize() == 'Exceptional':
         return 'Exceptionnelle'
-    if spell_check.correct().capitalize() == 'Flawless':
+    if spell_check_ocr.correction(string).capitalize() == 'Flawless':
         return 'Impeccable'
-    if spell_check.correct().capitalize() == 'Radiant':
+    if spell_check_ocr.correction(string).capitalize() == 'Radiant':
         return 'Eclatante'
     else:
-        return spell_check.correct().capitalize()
+        return spell_check_ocr.correction(string).capitalize()
 
 
 # Check if number of relic input by command is too high

@@ -1,17 +1,10 @@
 import sqlite3
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 application = Flask(__name__)
 
-
-@application.route('/')
-def index():
-    db = sqlite3.connect('relicdb.sqlite3')
-    cursor = db.cursor()
-    cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser GROUP BY Relic.Name, Relic.Era, Relic.Quality''')
-    # cursor.execute('''SELECT Relic.Name, Relic.Era, User.Pseudo, Relic.Quality, Relic.Quantity FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser''')
-    data = cursor.fetchall()
+def processing(sql_data, cursor):
     results_f = []
-    for element in data:
+    for element in sql_data:
         a, b = element[-2:]
         new_string = ' | '.join([f'{owner} ({value})' for owner, value in zip(a.split(','), b.split(','))])
         new_tup = (*element[:-2], new_string)
@@ -29,8 +22,83 @@ def index():
             list1.extend(result2)
             
         element.extend(list1)
+      
+    return results_f
 
-    return render_template('relic.html', data=results_f)
+@application.route('/', methods=["GET", "POST"])
+def index():
+    db = sqlite3.connect('relicdb.sqlite3')
+    cursor = db.cursor()
+    
+    if request.method == "POST":
+        user_filter = request.form['user']
+        quality_filter = request.form['quality']
+        era_filter = request.form['era']
+    
+        if user_filter != '' and quality_filter == '' and era_filter == '': # user
+            print('choice 1')
+            cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser WHERE User.Pseudo = ? GROUP BY Relic.Name, Relic.Era, Relic.Quality''', (user_filter,))
+            data = cursor.fetchall()  
+            final_res = processing(data, cursor)
+            return render_template('relic.html', data=final_res)
+            
+        if user_filter != '' and quality_filter != '' and era_filter == '': # user & quality
+            print('choice 2')
+            cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser WHERE User.Pseudo = ? AND Relic.Quality = ? GROUP BY Relic.Name, Relic.Era, Relic.Quality''', (user_filter, quality_filter,))
+            data = cursor.fetchall()  
+            final_res = processing(data, cursor)
+            return render_template('relic.html', data=final_res)
+            
+        if user_filter != '' and quality_filter == '' and era_filter != '': # user & era
+            print('choice 3')
+            cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser WHERE User.Pseudo = ? AND Relic.Era = ? GROUP BY Relic.Name, Relic.Era, Relic.Quality''', (user_filter, era_filter,))
+            data = cursor.fetchall()  
+            final_res = processing(data, cursor)
+            return render_template('relic.html', data=final_res)
+            
+        if user_filter != '' and quality_filter != '' and era_filter != '': # user & quality & era
+            print('choice 4')
+            cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser WHERE User.Pseudo = ? AND Relic.Quality = ? AND Relic.Era = ? GROUP BY Relic.Name, Relic.Era, Relic.Quality''', (user_filter, quality_filter, era_filter,))
+            data = cursor.fetchall()  
+            final_res = processing(data, cursor)
+            return render_template('relic.html', data=final_res)
+            
+        if user_filter == '' and quality_filter != '' and era_filter == '': # quality 
+            print('choice 5')
+            cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser WHERE Relic.Quality = ? GROUP BY Relic.Name, Relic.Era, Relic.Quality''', (quality_filter,))
+            data = cursor.fetchall()  
+            final_res = processing(data, cursor)
+            return render_template('relic.html', data=final_res)
+            
+        if user_filter == '' and quality_filter != '' and era_filter != '': # quality & era 
+            print('choice 6')
+            cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser WHERE Relic.Quality = ? AND Relic.Era = ? GROUP BY Relic.Name, Relic.Era, Relic.Quality''', (quality_filter, era_filter,))
+            data = cursor.fetchall()  
+            final_res = processing(data, cursor)
+            return render_template('relic.html', data=final_res)
+            
+        if user_filter == '' and quality_filter == '' and era_filter != '': # era 
+            print('choice 7')
+            cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser WHERE Relic.Era = ? GROUP BY Relic.Name, Relic.Era, Relic.Quality''', (era_filter,))
+            data = cursor.fetchall()  
+            final_res = processing(data, cursor)
+            return render_template('relic.html', data=final_res)
+            
+        if user_filter == '' and quality_filter == '' and era_filter == '': # nothing
+            print('choice 8')
+            cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser GROUP BY Relic.Name, Relic.Era, Relic.Quality''')
+            data = cursor.fetchall()
+            final_res = processing(data, cursor)
+            return render_template('relic.html', data=final_res)
+
+    else: 
+        print('choice 9')
+        cursor.execute('''SELECT Relic.Name, Relic.Era, Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM Relic INNER JOIN User ON Relic.IDOwner = User.IDUser GROUP BY Relic.Name, Relic.Era, Relic.Quality''')
+        data = cursor.fetchall()
+        final_res = processing(data, cursor)
+        return render_template('relic.html', data=final_res)
+
+    
     
     # Organization of one line :
     # 0 : relic name

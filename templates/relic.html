@@ -9,7 +9,30 @@
 <!--===============================================================================================-->
 </head>
 <body class="bodyclass">
-	<div>
+	<div class="navbar">
+		<form id= 'myForm' action= {{url_for('index')}} method='POST'>
+			<label for="name">User:</label>
+			<input type="text" id="name" name="user">
+			<label for="quality">Qualité:</label>
+			<select form='myForm' id = "QualityList", name='quality'>
+			   <option value = "">-Tout-</option>
+               <option value = "Intacte">Intacte</option>
+               <option value = "Exceptionnelle">Exceptionnelle</option>
+               <option value = "Impeccable">Impeccable</option>
+               <option value = "Eclatante">Eclatante</option>
+            </select>
+			<label for="era">Era:</label>
+			<select form='myForm' id = "EraList", name='era'>
+			   <option value = "">-Tout-</option>
+               <option value = "Lith">Lith</option>
+               <option value = "Neo">Neo</option>
+               <option value = "Meso">Meso</option>
+               <option value = "Axi">Axi</option>
+            </select>
+			<input type='submit' value="FILTRER">
+		</form>
+	</div>
+	<div class="main">
 		{% for item in data %}
 		<div class="expandableShort relicdisplaybar expandable">
 			<div style="margin-left:5px;">

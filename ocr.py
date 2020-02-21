@@ -2,7 +2,7 @@ import pytesseract
 import cv2
 import numpy as np
 from PIL import Image
-from spellcheck import SpellCheck
+from spellchecker import SpellChecker
 import logging
 import shutil
 import names
@@ -26,25 +26,30 @@ formatter = logging.Formatter("%(asctime)s.%(msecs)03d - %(name)s:%(lineno)d - %
 fh.setFormatter(formatter)
 log.addHandler(fh)
 
+#CORRECTION_LIST#############################################################################################
+
+ref_1_list = ['relique', 'relic']
+ref_2_list = ['lith', 'axi', 'neo', 'meso']
+
 ##############################################################################################################
 #UI-COLORS####################################################################################################
 
 # RGB Format
 ui_color_list_primary = [
-    (190, 169, 102, 'Virtuvian'),   # Vitruvian
-    (153,  31,  35, 'Stalker'),       # Stalker 
-    (238, 193, 105, 'Baruk'),       # Baruk
-    ( 35, 201, 245, 'Corpus'),       # Corpus
-    ( 57, 105, 192, 'Fortuna'),      # Fortuna
-    (255, 189, 102, 'Grineer'),     # Grineer
-    ( 36, 184, 242, 'Lotus'),        # Lotus
-    (140,  38,  92, 'Nidus'),         # Nidus
-    ( 20,  41,  29, 'Orokin'),         # Orokin
-    (  9,  78, 106, 'Tenno'),          # Tenno
-    (  2, 127, 217, 'High contrast'), # High contrast
-    (255, 255, 255, 'Legacy'),      # Legacy
-    (158, 159, 167, 'Equinox'),      # Equinox
-    (140, 119, 147, 'Dark Lotus')   # Dark Lotus
+    (190, 169, 102, 'Virtuvian'),             # Vitruvian
+    (153,  31,  35, 'Stalker'),               # Stalker 
+    (238, 193, 105, 'Baruk'),                 # Baruk
+    ( 35, 201, 245, 'Corpus'),                # Corpus
+    ( 57, 105, 192, 'Fortuna'),               # Fortuna
+    (255, 189, 102, 'Grineer'),               # Grineer
+    ( 36, 184, 242, 'Lotus'),                 # Lotus
+    (140,  38,  92, 'Nidus'),                 # Nidus
+    ( 20,  41,  29, 'Orokin'),                # Orokin
+    (  9,  78, 106, 'Tenno'),                 # Tenno
+    (  2, 127, 217, 'High contrast'),         # High contrast
+    (255, 255, 255, 'Legacy'),                # Legacy
+    (158, 159, 167, 'Equinox'),               # Equinox
+    (140, 119, 147, 'Dark Lotus')             # Dark Lotus
 ]
 
 ui_color_list_secondary = [
@@ -76,7 +81,7 @@ def get_theme(image, color_treshold):
 ##############################################################################################################
 #####TRESHOLD#################################################################################################
 
-
+# Treshold function
 def get_treshold(image, theme):
     e = [item for item in ui_color_list_primary if item[3] == theme][0] 
     upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
@@ -87,7 +92,8 @@ def get_treshold(image, theme):
     kernel = np.ones((3, 3), np.uint8)
     tresh = cv2.erode(tresh, kernel, iterations=1)
     return tresh
-    
+  
+# NOT USED  
 def get_treshold_2(image, theme):
 
     e_primary = [item for item in ui_color_list_primary if item[3] == theme][0]
@@ -165,7 +171,7 @@ def extract_vals(text):
     return era, name, quality
 
 
-# Extract Name from the ocr result (NO SPELLCHECK)
+# Extract NAME from the ocr result (NO SPELLCHECK)
 def ocr_extract_name(string):
     rel_eng = spell_correction_ocr(' '.join(string.split(" ")[2:])[:5].lower(), 'ref/ref_1_ocr.txt').lower()
     rel_fr = spell_correction_ocr(string.split(" ")[0].lower(), 'ref/ref_1_ocr.txt').lower()
@@ -175,10 +181,12 @@ def ocr_extract_name(string):
         return string.split(" ")[1][:3].capitalize().rstrip()
 
 
-# Extract era from the ocr result (WITH SPELLCHECK)
+# Extract ERA from the ocr result (WITH SPELLCHECK)
 def ocr_extract_era(string):
-    rel_eng = spell_correction_ocr(' '.join(string.split(" ")[2:])[:5].lower(), 'ref/ref_1_ocr.txt').lower()
-    rel_fr = spell_correction_ocr(string.split(" ")[0].lower(), 'ref/ref_1_ocr.txt').lower()
+    rel_eng = spell_correction_ocr(' '.join(string.split(" ")[2:])[:5].lower(), ref_1_list).lower()
+    rel_fr = spell_correction_ocr(string.split(" ")[0].lower(), ref_1_list).lower()
+    
+    # Handle french
     if 'relique' in rel_fr:
         if 'axi' in string:
             return 'Axi'
@@ -188,22 +196,20 @@ def ocr_extract_era(string):
             return 'Meso'
         if 'lith' in string:
             return 'Lith'
+    
+    # Handle english
     if 'relic' in rel_eng:
-        if 'axi' in string:
-            return 'Axi'
-        if 'neo' in string:
-            return 'Neo'
-        if 'meso' in string:
-            return 'Meso'
-        if 'lith' in string:
-            return 'Lith'
+        found_era = spell_correction_ocr(string.split(" ")[0].lower(), ref_2_list)
+        print(found_era)
+        return found_era
 
 
 # Try to correct mistakes
-def spell_correction_ocr(string, corr_model):
-    spell_check_ocr = SpellCheck(corr_model)
-    spell_check_ocr.check(string)
-    return spell_check_ocr.correct().strip().capitalize()
+def spell_correction_ocr(string, corr_list):
+    spell_check_ocr = SpellChecker(distance=2, language=None)
+    spell_check_ocr.word_frequency.load_words(corr_list)
+    spell_check_ocr.correction(string)
+    return spell_check_ocr.correction(string).strip().capitalize()
 
 
 # Check for specific sprite to see if the relic exist
@@ -223,7 +229,7 @@ def check_for_sign(img):
     return count
 
 
-# Extract quality from the ocr result (NO SPELLCHECK FOR NOW)
+# Extract QUALITY from the ocr result (NO SPELLCHECK FOR NOW)
 def ocr_extract_quality(string):
     if any(s in string for s in ['exceptionnelle', 'éxceptionnelle', 'exceptional']):
         return 'Exceptionnelle'
