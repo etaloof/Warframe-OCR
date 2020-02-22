@@ -14,20 +14,20 @@ image = cv2.imread(input_file) # BGR
 
 # RGB Format
 ui_color_list_primary = [
-    (189, 168, 101, 'Virtuvian'),   # Vitruvian
-    (150, 31, 35, 'Stalker'),       # Stalker 
-    (238, 193, 105, 'Baruk'),       # Baruk
-    (35, 200, 245, 'Corpus'),       # Corpus
-    (57, 105, 192, 'Fortuna'),      # Fortuna
-    (255, 189, 102, 'Grineer'),     # Grineer
-    (36, 184, 242, 'Lotus'),        # Lotus
-    (140, 38, 92, 'Nidus'),         # Nidus
-    (20, 41, 29, 'Orokin'),         # Orokin
-    (9, 78, 106, 'Tenno'),          # Tenno
-    (2, 127, 217, 'High contrast'), # High contrast
-    (255, 255, 255, 'Legacy'),      # Legacy
-    (158, 159, 167, 'Equinox'),     # Equinox
-    (140, 119, 147, 'Dark lotus')   # Dark lotus
+    (190, 169, 102, 'Virtuvian'),             # Vitruvian
+    (153,  31,  35, 'Stalker'),               # Stalker 
+    (238, 193, 105, 'Baruk'),                 # Baruk
+    ( 35, 201, 245, 'Corpus'),                # Corpus
+    ( 57, 105, 192, 'Fortuna'),               # Fortuna
+    (255, 189, 102, 'Grineer'),               # Grineer
+    ( 36, 184, 242, 'Lotus'),                 # Lotus
+    (140,  38,  92, 'Nidus'),                 # Nidus
+    ( 20,  41,  29, 'Orokin'),                # Orokin
+    (  9,  78, 106, 'Tenno'),                 # Tenno
+    (  2, 127, 217, 'High contrast'),         # High contrast
+    (255, 255, 255, 'Legacy'),                # Legacy
+    (158, 159, 167, 'Equinox'),               # Equinox
+    (140, 119, 147, 'Dark Lotus')             # Dark Lotus
 ]
 
 ui_color_list_secondary = [
@@ -72,25 +72,22 @@ def tresh(image, theme):
     tresh = cv2.erode(tresh, kernel, iterations=1)
     return tresh
 
-
-def tresh2(image, theme):
+def get_treshold_2(image, theme):
 
     e_primary = [item for item in ui_color_list_primary if item[3] == theme][0]
     e_secondary = [item for item in ui_color_list_secondary if item[3] == theme][0]
     
-    c_primary = Color(rgb=(e_primary[0]/255, e_primary[1]/255, e_primary[2]/255))
-    c_secondary = Color(rgb=(e_secondary[0]/255, e_secondary[1]/255, e_secondary[2]/255))
+    c_primary = Color(rgb=(e_primary[0]/256, e_primary[1]/256, e_primary[2]/256))
+    c_secondary = Color(rgb=(e_secondary[0]/256, e_secondary[1]/256, e_secondary[2]/256))
     
     upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
     hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS) # Hue, Lighness, Saturation
-
+    
     if theme == 'Virtuvian':
         p_hue = round(c_primary.hue * 360)/2
-        print(p_hue)
-        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4, hsl_arr[..., 0] < p_hue + 4)
-        SaturationOK = hsl_arr[..., 2] >= (0.25 * 2.55)
-        LightnessOK = hsl_arr[..., 1] >= (0.42 * 2.55)
-        print('ok')
+        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4/2, hsl_arr[..., 0] < p_hue + 4/2)
+        SaturationOK = hsl_arr[..., 2] >= (0.25 * 256)
+        LightnessOK = hsl_arr[..., 1] >= (0.42 * 256)
     if theme == 'Stalker':
         pass
     if theme == 'Baruk':
@@ -121,11 +118,9 @@ def tresh2(image, theme):
     
     combinedMask = HueOK & SaturationOK & LightnessOK
     tresh = np.where(combinedMask, 0, 255)
-    tresh = np.uint8(tresh)
-    kernel = np.ones((3, 3), np.uint8)
-    tresh = cv2.morphologyEx(tresh, cv2.MORPH_OPEN, kernel)
-    
-    cv2.imwrite('test_1.png', tresh)
+    #tresh = np.uint8(tresh)
+    #kernel = np.ones((3, 3), np.uint8)
+    #tresh = cv2.morphologyEx(tresh, cv2.MORPH_OPEN, kernel)
     
     return tresh
     
