@@ -1,4 +1,4 @@
-import pytesseract
+zimport pytesseract
 import cv2
 import numpy as np
 from PIL import Image
@@ -99,17 +99,17 @@ def get_treshold_2(image, theme):
     e_primary = [item for item in ui_color_list_primary if item[3] == theme][0]
     e_secondary = [item for item in ui_color_list_secondary if item[3] == theme][0]
     
-    c_primary = Color(rgb=(e_primary[0]/255, e_primary[1]/255, e_primary[2]/255))
-    c_secondary = Color(rgb=(e_secondary[0]/255, e_secondary[1]/255, e_secondary[2]/255))
+    c_primary = Color(rgb=(e_primary[0]/256, e_primary[1]/256, e_primary[2]/256))
+    c_secondary = Color(rgb=(e_secondary[0]/256, e_secondary[1]/256, e_secondary[2]/256))
     
     upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
     hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS) # Hue, Lighness, Saturation
     
     if theme == 'Virtuvian':
         p_hue = round(c_primary.hue * 360)/2
-        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4, hsl_arr[..., 0] < p_hue + 4)
-        SaturationOK = hsl_arr[..., 2] >= (0.25 * 2.55)
-        LightnessOK = hsl_arr[..., 1] >= (0.42 * 2.55)
+        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4/2, hsl_arr[..., 0] < p_hue + 4/2)
+        SaturationOK = hsl_arr[..., 2] >= (0.25 * 256)
+        LightnessOK = hsl_arr[..., 1] >= (0.42 * 256)
     if theme == 'Stalker':
         pass
     if theme == 'Baruk':
@@ -173,8 +173,8 @@ def extract_vals(text):
 
 # Extract NAME from the ocr result (NO SPELLCHECK)
 def ocr_extract_name(string):
-    rel_eng = spell_correction_ocr(' '.join(string.split(" ")[2:])[:5].lower(), 'ref/ref_1_ocr.txt').lower()
-    rel_fr = spell_correction_ocr(string.split(" ")[0].lower(), 'ref/ref_1_ocr.txt').lower()
+    rel_eng = spell_correction_ocr(' '.join(string.split(" ")[2:])[:5].lower(), ref_1_list).lower()
+    rel_fr = spell_correction_ocr(string.split(" ")[0].lower(), ref_1_list).lower()
     if 'relique' in rel_fr:
         return ' '.join(string.split(" ")[2:])[:3].capitalize().rstrip()
     if 'relic' in rel_eng:
@@ -188,25 +188,18 @@ def ocr_extract_era(string):
     
     # Handle french
     if 'relique' in rel_fr:
-        if 'axi' in string:
-            return 'Axi'
-        if 'neo' in string:
-            return 'Neo'
-        if 'meso' in string:
-            return 'Meso'
-        if 'lith' in string:
-            return 'Lith'
+        found_era = spell_correction_ocr(string.split(" ")[1].lower(), ref_2_list)
+        return found_era
     
     # Handle english
     if 'relic' in rel_eng:
         found_era = spell_correction_ocr(string.split(" ")[0].lower(), ref_2_list)
-        print(found_era)
         return found_era
 
 
 # Try to correct mistakes
 def spell_correction_ocr(string, corr_list):
-    spell_check_ocr = SpellChecker(distance=2, language=None)
+    spell_check_ocr = SpellChecker(distance=2, language=None, case_sensitive=False)
     spell_check_ocr.word_frequency.load_words(corr_list)
     spell_check_ocr.correction(string)
     return spell_check_ocr.correction(string).strip().capitalize()
