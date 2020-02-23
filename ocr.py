@@ -95,19 +95,18 @@ def get_treshold(image, theme):
   
 # NOT USED  
 def get_treshold_2(image, theme):
-
     e_primary = [item for item in ui_color_list_primary if item[3] == theme][0]
     e_secondary = [item for item in ui_color_list_secondary if item[3] == theme][0]
-    
-    c_primary = Color(rgb=(e_primary[0]/256, e_primary[1]/256, e_primary[2]/256))
-    c_secondary = Color(rgb=(e_secondary[0]/256, e_secondary[1]/256, e_secondary[2]/256))
-    
-    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
-    hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS) # Hue, Lighness, Saturation
+
+    c_primary = Color(rgb=(e_primary[0] / 256, e_primary[1] / 256, e_primary[2] / 256))
+    c_secondary = Color(rgb=(e_secondary[0] / 256, e_secondary[1] / 256, e_secondary[2] / 256))
+
+    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
+    hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS)  # Hue, Lighness, Saturation
     
     if theme == 'Virtuvian':
-        p_hue = round(c_primary.hue * 360)/2
-        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4/2, hsl_arr[..., 0] < p_hue + 4/2)
+        p_hue = round(c_primary.hue * 360) / 2
+        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.25 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.42 * 256)
     if theme == 'Stalker':
@@ -136,13 +135,12 @@ def get_treshold_2(image, theme):
         pass
     if theme == 'Dark lotus':
         pass
-     
-    
+
     combinedMask = HueOK & SaturationOK & LightnessOK
-    tresh = np.where(combinedMask, 0, 255)
-    tresh = np.uint8(tresh)
+    hsl_arr[combinedMask] = 0
+    hsl_arr[~combinedMask] = 255
     kernel = np.ones((3, 3), np.uint8)
-    tresh = cv2.morphologyEx(tresh, cv2.MORPH_OPEN, kernel)
+    tresh = cv2.erode(hsl_arr, kernel, iterations=1)
     
     return tresh
 
@@ -258,7 +256,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
 
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --psm 6 --oem 1 get.images'
 
-        text = pytesseract.image_to_string(get_treshold(cropped_img, theme), config=tessdata_dir_config)
+        text = pytesseract.image_to_string(get_treshold_2(cropped_img, theme), config=tessdata_dir_config)
 
         # Write the pre-input tif
         tiffname = '/home/Warframe-OCR/test_img_ocr/tiffs/nb_' + id + '_' + rid + '.tif'
@@ -316,7 +314,7 @@ class OcrCheck:
         cv2.imwrite('test_img_ocr/after_masking/' + 'name_' + img_id + '_' + rid + '.jpg', get_treshold(cropped_img, theme))  # AFTER_MASKING
         # Actual OCR
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 --psm 6 get.images -c tessedit_char_blacklist=jJyY'
-        textocr = pytesseract.image_to_string(get_treshold(cropped_img, theme), config=tessdata_dir_config)
+        textocr = pytesseract.image_to_string(get_treshold_2(cropped_img, theme), config=tessdata_dir_config)
         # Write the pre-input tif
         tiffname = '/home/Warframe-OCR/test_img_ocr/tiffs/name_' + img_id + '_' + rid + '.tif'
         shutil.move("/home/Warframe-OCR/tessinput.tif", tiffname)

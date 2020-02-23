@@ -1,52 +1,33 @@
-import cv2
+from random import randint, seed
 import numpy as np
 
-input_file = r"ressources\26.png"
-image = cv2.imread(input_file)
+# Generate a repeatable random HSV image
+np.random.seed(42)
+h, w = 4, 5
+HSV = np.random.randint(1,100,(h,w,3),dtype=np.uint8)
+print('Initial HSV\n',HSV)
 
-#UI-COLORS####################################################################################################
+# Create mask of all pixels with acceptable Hue, i.e. H > 50
+HueOK = HSV[...,0] > 50
+print('HueOK\n',HueOK)
 
-# RGB Format
-ui_color_list = [
-    (189, 168, 101, 'Virtuvian'),   # Vitruvian
-    (150, 31, 35, 'Stalker'),       # Stalker 
-    (238, 193, 105, 'Baruk'),       # Baruk
-    (35, 200, 245, 'Corpus'),       # Corpus
-    (57, 105, 192, 'Fortuna'),      # Fortuna
-    (255, 189, 102, 'Grineer'),     # Grineer
-    (36, 184, 242, 'Lotus'),        # Lotus
-    (140, 38, 92, 'Nidus'),         # Nidus
-    (20, 41, 29, 'Orokin'),         # Orokin
-    (9, 78, 106, 'Tenno'),          # Tenno
-    (2, 127, 217, 'High contrast'), # High contrast
-    (255, 255, 255, 'Legacy'),      # Legacy
-    (158, 159, 167, 'Equinox')      # Equinox
-]
+# Create mask of all pixels with acceptable Saturation, i.e. S > 20 AND S < 80
+SatOK = np.logical_and(HSV[...,1]>20, HSV[...,1]<80)
+print('SatOK\n',SatOK)
 
+# Create mask of all pixels with acceptable value, i.e. V < 20 OR V > 60
+ValOK = np.logical_or(HSV[...,2]<20, HSV[...,2]>60)
+print('ValOK\n',ValOK)
 
-# Check ui theme from screenshot (Image Format : OPENCV)
-def get_theme(image, color_treshold):
-    input_clr = image[86, 115] # Y,X  RES-DEPENDANT
-    for e in ui_color_list:
-        if abs(input_clr[2] - e[0]) < color_treshold and abs(input_clr[1] - e[1]) < color_treshold and abs(input_clr[0] - e[2]) < color_treshold:
-            return e[3]
-        else:
-            pass
-    
-##############################################################################################################
-def tresh(image, theme):
-    treshold = 55
-    e = [item for item in ui_color_list if item[3] == theme][0] 
-    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
-    lowerBound = np.array([(e[2] - treshold), (e[1] - treshold), (e[0] - treshold)]) # BGR
-    upperBound = np.array([(e[2] + treshold), (e[1] + treshold), (e[0] + treshold)]) # BGR
-    filter = cv2.inRange(upscaled, lowerBound, upperBound)
-    tresh = cv2.bitwise_not(filter)
-    kernel = np.ones((3, 3), np.uint8)
-    tresh = cv2.erode(tresh, kernel, iterations=1)
-    return tresh
- 
-theme = get_theme(image, 30)
-print(theme)
-tresh = tresh(image, theme)
-cv2.imwrite('tresh.png', tresh)
+# Combine masks
+combinedMask = HueOK & SatOK & ValOK
+print('Combined\n',combinedMask)
+print(combinedMask.dtype, combinedMask.shape)
+
+# Now, if you just want to set the masked pixels to 255
+HSV[combinedMask] = 255
+print('Result1\n',HSV)
+
+# Or, if you want to set the masked pixels to one value and the others to another value
+HSV = np.where(combinedMask,255,0)
+print('Result2\n',HSV)

@@ -7,8 +7,8 @@ import matplotlib
 
 np.set_printoptions(threshold=sys.maxsize)
 
-input_file = r"name_984.jpg"
-image = cv2.imread(input_file) # BGR
+input_file = "1.png"
+image = cv2.imread(input_file)  # BGR
 
 #UI-COLORS####################################################################################################
 
@@ -60,17 +60,19 @@ def get_theme(image, color_treshold):
 ##############################################################################################################
 
 
-def tresh(image, theme):
-    treshold = 55
-    e = [item for item in ui_color_list if item[3] == theme][0] 
-    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
-    lowerBound = np.array([(e[2] - treshold), (e[1] - treshold), (e[0] - treshold)]) # BGR
-    upperBound = np.array([(e[2] + treshold), (e[1] + treshold), (e[0] + treshold)]) # BGR
+# Treshold function
+def get_treshold(image, theme):
+    e = [item for item in ui_color_list_primary if item[3] == theme][0]
+    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
+    lowerBound = np.array([(e[2] - 30), (e[1] - 30), (e[0] - 30)])  # BGR
+    upperBound = np.array([(e[2] + 30), (e[1] + 30), (e[0] + 30)])  # BGR
     filter = cv2.inRange(upscaled, lowerBound, upperBound)
     tresh = cv2.bitwise_not(filter)
+    print(tresh)
     kernel = np.ones((3, 3), np.uint8)
     tresh = cv2.erode(tresh, kernel, iterations=1)
     return tresh
+
 
 def get_treshold_2(image, theme):
 
@@ -80,14 +82,17 @@ def get_treshold_2(image, theme):
     c_primary = Color(rgb=(e_primary[0]/256, e_primary[1]/256, e_primary[2]/256))
     c_secondary = Color(rgb=(e_secondary[0]/256, e_secondary[1]/256, e_secondary[2]/256))
     
-    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC) # Upscaling x2
-    hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS) # Hue, Lighness, Saturation
-    
+    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
+    hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS)  # Hue, Lighness, Saturation
+
+    print(hsl_arr.dtype, hsl_arr.shape)
+
     if theme == 'Virtuvian':
         p_hue = round(c_primary.hue * 360)/2
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4/2, hsl_arr[..., 0] < p_hue + 4/2)
         SaturationOK = hsl_arr[..., 2] >= (0.25 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.42 * 256)
+
     if theme == 'Stalker':
         pass
     if theme == 'Baruk':
@@ -114,13 +119,17 @@ def get_treshold_2(image, theme):
         pass
     if theme == 'Dark lotus':
         pass
-     
-    
+
+
     combinedMask = HueOK & SaturationOK & LightnessOK
-    tresh = np.where(combinedMask, 0, 255)
-    #tresh = np.uint8(tresh)
-    #kernel = np.ones((3, 3), np.uint8)
-    #tresh = cv2.morphologyEx(tresh, cv2.MORPH_OPEN, kernel)
+
+    hsl_arr[combinedMask] = 0
+    hsl_arr[~combinedMask] = 255
+
+    print(hsl_arr[0][0])
+
+    kernel = np.ones((3, 3), np.uint8)
+    tresh = cv2.erode(hsl_arr, kernel, iterations=1)
     
     return tresh
     
@@ -133,55 +142,7 @@ def print_array(data):
             outfile.write('# New slice\n')
 
 
-def test_things(image, theme):
-    # Warframe-Info values are in HSL format, need to convert everything.
-    ori_array = image
-    hsl_arr = cv2.cvtColor(image, cv2.COLOR_BGR2HLS) # Hue, Lighness, Saturation
-    # Declare colors from RBG lists 1 & 2
-    #e_primary = [item for item in ui_color_list if item[3] == theme][0]
-    #e_secondary = [item for item in ui_color_list_2 if item[3] == theme][0]
-    #c_primary = Color(rgb=(e_primary[0]/255, e_primary[1]/255, e_primary[2]/255))
-    #c_secondary = Color(rgb=(e_secondary[0]/255, e_secondary[1]/255, e_secondary[2]/255))
-    # Get HLS values from item
-    #h = c_primary.hue * 360
-    #s = c_primary.saturation 
-    #l = c_primary.luminance
-
-
-    #color_p = colorsys.rgb_to_hls(e_p[0]/255., e_p[1]/255., e_p[2]/255.)
-    #color_s = colorsys.rgb_to_hls(e_s[0]/255., e_s[1]/255., e_s[2]/255.)
-    
-    #print(color_p[0])
-    #print(color_p[0] * 360)
-    
-    HueOK = np.logical_and(hsl_arr[..., 0] > (42/2), hsl_arr[..., 0] < (50/2))
-    SaturationOK = hsl_arr[..., 2] >= (0.25 * 2.55)
-    LightnessOK = hsl_arr[..., 1] >= (0.42 * 2.55)
-    
-    combinedMask = HueOK & SaturationOK & LightnessOK
-    final_arr = np.where(combinedMask, 0, 255)
-    
-    final_arr = np.uint8(final_arr)
-    
-    kernel = np.ones((2, 2), np.uint8)
-    final_arr = cv2.erode(final_arr, kernel, iterations=1)
-    
-    tmp = (HueOK * 255).astype(np.uint8)
-    print(tmp.shape)
-    print(ori_array[3, 3])
-    print(hsl_arr[3, 3])
-
-
-    cv2.imwrite('test.png', final_arr)
-    
-    # print_array(final_arr)
-    
-    # final_img = cv2.cvtColor(final_arr, cv2.COLOR_HLS2BGR)
-    
-    # cv2.imshow('test', final_img)
-            
 theme = get_theme(image, 30)
 print(theme)
-#X, X, nth rgb value
-tresh2(image, theme)
-#cv2.imwrite('tresh.png', tresh)
+treshold = get_treshold_2(image, theme)
+cv2.imwrite('tresh.png', treshold)
