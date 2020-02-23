@@ -103,14 +103,16 @@ def get_treshold_2(image, theme):
 
     upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
     hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS)  # Hue, Lighness, Saturation
+    p_hue = round(c_primary.hue * 360) / 2
     
     if theme == 'Virtuvian':
-        p_hue = round(c_primary.hue * 360) / 2
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.25 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.42 * 256)
     if theme == 'Stalker':
-        pass
+        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 5 / 2, hsl_arr[..., 0] < p_hue + 5 / 2)
+        SaturationOK = hsl_arr[..., 2] >= (0.65 * 256)
+        LightnessOK = np.logical_and(hsl_arr[..., 0] >= p_hue - 0.1 / 2, hsl_arr[..., 0] <= p_hue + 0.1 / 2)
     if theme == 'Baruk':
         pass
     if theme == 'Corpus':
