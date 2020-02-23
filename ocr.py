@@ -105,12 +105,12 @@ def get_treshold_2(image, theme):
     hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS)  # Hue, Lighness, Saturation
     p_hue = round(c_primary.hue * 360) / 2
     
-    if theme == 'Virtuvian':
+    if theme == 'Virtuvian':  # WORKING
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.25 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.42 * 256)
         combinedMask = HueOK & SaturationOK & LightnessOK
-    if theme == 'Stalker':
+    if theme == 'Stalker':  # WORKING
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.5 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.20 * 256)
@@ -119,7 +119,7 @@ def get_treshold_2(image, theme):
         pass
     if theme == 'Corpus':
         pass
-    if theme == 'Fortuna':
+    if theme == 'Fortuna':  # WORKING
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.20 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.25 * 256)
