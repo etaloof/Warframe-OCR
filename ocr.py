@@ -109,19 +109,27 @@ def get_treshold_2(image, theme):
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.25 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.42 * 256)
+        combinedMask = HueOK & SaturationOK & LightnessOK
     if theme == 'Stalker':
-        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 5 / 2, hsl_arr[..., 0] < p_hue + 5 / 2)
-        SaturationOK = hsl_arr[..., 2] >= (0.65 * 256)
-        LightnessOK = np.logical_and(hsl_arr[..., 0] >= p_hue - 0.1 / 2, hsl_arr[..., 0] <= p_hue + 0.1 / 2)
+        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
+        SaturationOK = hsl_arr[..., 2] >= (0.5 * 256)
+        LightnessOK = hsl_arr[..., 1] >= (0.20 * 256)
+        combinedMask = HueOK & SaturationOK & LightnessOK
     if theme == 'Baruk':
         pass
     if theme == 'Corpus':
         pass
     if theme == 'Fortuna':
-        pass
+        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
+        SaturationOK = hsl_arr[..., 2] >= (0.20 * 256)
+        LightnessOK = hsl_arr[..., 1] >= (0.25 * 256)
+        combinedMask = HueOK & SaturationOK & LightnessOK
     if theme == 'Grineer':
         pass
     if theme == 'Lotus':
+        # return Math.Abs(test.GetHue() - primary.GetHue()) < 5 & & test.GetSaturation() >= 0.65 & & Math.Abs(
+        #    test.GetBrightness() - primary.GetBrightness()) <= 0.1
+        # | | (Math.Abs(test.GetHue() - secondary.GetHue()) < 4 & & test.GetBrightness() >= 0.65);
         pass
     if theme == 'Nidus':
         pass
@@ -131,14 +139,18 @@ def get_treshold_2(image, theme):
         pass
     if theme == 'High contrast':
         pass
-    if theme == 'Legacy':
+    if theme == 'Legacy':  # Not good
+        # return (test.GetBrightness() >= 0.75 && test.GetSaturation() <= 0.2)
+        # || (Math.Abs(test.GetHue() - secondary.GetHue()) < 6 && test.GetBrightness() >= 0.5 && test.GetSaturation() >= 0.5);
         pass
-    if theme == 'Equinox':
+    if theme == 'Equinox':  # Not working
+        # SaturationOK = hsl_arr[..., 2] <= (0.1 * 255)
+        # LightnessOK = hsl_arr[..., 1] >= (0.52 * 256)
+        # combinedMask = SaturationOK & LightnessOK
         pass
     if theme == 'Dark lotus':
         pass
 
-    combinedMask = HueOK & SaturationOK & LightnessOK
     hsl_arr[combinedMask] = 0
     hsl_arr[~combinedMask] = 255
     kernel = np.ones((3, 3), np.uint8)

@@ -90,15 +90,16 @@ def get_treshold_2(image, theme):
         SaturationOK = hsl_arr[..., 2] >= (0.25 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.42 * 256)
         combinedMask = HueOK & SaturationOK & LightnessOK
-    if theme == 'Stalker':  # Not really good for now
+    if theme == 'Stalker':  # need test
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.5 * 256)
-        combinedMask = HueOK & SaturationOK
+        LightnessOK = hsl_arr[..., 1] >= (0.20 * 256)
+        combinedMask = HueOK & SaturationOK & LightnessOK
     if theme == 'Baruk':
         pass
     if theme == 'Corpus':
         pass
-    if theme == 'Fortuna': # Need testing
+    if theme == 'Fortuna':  # Working
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.20 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.25 * 256)
@@ -118,7 +119,9 @@ def get_treshold_2(image, theme):
     if theme == 'Legacy':
         pass
     if theme == 'Equinox':
-        pass
+        SaturationOK = hsl_arr[..., 2] <= (0.1 * 256)
+        LightnessOK = hsl_arr[..., 1] >= (0.52 * 256)
+        combinedMask = SaturationOK & LightnessOK
     if theme == 'Dark lotus':
         pass
 
