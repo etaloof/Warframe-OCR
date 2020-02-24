@@ -7,13 +7,12 @@ from io import BytesIO
 import numpy as np
 
 # Load image as numpy format
-image_source = cv2.imread("theme_source.png")
+image_source = cv2.imread("33.png")
 rgb_source = cv2.cvtColor(image_source, cv2.COLOR_BGR2RGB)
 # Downscale image for interface
 downscale = cv2.resize(rgb_source, (1024, 576), interpolation=cv2.INTER_CUBIC)
 kernel = np.ones((1, 1), np.uint8)
-dilate = cv2.dilate(downscale, kernel, iterations=1)
-kernelled = cv2.erode(dilate, kernel, iterations=1)
+kernelled = cv2.erode(downscale, kernel, iterations=1)
 # Convert it to PIL format
 pil_img = Image.fromarray(kernelled)
 
@@ -27,19 +26,19 @@ def encode_to_64(img):
 
 
 def apply_filter(img, slider_dict):
-    hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+    # hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
     lower_virtu = np.array([slider_dict['slider1-down'], slider_dict['slider2-down'], slider_dict['slider3-down']])
     upper_virtu = np.array([slider_dict['slider1-up'], slider_dict['slider2-up'], slider_dict['slider3-up']])
-    mask = cv2.inRange(hsv, lower_virtu, upper_virtu)
-    ret, imgtresh = cv2.threshold(mask, 218, 255, cv2.THRESH_BINARY_INV)
+    mask = cv2.inRange(img, lower_virtu, upper_virtu)
+    imgtresh = cv2.bitwise_not(mask)
     filter_pil_img = Image.fromarray(imgtresh)
     filter_new_img = encode_to_64(filter_pil_img)
     return filter_new_img
 
 
-layout = [[sg.Text('TEINTE     '), sg.Slider(range=(0, 255), default_value=0, orientation='h', size=(30, 20), key='slider1-down', enable_events=True), sg.Text(' TO '), sg.Slider(range=(0, 255), default_value=0, orientation='h', size=(30, 20), key='slider1-up', enable_events=True)],
-          [sg.Text('SATURATION '), sg.Slider(range=(0, 255), default_value=80, orientation='h', size=(30, 20), key='slider2-down', enable_events=True), sg.Text(' TO '), sg.Slider(range=(0, 255), default_value=255, orientation='h', size=(30, 20), key='slider2-up', enable_events=True)],
-          [sg.Text('VALEUR     '), sg.Slider(range=(0, 255), default_value=80, orientation='h', size=(30, 20), key='slider3-down', enable_events=True), sg.Text(' TO '), sg.Slider(range=(0, 255), default_value=255, orientation='h', size=(30, 20), key='slider3-up', enable_events=True)],
+layout = [[sg.Text('B '), sg.Slider(range=(0, 255), default_value=0, orientation='h', size=(30, 20), key='slider1-down', enable_events=True), sg.Text(' TO '), sg.Slider(range=(0, 255), default_value=0, orientation='h', size=(30, 20), key='slider1-up', enable_events=True)],
+          [sg.Text('G '), sg.Slider(range=(0, 255), default_value=80, orientation='h', size=(30, 20), key='slider2-down', enable_events=True), sg.Text(' TO '), sg.Slider(range=(0, 255), default_value=255, orientation='h', size=(30, 20), key='slider2-up', enable_events=True)],
+          [sg.Text('R '), sg.Slider(range=(0, 255), default_value=80, orientation='h', size=(30, 20), key='slider3-down', enable_events=True), sg.Text(' TO '), sg.Slider(range=(0, 255), default_value=255, orientation='h', size=(30, 20), key='slider3-up', enable_events=True)],
           [sg.Image(data=encode_to_64(pil_img), key='image')],
           [sg.Quit()]
           ]

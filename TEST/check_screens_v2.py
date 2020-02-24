@@ -7,7 +7,7 @@ import matplotlib
 
 np.set_printoptions(threshold=sys.maxsize)
 
-input_file = "17.png"
+input_file = "33.png"
 image = cv2.imread(input_file)  # BGR
 
 #UI-COLORS####################################################################################################
@@ -68,7 +68,6 @@ def get_treshold(image, theme):
     upperBound = np.array([(e[2] + 30), (e[1] + 30), (e[0] + 30)])  # BGR
     filter = cv2.inRange(upscaled, lowerBound, upperBound)
     tresh = cv2.bitwise_not(filter)
-    print(tresh)
     kernel = np.ones((3, 3), np.uint8)
     tresh = cv2.erode(tresh, kernel, iterations=1)
     return tresh
@@ -99,7 +98,7 @@ def get_treshold_2(image, theme):
         pass
     if theme == 'Corpus':
         pass
-    if theme == 'Fortuna':  # Working
+    if theme == 'Fortuna':  # Perfect
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.20 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.25 * 256)
@@ -127,10 +126,10 @@ def get_treshold_2(image, theme):
 
     hsl_arr[combinedMask] = 0
     hsl_arr[~combinedMask] = 255
-    kernel = np.ones((3, 3), np.uint8)
-    tresh = cv2.erode(hsl_arr, kernel, iterations=1)
+    kernel = np.ones((4, 4), np.uint8)
+    # tresh = cv2.erode(hsl_arr, kernel, iterations=1)
 
-    return tresh
+    return hsl_arr
     
     
 def print_array(data):
@@ -143,5 +142,7 @@ def print_array(data):
 
 theme = get_theme(image, 30)
 print(theme)
-treshold = get_treshold_2(image, theme)
-cv2.imwrite('tresh.png', treshold)
+treshold_1 = get_treshold(image, theme)
+treshold_2 = get_treshold_2(image, theme)
+cv2.imwrite('tresh_1.png', treshold_1)
+cv2.imwrite('tresh_2.png', treshold_2)
