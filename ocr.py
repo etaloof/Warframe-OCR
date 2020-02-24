@@ -101,7 +101,7 @@ def get_treshold_2(image, theme):
     c_primary = Color(rgb=(e_primary[0] / 256, e_primary[1] / 256, e_primary[2] / 256))
     c_secondary = Color(rgb=(e_secondary[0] / 256, e_secondary[1] / 256, e_secondary[2] / 256))
 
-    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
+    upscaled = cv2.resize(image, None, fx=1, fy=1, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
     hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS)  # Hue, Lighness, Saturation
     p_hue = round(c_primary.hue * 360) / 2
     
@@ -144,9 +144,10 @@ def get_treshold_2(image, theme):
         # || (Math.Abs(test.GetHue() - secondary.GetHue()) < 6 && test.GetBrightness() >= 0.5 && test.GetSaturation() >= 0.5);
         pass
     if theme == 'Equinox':  # Not working
-        # SaturationOK = hsl_arr[..., 2] <= (0.1 * 255)
-        # LightnessOK = hsl_arr[..., 1] >= (0.52 * 256)
-        # combinedMask = SaturationOK & LightnessOK
+        HueOK = np.logical_and(hsl_arr[..., 0] > 110, hsl_arr[..., 0] < 135)
+        SaturationOK = hsl_arr[..., 2] <= (0.1 * 255)
+        LightnessOK = np.logical_and(hsl_arr[..., 1] >= (0.35 * 256), hsl_arr[..., 1] <= (0.74 * 256))
+        combinedMask = SaturationOK & LightnessOK
         pass
     if theme == 'Dark lotus':
         pass
