@@ -106,6 +106,7 @@ def get_treshold_2(image, theme):
     upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
     hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS)  # Hue, Lighness, Saturation
     p_hue = round(c_primary.hue * 360) / 2
+    p_hue_sec = round(c_secondary.hue * 360) / 2
 
     if theme == 'Virtuvian':  # WORKING
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
