@@ -36,7 +36,7 @@ ref_2_list = ['lith', 'axi', 'neo', 'meso']
 
 #IMAGE########################################################################################################
 
-image_input = cv2.imread('ressources/10.png')
+image_input = cv2.imread('ressources/4.png')
 folder = Path(__file__).parent
 pytesseract.pytesseract.tesseract_cmd = os.path.join(r'C:\Users\aprieto\Documents\GitHub\WF-RelicData\Tesseract-OCR', 'tesseract.exe')
 
@@ -155,6 +155,9 @@ def get_treshold_2(image, theme):
     if theme == 'High contrast':
         pass
     if theme == 'Legacy':  # Not good
+        SaturationOK = hsl_arr[..., 2] <= (0.2 * 256)
+        LightnessOK = hsl_arr[..., 1] >= (0.75 * 256)
+        combinedMask = SaturationOK & LightnessOK
         # return (test.GetBrightness() >= 0.75 && test.GetSaturation() <= 0.2)
         # || (Math.Abs(test.GetHue() - secondary.GetHue()) < 6 && test.GetBrightness() >= 0.5 && test.GetSaturation() >= 0.5);
         pass
