@@ -66,7 +66,7 @@ ui_color_list_secondary = [
     (255, 255,   0, 'High contrast'),   
     (232, 213,  93, 'Legacy'),      
     (232, 227, 227, 'Equinox'), 
-    (200, 169, 237, 'Dark lotus')
+    (200, 169, 237, 'Dark Lotus')
 ]
 
 # Check ui theme from screenshot (Image Format : OPENCV)
