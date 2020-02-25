@@ -7,7 +7,7 @@ import matplotlib
 
 np.set_printoptions(threshold=sys.maxsize)
 
-input_file = "34.png"
+input_file = "35.png"
 image = cv2.imread(input_file)  # BGR
 
 #UI-COLORS####################################################################################################
@@ -44,7 +44,7 @@ ui_color_list_secondary = [
     (255, 255,   0, 'High contrast'),   
     (232, 213,  93, 'Legacy'),      
     (232, 227, 227, 'Equinox'), 
-    (200, 169, 237, 'Dark lotus')
+    (200, 169, 237, 'Dark Lotus')
 ]
 
 
@@ -83,6 +83,7 @@ def get_treshold_2(image, theme):
     upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
     hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS)  # Hue, Lighness, Saturation
     p_hue = round(c_primary.hue * 360) / 2
+    p_hue_sec = round(c_secondary.hue * 360) / 2
 
     if theme == 'Virtuvian':  # WORKING
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
@@ -131,8 +132,14 @@ def get_treshold_2(image, theme):
         LightnessOK = np.logical_and(hsl_arr[..., 1] >= (0.35 * 256), hsl_arr[..., 1] <= (0.74 * 256))
         combinedMask = HueOK & SaturationOK & LightnessOK
 
-    if theme == 'Dark lotus':
-        pass
+    if theme == 'Dark Lotus':
+        # HueOK = np.logical_and(hsl_arr[..., 0] > p_hue_sec - 20 / 2, hsl_arr[..., 0] < p_hue_sec + 20 / 2)
+        HueOK = np.logical_and(hsl_arr[..., 0] > 134, hsl_arr[..., 0] < 143)
+        # SaturationOK = np.logical_and(hsl_arr[..., 2] >= (0.07 * 256), hsl_arr[..., 2] <= (0.20 * 256))
+        SaturationOK = np.logical_and(hsl_arr[..., 2] >= (0.11 * 256), hsl_arr[..., 2] <= (0.22 * 256))
+        # LightnessOK = np.logical_and(hsl_arr[..., 1] >= (0.42 * 256), hsl_arr[..., 2] <= (0.55 * 256))
+        LightnessOK = np.logical_and(hsl_arr[..., 1] >= (0.43 * 256), hsl_arr[..., 2] <= (0.53 * 256))
+        combinedMask = HueOK & SaturationOK & LightnessOK
 
     hsl_arr[combinedMask] = 0
     hsl_arr[~combinedMask] = 255
