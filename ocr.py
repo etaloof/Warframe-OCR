@@ -82,7 +82,7 @@ def get_theme(image, color_treshold):
 #####TRESHOLD#################################################################################################
 
 
-# Treshold function
+# OLD
 def get_treshold(image, theme):
     e = [item for item in ui_color_list_primary if item[3] == theme][0] 
     upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
@@ -95,7 +95,7 @@ def get_treshold(image, theme):
     return tresh
 
 
-# NOT USED  
+# Teshold Function 
 def get_treshold_2(image, theme):
     e_primary = [item for item in ui_color_list_primary if item[3] == theme][0]
     e_secondary = [item for item in ui_color_list_secondary if item[3] == theme][0]
@@ -155,13 +155,10 @@ def get_treshold_2(image, theme):
         LightnessOK = np.logical_and(hsl_arr[..., 1] >= (0.35 * 256), hsl_arr[..., 1] <= (0.74 * 256))
         combinedMask = HueOK & SaturationOK & LightnessOK
 
-    if theme == 'Dark Lotus':
-        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue_sec - 20 / 2, hsl_arr[..., 0] < p_hue_sec + 20 / 2)
-        #HueOK = np.logical_and(hsl_arr[..., 0] > 134, hsl_arr[..., 0] < 143)
-        SaturationOK = np.logical_and(hsl_arr[..., 2] >= (0.07 * 256), hsl_arr[..., 2] <= (0.20 * 256))
-        #SaturationOK = np.logical_and(hsl_arr[..., 2] >= (0.11 * 256), hsl_arr[..., 2] <= (0.22 * 256))
-        LightnessOK = np.logical_and(hsl_arr[..., 1] >= (0.42 * 256), hsl_arr[..., 2] <= (0.55 * 256))
-        #LightnessOK = np.logical_and(hsl_arr[..., 1] >= (0.43 * 256), hsl_arr[..., 2] <= (0.53 * 256))
+    if theme == 'Dark Lotus':  # WORKING
+        HueOK = np.logical_and(hsl_arr[..., 0] > 134, hsl_arr[..., 0] < 143)
+        SaturationOK = np.logical_and(hsl_arr[..., 2] >= (0.11 * 256), hsl_arr[..., 2] <= (0.22 * 256))
+        LightnessOK = np.logical_and(hsl_arr[..., 1] >= (0.43 * 256), hsl_arr[..., 2] <= (0.53 * 256))
         combinedMask = HueOK & SaturationOK & LightnessOK
 
     hsl_arr[combinedMask] = 0
@@ -172,6 +169,38 @@ def get_treshold_2(image, theme):
     return tresh
 
 ##############################################################################################################
+
+
+def findOccurrences(s, ch):
+    return [i for i, letter in enumerate(s) if letter == ch]
+    
+
+# Hallucination error correction
+def sanity_restore(string):
+    string = string.upper()
+    
+    for idx, char in enumerate(string):
+        if idx == 0:
+            if char == ']':
+                string = string[:0] + "1" + string[1:]
+            if char == '[':
+                string = string[:0] + "I" + string[1:]
+            if char == '6':
+                string = string[:0] + "G" + string[1:]
+            if char == '1':
+                string = string[:0] + "T" + string[1:]
+        if idx == 1:
+            if char == 'G':
+                string = string[:1] + "6" + string[2:]
+            if char == 'T':
+                string = string[:1] + "1" + string[2:]
+        if idx == 2:
+            if char == 'G':
+                string = string[:2] + "6" + string[3:]
+            if char == 'T':
+                string = string[:2] + "1" + string[3:]
+                
+    return string
 
 
 # Extract values from the ocr result
@@ -350,20 +379,23 @@ class OcrCheck:
         if textocr == '':
             pass
         else:
-            corrected_text = re.sub("G", "6", textocr)  # Replacing letter G by 6
-            corrected_text = re.sub("\n", " ", corrected_text)
+            corrected_text = re.sub("\n", " ", textocr)
+            corrected_text = re.sub("'", " ", corrected_text)
             self.relic_list.append(extract_vals(corrected_text) + (quantity,))
 
     def ocr_loop(self):
-        for i in self.pos_list:
-            nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme, self.imgID)
-            if nb is False:
-                pass
-            elif nb == '':
-                quantity = '1'
-                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
-            else:
-                quantity = nb
-                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
-        log.debug(self.relic_list)
-        return self.relic_list
+        if self.theme in ['Virtuvian', 'Stalker', 'Fortuna', 'Equinox', 'Dark Lotus']
+            for i in self.pos_list:
+                nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme, self.imgID)
+                if nb is False:
+                    pass
+                elif nb == '':
+                    quantity = '1'
+                    self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
+                else:
+                    quantity = nb
+                    self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
+            log.debug(self.relic_list)
+            return self.relic_list
+        else:
+            return 'Le thème n\'est pas encore supporté !'
