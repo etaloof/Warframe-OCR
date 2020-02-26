@@ -206,12 +206,16 @@ def process_image(image, author, mode):
                 elif ocr_data_validation(i[0], i[1], i[2]) is False:
                     message += str('La relique numero ' + str((ocr_data.index(i) + 1)) + ' n\'a pas été détectée correctement !\n')
                 else:
-                    message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
+                    # message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
                     if mode is True:
                         relic_from_screen_overwrite(i[0], i[1], i[2], i[3], author)
                     else:
                         relic_from_screen(i[0], i[1], i[2], i[3], author)
-                
-            return message
+            
+            if not message:
+                message = 'Toutes les reliques ont bien étés ajoutées !'
+                return message
+            else:
+                return message
     else:
         return 'Le screenshot n\'est pas a la bonne résolution !'
