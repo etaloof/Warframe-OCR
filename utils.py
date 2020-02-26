@@ -1,7 +1,6 @@
 from spellchecker import SpellChecker
 from scrap import update_vault_list
 from ocr import OcrCheck
-from db_operations import relic_from_screen
 from db_operations import relic_from_screen_overwrite
 import numpy as np
 import cv2
