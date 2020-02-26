@@ -192,7 +192,7 @@ def check_image_size(image):
 
 
 # Check if res is good, and start ocr process
-def process_image(image, author, mode):
+def process_image(image, author):
     if check_image_size(image) == (1920, 1080):
         ocr = OcrCheck(image)
         ocr_data = ocr.ocr_loop()
@@ -207,10 +207,8 @@ def process_image(image, author, mode):
                     message += str('La relique numero ' + str((ocr_data.index(i) + 1)) + ' n\'a pas été détectée correctement !\n')
                 else:
                     # message += str('Relique X' + i[3] + ' ' + i[0] + ' ' + i[1] + ' ' + i[2] + '\n')
-                    if mode is True:
-                        relic_from_screen_overwrite(i[0], i[1], i[2], i[3], author)
-                    else:
-                        relic_from_screen(i[0], i[1], i[2], i[3], author)
+                    relic_from_screen_overwrite(i[0], i[1], i[2], i[3], author)
+
             
             if not message:
                 message = 'Toutes les reliques ont bien étés ajoutées !'

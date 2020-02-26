@@ -222,41 +222,24 @@ async def ressourcedrop(ctx):
     await ctx.send('J\'ai pas encore fait la commande, oups !')
 
 
-# OCR-eval command
+# OCR scan command 
 @bot.command()
 async def scanrelic(ctx):
     url = ctx.message.attachments[0].url
-    message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)), False)
+    message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)))
     await ctx.send(message)
     
 
-# OCR-eval command
+# OCR scan command - TEST
 @bot.command()
 @check_bot_channel()
 async def scanrelictest(ctx):
     url = ctx.message.attachments[0].url
-    message = process_image(image_from_url(url), 'test', False)
-    await ctx.send(message)
-    
-    
-# OCR-eval command
-@bot.command()
-async def baserelic(ctx):
-    url = ctx.message.attachments[0].url
-    message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)), True)
-    await ctx.send(message)
-    
-    
-# OCR-eval command
-@bot.command()
-@check_bot_channel()
-async def baserelictest(ctx):
-    url = ctx.message.attachments[0].url
-    message = process_image(image_from_url(url), 'test', True)
+    message = process_image(image_from_url(url), 'test')
     await ctx.send(message)
 
 
-# OCR-eval command
+# Delete relics from the user
 @bot.command()
 @check_bot_channel()
 async def clearrelic(ctx):
@@ -264,7 +247,7 @@ async def clearrelic(ctx):
     await ctx.send(message)
     
     
-# OCR-eval command
+# Delete relics from the user 'test'
 @bot.command()
 @check_bot_channel()
 async def clearrelictest(ctx):
@@ -278,8 +261,7 @@ async def halp(ctx):
     embed = discord.Embed(title="Bienvenue sur le merveilleux 🤖 pour Warframe !",
                           description="Je suis la pour vous aider 😄", color=0xd5d500)
     embed.add_field(name="!clearrelic", value="Supprime toutes vos reliques. ⚠️", inline=True)
-    embed.add_field(name="!baserelic", value="Ajoute des reliques depuis un screen et ecrase les anciennes. ⚠️", inline=True)
-    embed.add_field(name="!scanrelic", value="Ajoute des reliques depuis un screen et ajoute aux anciennes.", inline=True)
+    embed.add_field(name="!scanrelic", value="Ajoute des reliques depuis un screen et écrase si déja existant.", inline=True)
     embed.add_field(name="!relicadd", value="Ajoute un montant d'une certaine relique. Ex : ***!relicadd Lith A2 Eclatante 3***", inline=True)
     embed.add_field(name="!relicdel", value="Supprime un montant d'une certaine relique. Ex : ***!relicdel Lith A2 Eclatante 4***", inline=True)
     embed.add_field(name="!relicrefine", value="Permet de raffiner une relique. Ex : ***!relicrefine Lith A2 Eclatante 2***", inline=True)

@@ -81,8 +81,8 @@ def refine_relics(era, name, quality, quantity, owner):
         return 'Tu ne peux pas raffiner une relique que tu ne possèdes pas, Tenno !'
 
 
-# Add relic from screen and update the quantity if already exist
-def relic_from_screen(era, name, quality, quantity, owner):
+# NOT USED Add relic from screen and update the quantity if already exist
+def relic_from_screen_NOT_USED(era, name, quality, quantity, owner):
     cursor = db.cursor()
     relic_owner = check_user_exist(owner)
     # TestQuery
