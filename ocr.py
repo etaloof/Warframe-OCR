@@ -404,7 +404,7 @@ class OcrCheck:
             self.relic_list.append(extract_vals(corrected_text) + (quantity,))
 
     def ocr_loop(self):
-        if self.theme in ['Virtuvian', 'Stalker', 'Fortuna', 'Equinox', 'Dark Lotus', 'Legacy']:
+        if self.theme in ['Virtuvian', 'Stalker', 'Fortuna', 'Equinox', 'Dark Lotus', 'Legacy', 'Nidus']:
             for i in self.pos_list:
                 nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme, self.imgID)
                 if nb is False:
