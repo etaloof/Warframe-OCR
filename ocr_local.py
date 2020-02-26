@@ -147,19 +147,19 @@ def get_treshold_2(image, theme):
         # | | (Math.Abs(test.GetHue() - secondary.GetHue()) < 4 & & test.GetBrightness() >= 0.65);
         combinedMask = HueOK & SaturationOK & LightnessOK
     if theme == 'Nidus':
-        pass
+        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue + 7.5 - (10 / 2), hsl_arr[..., 0] < p_hue + 7.5 + (10 / 2))
+        SaturationOK = hsl_arr[..., 2] >= (0.31 * 256)
+        combinedMask = SaturationOK & HueOK
     if theme == 'Orokin':
         pass
     if theme == 'Tenno':
         pass
     if theme == 'High contrast':
         pass
-    if theme == 'Legacy':  # Not good
+    if theme == 'Legacy':  # WORKS but NEED TESTING
         SaturationOK = hsl_arr[..., 2] <= (0.2 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.75 * 256)
         combinedMask = SaturationOK & LightnessOK
-        # return (test.GetBrightness() >= 0.75 && test.GetSaturation() <= 0.2)
-        # || (Math.Abs(test.GetHue() - secondary.GetHue()) < 6 && test.GetBrightness() >= 0.5 && test.GetSaturation() >= 0.5);
         pass
     if theme == 'Equinox':  # WORKING
         HueOK = np.logical_and(hsl_arr[..., 0] > 110, hsl_arr[..., 0] < 135)
@@ -390,6 +390,7 @@ class OcrCheck:
             self.relic_list.append(extract_vals(corrected_text) + (quantity,))
 
     def ocr_loop(self):
+        print(self.theme)
         for i in self.pos_list:
             nb = data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme, self.imgID)
             if nb is False:
