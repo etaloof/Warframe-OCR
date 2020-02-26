@@ -7,14 +7,14 @@ from io import BytesIO
 import numpy as np
 
 # Load image as numpy format
-image_source = cv2.imread("33.png")
+image_source = cv2.imread("50.jpg")
 rgb_source = cv2.cvtColor(image_source, cv2.COLOR_BGR2RGB)
 # Downscale image for interface
 downscale = cv2.resize(rgb_source, (1024, 576), interpolation=cv2.INTER_CUBIC)
-kernel = np.ones((1, 1), np.uint8)
-kernelled = cv2.erode(downscale, kernel, iterations=1)
+# kernel = np.ones((1, 1), np.uint8)
+# kernelled = cv2.erode(downscale, kernel, iterations=1)
 # Convert it to PIL format
-pil_img = Image.fromarray(kernelled)
+pil_img = Image.fromarray(downscale)
 
 
 def encode_to_64(img):
@@ -48,7 +48,7 @@ window = sg.Window('Filter-Creator', layout)
 
 while True:
     event, values = window.Read()
-    new_img = apply_filter(kernelled, values)
+    new_img = apply_filter(downscale, values)
     window.FindElement('image').Update(data=new_img)
     if event is 'slider1-up' or 'slider1-down' or 'slider2-up' or 'slider2-down' or 'slider3-up' or 'slider3-down':
         window.FindElement('image').Update(data=new_img)

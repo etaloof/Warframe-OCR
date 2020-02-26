@@ -36,7 +36,7 @@ ref_2_list = ['lith', 'axi', 'neo', 'meso']
 
 #IMAGE########################################################################################################
 
-image_input = cv2.imread('ressources/4.png')
+image_input = cv2.imread('ressources/41.png')
 folder = Path(__file__).parent
 pytesseract.pytesseract.tesseract_cmd = os.path.join(r'C:\Users\aprieto\Documents\GitHub\WF-RelicData\Tesseract-OCR', 'tesseract.exe')
 
@@ -91,21 +91,9 @@ def get_theme(image, color_treshold):
 #####TRESHOLD#################################################################################################
 
 
-# OLD
-def get_treshold(image, theme):
-    e = [item for item in ui_color_list_primary if item[3] == theme][0] 
-    upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
-    lowerBound = np.array([(e[2] - 30), (e[1] - 30), (e[0] - 30)])  # BGR
-    upperBound = np.array([(e[2] + 30), (e[1] + 30), (e[0] + 30)])  # BGR
-    filter = cv2.inRange(upscaled, lowerBound, upperBound)
-    tresh = cv2.bitwise_not(filter)
-    kernel = np.ones((3, 3), np.uint8)
-    tresh = cv2.erode(tresh, kernel, iterations=1)
-    return tresh
-
-
 # Treshold Function
 def get_treshold_2(image, theme):
+
     e_primary = [item for item in ui_color_list_primary if item[3] == theme][0]
     e_secondary = [item for item in ui_color_list_secondary if item[3] == theme][0]
 
@@ -113,32 +101,47 @@ def get_treshold_2(image, theme):
     c_secondary = Color(rgb=(e_secondary[0] / 256, e_secondary[1] / 256, e_secondary[2] / 256))
 
     upscaled = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)  # Upscaling x2
+    
+    rgb_arr = image
     hsl_arr = cv2.cvtColor(upscaled, cv2.COLOR_BGR2HLS)  # Hue, Lighness, Saturation
+    
     p_hue = round(c_primary.hue * 360) / 2
     p_hue_sec = round(c_secondary.hue * 360) / 2
+    
+    kernel = np.ones((3, 3), np.uint8)
 
     if theme == 'Virtuvian':  # WORKING
+        method = 'HSL'
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.25 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.42 * 256)
         combinedMask = HueOK & SaturationOK & LightnessOK
-    if theme == 'Stalker':  # WORKING
+        
+    elif theme == 'Stalker':  # WORKING
+        method = 'HSL'
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.5 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.20 * 256)
         combinedMask = HueOK & SaturationOK & LightnessOK
-    if theme == 'Baruk':
+        
+    elif theme == 'Baruk':
         pass
-    if theme == 'Corpus':
+        
+    elif theme == 'Corpus':
         pass
-    if theme == 'Fortuna':  # WORKING
+        
+    elif theme == 'Fortuna':  # WORKING
+        method = 'HSL'
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 4 / 2, hsl_arr[..., 0] < p_hue + 4 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.20 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.25 * 256)
         combinedMask = HueOK & SaturationOK & LightnessOK
-    if theme == 'Grineer':
+        
+    elif theme == 'Grineer':
         pass
-    if theme == 'Lotus':  # A TESTER
+        
+    elif theme == 'Lotus':  # A TESTER
+        method = 'HSL'
         HueOK = np.logical_and(hsl_arr[..., 0] > p_hue - 5 / 2, hsl_arr[..., 0] < p_hue + 5 / 2)
         SaturationOK = hsl_arr[..., 2] >= (0.65 * 256)
         LightnessOK = np.logical_and(hsl_arr[..., 1] >= p_lumi - 0.1, hsl_arr[..., 0] <= p_lumi + 0.1)
@@ -146,37 +149,51 @@ def get_treshold_2(image, theme):
         #    test.GetBrightness() - primary.GetBrightness()) <= 0.1
         # | | (Math.Abs(test.GetHue() - secondary.GetHue()) < 4 & & test.GetBrightness() >= 0.65);
         combinedMask = HueOK & SaturationOK & LightnessOK
-    if theme == 'Nidus':
-        HueOK = np.logical_and(hsl_arr[..., 0] > p_hue + 7.5 - (10 / 2), hsl_arr[..., 0] < p_hue + 7.5 + (10 / 2))
-        SaturationOK = hsl_arr[..., 2] >= (0.31 * 256)
-        combinedMask = SaturationOK & HueOK
-    if theme == 'Orokin':
+        
+    elif theme == 'Nidus':
+        method = 'BGR'
+        lowerBound = np.array([(e_primary[2] - 40), (e_primary[1] - 40), (e_primary[0] - 40)])  # BGR
+        upperBound = np.array([(e_primary[2] + 40), (e_primary[1] + 40), (e_primary[0] + 40)])  # BGR
+
+    elif theme == 'Orokin':
         pass
-    if theme == 'Tenno':
+        
+    elif theme == 'Tenno':
         pass
-    if theme == 'High contrast':
+        
+    elif theme == 'High contrast':
         pass
-    if theme == 'Legacy':  # WORKS but NEED TESTING
+        
+    elif theme == 'Legacy':  # WORKS but NEED TESTING
+        method = 'HSL'
         SaturationOK = hsl_arr[..., 2] <= (0.2 * 256)
         LightnessOK = hsl_arr[..., 1] >= (0.75 * 256)
         combinedMask = SaturationOK & LightnessOK
         pass
-    if theme == 'Equinox':  # WORKING
+        
+    elif theme == 'Equinox':  # WORKING
+        method = 'HSL'
         HueOK = np.logical_and(hsl_arr[..., 0] > 110, hsl_arr[..., 0] < 135)
         SaturationOK = hsl_arr[..., 2] <= (0.1 * 255)
         LightnessOK = np.logical_and(hsl_arr[..., 1] >= (0.35 * 256), hsl_arr[..., 1] <= (0.74 * 256))
         combinedMask = HueOK & SaturationOK & LightnessOK
 
-    if theme == 'Dark Lotus':  # WORKING
+    elif theme == 'Dark Lotus':  # WORKING
+        method = 'HSL'
         HueOK = np.logical_and(hsl_arr[..., 0] > 134, hsl_arr[..., 0] < 143)
         SaturationOK = np.logical_and(hsl_arr[..., 2] >= (0.11 * 256), hsl_arr[..., 2] <= (0.22 * 256))
         LightnessOK = np.logical_and(hsl_arr[..., 1] >= (0.43 * 256), hsl_arr[..., 2] <= (0.53 * 256))
         combinedMask = HueOK & SaturationOK & LightnessOK
-
-    hsl_arr[combinedMask] = 0
-    hsl_arr[~combinedMask] = 255
-    kernel = np.ones((3, 3), np.uint8)
-    tresh = cv2.erode(hsl_arr, kernel, iterations=1)
+    
+    if method == 'BGR':
+        filter = cv2.inRange(upscaled, lowerBound, upperBound)
+        filered = cv2.bitwise_not(filter)
+        tresh = cv2.erode(filered, kernel, iterations=1)
+        
+    elif method == 'HSL':
+        hsl_arr[combinedMask] = 0
+        hsl_arr[~combinedMask] = 255
+        tresh = cv2.erode(hsl_arr, kernel, iterations=1)
 
     return tresh
 
