@@ -83,13 +83,6 @@ async def on_message(message):
     if message.content == "A Kadoc ?":
         await message.channel.send("Il dit que c'est a lui de jouer...")
     await bot.process_commands(message)
-    
-    
-#@bot.event
-#async def on_command_error(ctx, error):
-#    pass
-#    if isinstance(error, commands.MissingRequiredArgument):
-#        await ctx.send("J'ai pas pigé un broc de ce que vous bavez !")  
 
 
 @bot.event
