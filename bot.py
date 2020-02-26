@@ -28,12 +28,12 @@ async def vault_update():
 ###############################################################################################
 # Custom Convertors ################################################################################
 
-#@bot.event
-#async def on_command_error(ctx, message):
-#    if isinstance(message, commands.UserInputError):
-#        await ctx.send(message)
-#    else:
-#        print(message)
+@bot.event
+async def on_command_error(ctx, message):
+    if isinstance(message, commands.UserInputError):
+        await ctx.send(message)
+    else:
+        print(message)
 
 
 # Check if number is too high or not an absolute
@@ -177,7 +177,6 @@ async def doc(ctx):
 
 # Arg 1 = Era, Arg2 = Name, Arg3 = Quality, Arg4 = Quantity
 @bot.command()
-@check_bot_channel()
 async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckNbr):
     if syntax_check_pass(a1, a2, a3) is True:
         add_relic_to_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
@@ -190,7 +189,6 @@ async def relicadd(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
 
 # Arg 1 = Era, Arg2 = Name, Arg3 = Quality, Arg4 = Quantity
 @bot.command()
-@check_bot_channel()
 async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckNbr):
     if syntax_check_pass(a1, a2, a3) is True:
         del_state = del_relic_on_db(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
@@ -206,7 +204,6 @@ async def relicdel(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct,
 
 # Arg 1 = Era, Arg2 = Name, Arg3 = Quality, Arg4 = Quantity
 @bot.command()
-@check_bot_channel()
 async def relicrefine(ctx, a1: spell_correct, a2: spell_correct, a3: spell_correct, a4: CheckNbr):
     if syntax_check_pass(a1, a2, a3) is True:
         refine_state = refine_relics(a1, a2, a3, a4, clean_disctag(str(ctx.message.author)))
@@ -227,7 +224,6 @@ async def ressourcedrop(ctx):
 
 # OCR-eval command
 @bot.command()
-@check_bot_channel()
 async def scanrelic(ctx):
     url = ctx.message.attachments[0].url
     message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)), False)
@@ -245,7 +241,6 @@ async def scanrelictest(ctx):
     
 # OCR-eval command
 @bot.command()
-@check_bot_channel()
 async def baserelic(ctx):
     url = ctx.message.attachments[0].url
     message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)), True)
