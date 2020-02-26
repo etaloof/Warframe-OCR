@@ -32,6 +32,8 @@ async def vault_update():
 async def on_command_error(ctx, message):
     if isinstance(message, commands.UserInputError):
         await ctx.send(message)
+    if isinstance(message, commands.MissingRequiredArgument):
+        await ctx.send("J'ai pas pigé un broc de ce que vous bavez !")  
     else:
         print(message)
 
