@@ -328,7 +328,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
         
         log.debug('[' + id + '] ' + '[ Theme used is : ' + theme + ' ]')  # DEBUG
 
-        cv2.imwrite('test_img_ocr/number/' + 'number_' + id + '_' + rid + '.jpg', get_treshold(cropped_img, theme))
+        cv2.imwrite('test_img_ocr/number/' + 'number_' + id + '_' + rid + '.jpg', get_treshold_2(cropped_img, theme))
 
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --psm 6 --oem 1 get.images'
 
@@ -387,7 +387,7 @@ class OcrCheck:
         # Write the raw img
         cv2.imwrite('test_img_ocr/brut/' + 'name_' + rid + '.jpg', cropped_img)  # BRUT      
         # Write the mask applied img with treshold
-        cv2.imwrite('test_img_ocr/after_masking/' + 'name_' + img_id + '_' + rid + '.jpg', get_treshold(cropped_img, theme))  # AFTER_MASKING
+        cv2.imwrite('test_img_ocr/after_masking/' + 'name_' + img_id + '_' + rid + '.jpg', get_treshold_2(cropped_img, theme))  # AFTER_MASKING
         # Actual OCR
         tessdata_dir_config = '--tessdata-dir "/home/Warframe-OCR/tessdata" -l Roboto --oem 1 --psm 6 get.images -c tessedit_char_blacklist=jJyY'
         textocr = pytesseract.image_to_string(get_treshold_2(cropped_img, theme), config=tessdata_dir_config)
