@@ -421,6 +421,9 @@ class OcrCheck:
         return self.relic_list
 
 
+image_input = cv2.imread('ressources/101.png')
+if image_input.shape[:2] == (900, 1600):
+    image_input = cv2.resize(image_input, (1920, 1080))
 ocr = OcrCheck(image_input)
 ocr_data = ocr.ocr_loop()
 pprint(ocr_data)
