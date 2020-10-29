@@ -38,7 +38,7 @@ ref_2_list = ['lith', 'axi', 'neo', 'meso']
 
 image_input = cv2.imread('ressources/41.png')
 folder = Path(__file__).parent
-pytesseract.pytesseract.tesseract_cmd = os.path.join(r'C:\Users\aprieto\Documents\GitHub\WF-RelicData\Tesseract-OCR', 'tesseract.exe')
+pytesseract.pytesseract.tesseract_cmd = os.path.join(os.getenv("TESSERACT_CMD", r'C:\Users\aprieto\Documents\GitHub\WF-RelicData\Tesseract-OCR'), 'tesseract.exe')
 
 ##############################################################################################################
 #UI-COLORS####################################################################################################
