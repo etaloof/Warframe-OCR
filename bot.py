@@ -270,4 +270,4 @@ async def halp(ctx):
     await ctx.channel.send(embed=embed)
 
 update_vault_list()
-bot.run("NTg0NzYzODUyMzc0NDA5MjE5.Xjf4bg.951TmCKhLM7QhDQaaWdtRBS4ojw")
+bot.run("")
