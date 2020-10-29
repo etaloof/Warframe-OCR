@@ -344,7 +344,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
         
         log.debug('[' + id + '] ' + '[ Theme used is : ' + theme + ' ]')  # DEBUG
 
-        tessdata_dir_config = '--tessdata-dir "C:/Users/aprieto/Documents/GitHub/Warframe-OCR/tessdata" -l Roboto --psm 6 --oem 1 get.images'
+        tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --psm 6 --oem 1 get.images'
 
         text = pytesseract.image_to_string(get_treshold_2(cropped_img, theme), config=tessdata_dir_config)
 
@@ -395,7 +395,7 @@ class OcrCheck:
         # Crop relic parts
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, image)
         # Actual OCR
-        tessdata_dir_config = '--tessdata-dir "C:/Users/aprieto/Documents/GitHub/Warframe-OCR/tessdata" -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
+        tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
         textocr = pytesseract.image_to_string(get_treshold_2(cropped_img, theme), config=tessdata_dir_config)
         # Write log for result
         log.debug('[' + img_id + '] ' + '[ Tesseract output for TEXT is : ' + textocr + ' ]')  # DEBUG
