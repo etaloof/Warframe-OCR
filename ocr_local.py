@@ -12,6 +12,9 @@ from colour import Color
 from pathlib import Path
 import os
 from pprint import pprint
+import sys
+import time
+from tesserocr import PyTessBaseAPI, PSM, OEM
 
 # Enable logging
 log = logging.getLogger("BlackBot_log")
@@ -344,8 +347,7 @@ def data_pass_nb(pos1, pos2, pos3, pos4, image, theme, id):
         log.debug('[' + id + '] ' + '[ Theme used is : ' + theme + ' ]')  # DEBUG
 
         tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --psm 6 --oem 1 get.images'
-
-        text = pytesseract.image_to_string(get_treshold_2(cropped_img, theme), config=tessdata_dir_config)
+        text = tesseract_ocr(tess, get_treshold_2(cropped_img, theme), tessdata_dir_config)
 
         log.debug('[' + id + '] ' + '[ Tesseract output for NB is : ' + text + ' ]')
         
@@ -395,7 +397,7 @@ class OcrCheck:
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, image)
         # Actual OCR
         tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
-        textocr = pytesseract.image_to_string(get_treshold_2(cropped_img, theme), config=tessdata_dir_config)
+        textocr = tesseract_ocr(tess, get_treshold_2(cropped_img, theme), tessdata_dir_config)
         # Write log for result
         log.debug('[' + img_id + '] ' + '[ Tesseract output for TEXT is : ' + textocr + ' ]')  # DEBUG
         if textocr == '':
@@ -421,9 +423,73 @@ class OcrCheck:
         return self.relic_list
 
 
-image_input = cv2.imread('ressources/101.png')
-if image_input.shape[:2] == (900, 1600):
-    image_input = cv2.resize(image_input, (1920, 1080))
-ocr = OcrCheck(image_input)
-ocr_data = ocr.ocr_loop()
-pprint(ocr_data)
+
+use_pytesseract = True
+
+
+def tesseract_ocr(tess, image, config):
+    if use_pytesseract:
+        return pytesseract.image_to_string(image, config=config)
+
+    if "blacklist" in config:
+        *_, config = config.split(" ")
+        _, config = config.split("=")
+
+        tess.SetVariable("tesseract_char_blacklist", config)
+
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image = Image.fromarray(image)
+
+    tess.SetImage(image)
+
+    text = tess.GetUTF8Text()
+
+    if "blacklist" in config:
+        tess.SetVariable("tesseract_char_blacklist", None)
+
+    return text
+
+
+def benchmark(image_path):
+    global use_pytesseract
+
+    use_pytesseract = True
+    begin = time.time()
+
+    image_input = cv2.imread(image_path)
+    if image_input.shape[:2] == (900, 1600):
+        image_input = cv2.resize(image_input, (1920, 1080))
+    ocr = OcrCheck(image_input)
+    ocr_data = ocr.ocr_loop()
+
+    end = time.time()
+    delta = end - begin
+    print(f'With pytesseract: {delta}s')
+
+    use_pytesseract = False
+    begin = time.time()
+
+    image_input = cv2.imread(image_path)
+    if image_input.shape[:2] == (900, 1600):
+        image_input = cv2.resize(image_input, (1920, 1080))
+    ocr = OcrCheck(image_input)
+    ocr_data2 = ocr.ocr_loop()
+
+    end = time.time()
+    delta = end - begin
+    print(f'With tesserocr: {delta}s')
+
+    if not ocr_data == ocr_data2:
+        pprint(ocr_data, sys.stderr)
+        pprint(ocr_data2, sys.stderr)
+        print("ocr data must match!", file=sys.stderr)
+        sys.stdout.flush()
+
+
+if __name__ == "__main__":
+    tessdata_dir = 'tessdata/'
+    with PyTessBaseAPI(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY) as tess:
+        for image_path in os.scandir('ressources'):
+            print('image_path: ', image_path.path)
+            benchmark(image_path.path)
+            print()
