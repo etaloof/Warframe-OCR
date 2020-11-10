@@ -275,9 +275,13 @@ def ocr_extract_name(string):
 
 # Extract ERA from the ocr result (WITH SPELLCHECK)
 def ocr_extract_era(string):
-    rel_eng = spell_correction_ocr(' '.join(string.split(" ")[2:])[:5].lower(), ref_1_list).lower()
-    rel_fr = spell_correction_ocr(string.split(" ")[0].lower(), ref_1_list).lower()
-    
+    # spell checking is expensive, we can skip it if the text has been correctly recognized
+    rel_eng = ' '.join(string.split(" ")[2:])[:5].lower()
+    rel_fr = string.split(" ")[0].lower()
+    if not ('relic' == rel_eng or 'relique' == rel_fr):
+        rel_eng = spell_correction_ocr(rel_eng, ref_1_list).lower()
+        rel_fr = spell_correction_ocr(rel_fr, ref_1_list).lower()
+
     # Handle french
     if 'relique' in rel_fr:
         found_era = spell_correction_ocr(string.split(" ")[1].lower(), ref_2_list)
