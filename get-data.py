@@ -1,4 +1,5 @@
 import requests
+import time
 from db_operations import write_relic, write_part
 
 wf_data_url = 'https://drops.warframestat.us/data/relics.json'
