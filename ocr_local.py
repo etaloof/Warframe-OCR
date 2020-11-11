@@ -303,7 +303,7 @@ def spell_correction_ocr(string, corr_list):
 
 # Check for specific sprite to see if the relic exist
 def check_for_sign(img):
-    precision = 0.96
+    precision = 0.95
     path_to_img = r'./relic_template.png'
     path_to_mask = r'./relic_mask.png'
     template = cv2.imread(path_to_img, 0)
