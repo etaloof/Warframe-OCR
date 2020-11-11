@@ -205,8 +205,8 @@ def write_part(item_name, plat_price, ducats_price):
     cursor.execute('''SELECT IDPrimePart FROM relic_PrimePartData WHERE Name = %s''', (item_name,))
     result = cursor.fetchone()
     if result:
-        cursor.execute('''UPDATE PrimePartData SET PricePlat = %s, PriceDucats = %s WHERE Name = %s''', (plat_price, ducats_price, item_name,))
+        cursor.execute('''UPDATE relic_PrimePartData SET PricePlat = %s, PriceDucats = %s WHERE Name = %s''', (plat_price, ducats_price, item_name,))
     else:
-        cursor.execute('''INSERT INTO PrimePartData (Name, PricePlat, PriceDucats) VALUES (%s, %s, %s)''', (item_name, plat_price, ducats_price,))
+        cursor.execute('''INSERT INTO relic_PrimePartData (Name, PricePlat, PriceDucats) VALUES (%s, %s, %s)''', (item_name, plat_price, ducats_price,))
 
     close_db_con(db, cursor, commit=True)  # Close DB session
