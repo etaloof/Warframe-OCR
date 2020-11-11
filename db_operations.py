@@ -47,7 +47,7 @@ def check_user_exist(owner):
 
     db, cursor = init_db_con()  # Init DB session
 
-    cursor.execute('''SELECT IDUser FROM User WHERE Pseudo = ?''', (owner,))
+    cursor.execute('''SELECT IDUser FROM User WHERE Pseudo = %s''', (owner,))
     result = cursor.fetchone()
 
     if result:
@@ -57,7 +57,7 @@ def check_user_exist(owner):
         return result[0]
 
     else:
-        cursor.execute('''INSERT INTO User (Pseudo) VALUES (?)''', (owner,))
+        cursor.execute('''INSERT INTO User (Pseudo) VALUES (%s)''', (owner,))
 
         close_db_con(db, cursor, commit=True)  # Close DB session
 
@@ -71,12 +71,12 @@ def add_relic_to_db(era, name, quality, quantity, owner):
 
     relic_owner = check_user_exist(owner)
     # TestQuery
-    cursor.execute('''SELECT IDRelic FROM relic_Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (name, era, quality, relic_owner,))
+    cursor.execute('''SELECT IDRelic FROM relic_Relic WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (name, era, quality, relic_owner,))
     result = cursor.fetchone()
     if result:
-        cursor.execute('''UPDATE relic_Relic SET Quantity = Quantity + ? WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (quantity, name, era, quality, relic_owner,))
+        cursor.execute('''UPDATE relic_Relic SET Quantity = Quantity + %s WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (quantity, name, era, quality, relic_owner,))
     else:
-        cursor.execute('''INSERT INTO relic_Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (era, name, quality, quantity, relic_owner))
+        cursor.execute('''INSERT INTO relic_Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (%s, %s, %s, %s, %s)''', (era, name, quality, quantity, relic_owner))
 
     close_db_con(db, cursor, commit=True)  # Close DB session
 
@@ -88,16 +88,16 @@ def del_relic_on_db(era, name, quality, quantity, owner):
 
     relic_owner = check_user_exist(owner)
     # TestQuery
-    cursor.execute('''SELECT IDRelic, Quantity FROM relic_Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (name, era, quality, relic_owner,))
+    cursor.execute('''SELECT IDRelic, Quantity FROM relic_Relic WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (name, era, quality, relic_owner,))
     result = cursor.fetchone()
     if (result[1] - quantity) < 0:
-        cursor.execute('''UPDATE relic_Relic SET Quantity = 0 WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (name, era, quality, relic_owner,))
+        cursor.execute('''UPDATE relic_Relic SET Quantity = 0 WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (name, era, quality, relic_owner,))
 
         close_db_con(db, cursor, commit=True)  # Close DB session
 
         return True
     elif result:
-        cursor.execute('''UPDATE relic_Relic SET Quantity = Quantity - ? WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (quantity, name, era, quality, relic_owner,))
+        cursor.execute('''UPDATE relic_Relic SET Quantity = Quantity - %s WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (quantity, name, era, quality, relic_owner,))
 
         close_db_con(db, cursor, commit=True)  # Close DB session
 
@@ -115,18 +115,18 @@ def refine_relics(era, name, quality, quantity, owner):
     db, cursor = init_db_con()  # Init DB session
 
     relic_owner = check_user_exist(owner)
-    cursor.execute('''SELECT IDRelic FROM relic_Relic WHERE Name = ? AND Era = ? AND Quality = 'Intacte' AND IDOwner = ? AND Quantity >= ?''', (name, era, relic_owner, quantity))
+    cursor.execute('''SELECT IDRelic FROM relic_Relic WHERE Name = %s AND Era = %s AND Quality = 'Intacte' AND IDOwner = %s AND Quantity >= %s''', (name, era, relic_owner, quantity))
     result = cursor.fetchone()
     if result:
         print('La relique existe et peut être raffinnée')
-        cursor.execute('''UPDATE relic_Relic SET Quantity = Quantity - ? WHERE Name = ? AND Era = ? AND Quality = 'Intacte' AND IDOwner = ?''', (quantity, name, era, relic_owner,))
+        cursor.execute('''UPDATE relic_Relic SET Quantity = Quantity - %s WHERE Name = %s AND Era = %s AND Quality = 'Intacte' AND IDOwner = %s''', (quantity, name, era, relic_owner,))
         # TestQuery
-        cursor.execute('''SELECT IDRelic FROM relic_Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (name, era, quality, relic_owner,))
+        cursor.execute('''SELECT IDRelic FROM relic_Relic WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (name, era, quality, relic_owner,))
         result = cursor.fetchone()
         if result:
-            cursor.execute('''UPDATE relic_Relic SET Quantity = Quantity + ? WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (quantity, name, era, quality, relic_owner,))
+            cursor.execute('''UPDATE relic_Relic SET Quantity = Quantity + %s WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (quantity, name, era, quality, relic_owner,))
         else:
-            cursor.execute('''INSERT INTO relic_Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (era, name, quality, quantity, relic_owner))
+            cursor.execute('''INSERT INTO relic_Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (%s, %s, %s, %s, %s)''', (era, name, quality, quantity, relic_owner))
 
         close_db_con(db, cursor, commit=True)  # Close DB session
 
@@ -142,12 +142,12 @@ def relic_from_screen_not_used(era, name, quality, quantity, owner):
 
     relic_owner = check_user_exist(owner)
     # TestQuery
-    cursor.execute('''SELECT IDRelic FROM relic_Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (name, era, quality, relic_owner,))
+    cursor.execute('''SELECT IDRelic FROM relic_Relic WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (name, era, quality, relic_owner,))
     result = cursor.fetchone()
     if result:
-        cursor.execute('''UPDATE relic_Relic SET Quantity = Quantity + ? WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (quantity, name, era, quality, relic_owner,))
+        cursor.execute('''UPDATE relic_Relic SET Quantity = Quantity + %s WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (quantity, name, era, quality, relic_owner,))
     else:
-        cursor.execute('''INSERT INTO relic_Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (era, name, quality, quantity, relic_owner))
+        cursor.execute('''INSERT INTO relic_Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (%s, %s, %s, %s, %s)''', (era, name, quality, quantity, relic_owner))
 
     close_db_con(db, cursor, commit=True)  # Close DB session
 
@@ -159,12 +159,12 @@ def relic_from_screen_overwrite(era, name, quality, quantity, owner):
 
     relic_owner = check_user_exist(owner)
     # TestQuery
-    cursor.execute('''SELECT IDRelic FROM relic_Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (name, era, quality, relic_owner,))
+    cursor.execute('''SELECT IDRelic FROM relic_Relic WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (name, era, quality, relic_owner,))
     result = cursor.fetchone()
     if result:
-        cursor.execute('''UPDATE relic_Relic SET Quantity = ? WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (quantity, name, era, quality, relic_owner,))
+        cursor.execute('''UPDATE relic_Relic SET Quantity = %s WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (quantity, name, era, quality, relic_owner,))
     else:
-        cursor.execute('''INSERT INTO relic_Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (?,?,?,?,?)''', (era, name, quality, quantity, relic_owner))
+        cursor.execute('''INSERT INTO relic_Relic (Era, Name, Quality, Quantity, IDOwner) VALUES (%s, %s, %s, %s, %s)''', (era, name, quality, quantity, relic_owner))
 
     close_db_con(db, cursor, commit=True)  # Close DB session
 
@@ -174,7 +174,7 @@ def relic_owner_clear(owner):
     db, cursor = init_db_con()  # Init DB session
 
     relic_owner = check_user_exist(owner)
-    cursor.execute('''DELETE FROM relic_Relic WHERE IDOwner = ?''', (relic_owner,))
+    cursor.execute('''DELETE FROM relic_Relic WHERE IDOwner = %s''', (relic_owner,))
 
     close_db_con(db, cursor, commit=True)  # Close DB session
 
@@ -188,12 +188,12 @@ def write_relic(r_era, r_name, r_reward_c1, r_reward_c2, r_reward_c3, r_reward_u
 
     db, cursor = init_db_con()  # Init DB session
 
-    cursor.execute('''SELECT IDRelicData FROM relic_RelicData WHERE Era = ? AND Name = ?''', (r_era, r_name,))
+    cursor.execute('''SELECT IDRelicData FROM relic_RelicData WHERE Era = %s AND Name = %s''', (r_era, r_name,))
     result = cursor.fetchone()
     if result:
-        cursor.execute('''UPDATE relic_RelicData SET c_1 = ?, c_2 = ?, c_3 = ?, u_1 = ?, u_2 = ?, r_1 = ? WHERE Name = ? AND Era = ?''', (r_reward_c1, r_reward_c2, r_reward_c3, r_reward_u1, r_reward_u2, r_reward_r1, r_name, r_era,))
+        cursor.execute('''UPDATE relic_RelicData SET c_1 = %s, c_2 = %s, c_3 = %s, u_1 = %s, u_2 = %s, r_1 = %s WHERE Name = %s AND Era = %s''', (r_reward_c1, r_reward_c2, r_reward_c3, r_reward_u1, r_reward_u2, r_reward_r1, r_name, r_era,))
     else:
-        cursor.execute('''INSERT INTO relic_RelicData (Era, Name, c_1, c_2, c_3, u_1, u_2, r_1) VALUES (?,?,?,?,?,?,?,?)''', (r_era, r_name, r_reward_c1, r_reward_c2, r_reward_c3, r_reward_u1, r_reward_u2, r_reward_r1,))
+        cursor.execute('''INSERT INTO relic_RelicData (Era, Name, c_1, c_2, c_3, u_1, u_2, r_1) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)''', (r_era, r_name, r_reward_c1, r_reward_c2, r_reward_c3, r_reward_u1, r_reward_u2, r_reward_r1,))
 
     close_db_con(db, cursor, commit=True)  # Close DB session
 
@@ -202,11 +202,11 @@ def write_part(item_name, plat_price, ducats_price):
 
     db, cursor = init_db_con()  # Init DB session
 
-    cursor.execute('''SELECT IDPrimePart FROM relic_PrimePartData WHERE Name = ?''', (item_name,))
+    cursor.execute('''SELECT IDPrimePart FROM relic_PrimePartData WHERE Name = %s''', (item_name,))
     result = cursor.fetchone()
     if result:
-        cursor.execute('''UPDATE PrimePartData SET PricePlat = ?, PriceDucats = ? WHERE Name = ?''', (plat_price, ducats_price, item_name,))
+        cursor.execute('''UPDATE PrimePartData SET PricePlat = %s, PriceDucats = %s WHERE Name = %s''', (plat_price, ducats_price, item_name,))
     else:
-        cursor.execute('''INSERT INTO PrimePartData (Name, PricePlat, PriceDucats) VALUES (?,?,?)''', (item_name, plat_price, ducats_price,))
+        cursor.execute('''INSERT INTO PrimePartData (Name, PricePlat, PriceDucats) VALUES (%s, %s, %s)''', (item_name, plat_price, ducats_price,))
 
     close_db_con(db, cursor, commit=True)  # Close DB session
