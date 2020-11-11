@@ -1,5 +1,5 @@
 import requests
-from db_operations import *
+from db_operations import write_relic, write_part
 
 wf_data_url = 'https://drops.warframestat.us/data/relics.json'
 market_api_url = 'https://api.warframe.market/v1/'
@@ -21,19 +21,19 @@ def check_name(name):
     # Special check for extra 'blueprints'
     if any(ele in name for ele in check_list):
         if ' Blueprint' in name:
-            itemName = name.replace(' Blueprint', '')
+            item_name = name.replace(' Blueprint', '')
         else:
-            itemName = name
+            item_name = name
     # Special check for Kavasa and Kubrow
     elif "Kavasa" in name:
         if "Kubrow" in name:
-            itemName = name.replace('Kubrow ', '')
+            item_name = name.replace('Kubrow ', '')
         else:
-            itemName = name.replace('Prime', 'Prime Collar')
+            item_name = name.replace('Prime', 'Prime Collar')
     else:
-        itemName = name
+        item_name = name
         
-    return itemName
+    return item_name
 
 
 def process_item(item_name):
@@ -58,6 +58,7 @@ def process_item(item_name):
         data_item = requests.get(url=market_item_url).json()
         
         price_plat = data_stats['payload']['statistics_closed']['90days'][-1]['avg_price']
+        price_ducats = 0
         
         for element in data_item['payload']['item']['items_in_set']:
             if element['url_name'] == item_name.replace(' ', '_').lower():
