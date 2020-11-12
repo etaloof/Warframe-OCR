@@ -71,7 +71,7 @@ def process_item(item_name):
 
 
 for relic in data_drop['relics']:
-    time.sleep(0.5)
+    time.sleep(1)
     if relic['state'] == 'Intact':
         r_era = relic['tier']
         r_name = relic['relicName']
