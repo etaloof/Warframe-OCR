@@ -2,7 +2,7 @@ import pytesseract
 import cv2
 import numpy as np
 from PIL import Image
-from spellcheck import SpellCheck
+from spellchecker import SpellChecker
 import logging
 import shutil
 import names
