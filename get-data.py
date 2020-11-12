@@ -71,7 +71,6 @@ def process_item(item_name):
 
 
 for relic in data_drop['relics']:
-    time.sleep(1)
     if relic['state'] == 'Intact':
         r_era = relic['tier']
         r_name = relic['relicName']
@@ -79,6 +78,7 @@ for relic in data_drop['relics']:
         uncm_count = 1
         cmn_count = 1
         for item in relic['rewards']:
+            time.sleep(0.5)
             itemName = check_name(item['itemName'])
             if item['chance'] == 11:
                 item_dict['uncommon_' + str(uncm_count)] = itemName

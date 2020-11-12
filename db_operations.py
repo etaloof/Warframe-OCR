@@ -34,7 +34,7 @@ def check_relic_quantity(era, name, quality, owner):
 
     db, cursor = init_db_con()  # Init DB session
 
-    cursor.execute('''SELECT Quantity FROM Relic WHERE Name = ? AND Era = ? AND Quality = ? AND IDOwner = ?''', (name, era, quality, check_user_exist(owner),))
+    cursor.execute('''SELECT Quantity FROM relic_Relic WHERE Name = %s AND Era = %s AND Quality = %s AND IDOwner = %s''', (name, era, quality, check_user_exist(owner),))
     result = cursor.fetchone()
 
     close_db_con(db, cursor)  # Close DB session
@@ -47,7 +47,7 @@ def check_user_exist(owner):
 
     db, cursor = init_db_con()  # Init DB session
 
-    cursor.execute('''SELECT IDUser FROM User WHERE Pseudo = %s''', (owner,))
+    cursor.execute('''SELECT IDUser FROM relic_User WHERE Pseudo = %s''', (owner,))
     result = cursor.fetchone()
 
     if result:
