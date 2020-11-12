@@ -50,13 +50,13 @@ class CheckNbr(commands.Converter):
             raise commands.UserInputError('Vous ne pouvez entrer qu\'un nombre absolu !')
             
             
-def check_bot_channel():
-    def predicate(ctx):
-        if ctx.guild.id == 290252322028650497:
-            raise commands.UserInputError("C'est pas encore prêt :p")
-        else:
-            return True
-    return commands.check(predicate)
+# def check_bot_channel():
+#     def predicate(ctx):
+#         if ctx.guild.id == 290252322028650497:
+#             raise commands.UserInputError("C'est pas encore prêt :p")
+#         else:
+#             return True
+#     return commands.check(predicate)
 
 ###############################################################################################
 # Bot-commands ################################################################################
@@ -68,93 +68,93 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game("Ordis travaille, opérateur"))
 
 
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-    if message.content == "Hello":
-        await message.channel.send("Yo !")
-    if message.content == "Jour ?":
-        await message.channel.send("Nuit")
-    if message.content == "Clem ?":
-        await message.channel.send("GRAKATA")
-    if message.content == "Demokdawa":
-        await message.channel.send("LE DIEU !")
-    if message.content == "A Kadoc ?":
-        await message.channel.send("Il dit que c'est a lui de jouer...")
-    await bot.process_commands(message)
+# @bot.event
+# async def on_message(message):
+#     if message.author == bot.user:
+#         return
+#     if message.content == "Hello":
+#         await message.channel.send("Yo !")
+#     if message.content == "Jour ?":
+#         await message.channel.send("Nuit")
+#     if message.content == "Clem ?":
+#         await message.channel.send("GRAKATA")
+#     if message.content == "Demokdawa":
+#         await message.channel.send("LE DIEU !")
+#     if message.content == "A Kadoc ?":
+#         await message.channel.send("Il dit que c'est a lui de jouer...")
+#     await bot.process_commands(message)
 
 
-@bot.event
-async def on_raw_reaction_add(payload):
-    message_to_track = 678911976252112926
+# @bot.event
+# async def on_raw_reaction_add(payload):
+#     message_to_track = 678911976252112926
+#
+#     perrin_emoji = 678378425001443343
+#     veil_emoji = 678378424925945856
+#     meridian_emoji = 678378424976277564
+#     loka_emoji = 678378424955306004
+#     suda_emoji = 678378424967888906
+#     hexis_emoji = 678378425073008695
+#
+#     guild = bot.get_guild(payload.guild_id)
+#     member = guild.get_member(payload.user_id)
+#
+#     veil = get(guild.roles, id=677885546684743700)
+#     meridian = get(guild.roles, id=677886858579017741)
+#     suda = get(guild.roles, id=677887426332590080)
+#     hexis = get(guild.roles, id=677885889774616607)
+#     perrin = get(guild.roles, id=677886031642755073)
+#     loka = get(guild.roles, id=677886156108595229)
+#
+#     if payload.message_id == message_to_track:
+#         if payload.emoji.id == meridian_emoji:
+#             await member.add_roles(meridian, reason=None, atomic=True)
+#         elif payload.emoji.id == veil_emoji:
+#             await member.add_roles(veil, reason=None, atomic=True)
+#         elif payload.emoji.id == perrin_emoji:
+#             await member.add_roles(perrin, reason=None, atomic=True)
+#         elif payload.emoji.id == loka_emoji:
+#             await member.add_roles(loka, reason=None, atomic=True)
+#         elif payload.emoji.id == suda_emoji:
+#             await member.add_roles(suda, reason=None, atomic=True)
+#         elif payload.emoji.id == hexis_emoji:
+#             await member.add_roles(hexis, reason=None, atomic=True)
 
-    perrin_emoji = 678378425001443343
-    veil_emoji = 678378424925945856
-    meridian_emoji = 678378424976277564
-    loka_emoji = 678378424955306004
-    suda_emoji = 678378424967888906
-    hexis_emoji = 678378425073008695
 
-    guild = bot.get_guild(payload.guild_id)
-    member = guild.get_member(payload.user_id)
-
-    veil = get(guild.roles, id=677885546684743700)
-    meridian = get(guild.roles, id=677886858579017741)
-    suda = get(guild.roles, id=677887426332590080)
-    hexis = get(guild.roles, id=677885889774616607)
-    perrin = get(guild.roles, id=677886031642755073)
-    loka = get(guild.roles, id=677886156108595229)
-
-    if payload.message_id == message_to_track:
-        if payload.emoji.id == meridian_emoji:
-            await member.add_roles(meridian, reason=None, atomic=True)
-        elif payload.emoji.id == veil_emoji:
-            await member.add_roles(veil, reason=None, atomic=True)
-        elif payload.emoji.id == perrin_emoji:
-            await member.add_roles(perrin, reason=None, atomic=True)
-        elif payload.emoji.id == loka_emoji:
-            await member.add_roles(loka, reason=None, atomic=True)
-        elif payload.emoji.id == suda_emoji:
-            await member.add_roles(suda, reason=None, atomic=True)
-        elif payload.emoji.id == hexis_emoji:
-            await member.add_roles(hexis, reason=None, atomic=True)
-
-
-@bot.event
-async def on_raw_reaction_remove(payload):
-    message_to_track = 678911976252112926
-
-    perrin_emoji = 678378425001443343
-    veil_emoji = 678378424925945856
-    meridian_emoji = 678378424976277564
-    loka_emoji = 678378424955306004
-    suda_emoji = 678378424967888906
-    hexis_emoji = 678378425073008695
-
-    guild = bot.get_guild(payload.guild_id)
-    member = guild.get_member(payload.user_id)
-
-    veil = get(guild.roles, id=677885546684743700)
-    meridian = get(guild.roles, id=677886858579017741)
-    suda = get(guild.roles, id=677887426332590080)
-    hexis = get(guild.roles, id=677885889774616607)
-    perrin = get(guild.roles, id=677886031642755073)
-    loka = get(guild.roles, id=677886156108595229)
-
-    if payload.message_id == message_to_track:
-        if payload.emoji.id == meridian_emoji:
-            await member.remove_roles(meridian, reason=None, atomic=True)
-        elif payload.emoji.id == veil_emoji:
-            await member.remove_roles(veil, reason=None, atomic=True)
-        elif payload.emoji.id == perrin_emoji:
-            await member.remove_roles(perrin, reason=None, atomic=True)
-        elif payload.emoji.id == loka_emoji:
-            await member.remove_roles(loka, reason=None, atomic=True)
-        elif payload.emoji.id == suda_emoji:
-            await member.remove_roles(suda, reason=None, atomic=True)
-        elif payload.emoji.id == hexis_emoji:
-            await member.remove_roles(hexis, reason=None, atomic=True)
+# @bot.event
+# async def on_raw_reaction_remove(payload):
+#     message_to_track = 678911976252112926
+#
+#     perrin_emoji = 678378425001443343
+#     veil_emoji = 678378424925945856
+#     meridian_emoji = 678378424976277564
+#     loka_emoji = 678378424955306004
+#     suda_emoji = 678378424967888906
+#     hexis_emoji = 678378425073008695
+#
+#     guild = bot.get_guild(payload.guild_id)
+#     member = guild.get_member(payload.user_id)
+#
+#     veil = get(guild.roles, id=677885546684743700)
+#     meridian = get(guild.roles, id=677886858579017741)
+#     suda = get(guild.roles, id=677887426332590080)
+#     hexis = get(guild.roles, id=677885889774616607)
+#     perrin = get(guild.roles, id=677886031642755073)
+#     loka = get(guild.roles, id=677886156108595229)
+#
+#     if payload.message_id == message_to_track:
+#         if payload.emoji.id == meridian_emoji:
+#             await member.remove_roles(meridian, reason=None, atomic=True)
+#         elif payload.emoji.id == veil_emoji:
+#             await member.remove_roles(veil, reason=None, atomic=True)
+#         elif payload.emoji.id == perrin_emoji:
+#             await member.remove_roles(perrin, reason=None, atomic=True)
+#         elif payload.emoji.id == loka_emoji:
+#             await member.remove_roles(loka, reason=None, atomic=True)
+#         elif payload.emoji.id == suda_emoji:
+#             await member.remove_roles(suda, reason=None, atomic=True)
+#         elif payload.emoji.id == hexis_emoji:
+#             await member.remove_roles(hexis, reason=None, atomic=True)
 
 
 @bot.command()
@@ -270,4 +270,4 @@ async def halp(ctx):
     await ctx.channel.send(embed=embed)
 
 update_vault_list()
-bot.run("")
+bot.run(bot_token_prod, bot=True, reconnect=True)  # Prod

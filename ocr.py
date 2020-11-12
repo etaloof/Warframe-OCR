@@ -191,8 +191,8 @@ def get_treshold_2(image, theme):
 ##############################################################################################################
 
 
-def findOccurrences(s, ch):
-    return [i for i, letter in enumerate(s) if letter == ch]
+#def findOccurrences(s, ch):
+#    return [i for i, letter in enumerate(s) if letter == ch]
     
 
 # Hallucination error correction
