@@ -26,11 +26,11 @@ def check_name(name):
         else:
             item_name = name
     # Special check for Kavasa and Kubrow
-    elif "Kavasa" in name:
-        if "Kubrow" in name:
-            item_name = name.replace('Kubrow ', '')
-        else:
-            item_name = name.replace('Prime', 'Prime Collar')
+    #elif "Kavasa" in name:
+    #    if "Kubrow" in name:
+    #        item_name = name.replace('Kubrow ', '')
+    #    else:
+    #        item_name = name.replace('Prime', 'Prime Collar')
     else:
         item_name = name
         
