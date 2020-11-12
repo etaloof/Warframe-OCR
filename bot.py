@@ -4,6 +4,7 @@ from discord.utils import get
 import functools
 from utils import *
 from db_operations import *
+from loadconfig import bot_token_prod
 
 
 # Initialize ##################################################################################
