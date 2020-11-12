@@ -1,6 +1,5 @@
 import grpc
-import relic_pb2
-import relic_pb2_grpc
+from grpc_server import relic_pb2, relic_pb2_grpc
 from concurrent import futures
 import time
 
