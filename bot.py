@@ -236,7 +236,7 @@ async def scanrelictest(ctx):
 
 # Delete relics from the user
 @bot.command()
-@check_bot_channel()
+# @check_bot_channel()
 async def clearrelic(ctx):
     message = relic_owner_clear(clean_disctag(str(ctx.message.author)))
     await ctx.send(message)
@@ -244,7 +244,7 @@ async def clearrelic(ctx):
     
 # Delete relics from the user 'test'
 @bot.command()
-@check_bot_channel()
+# @check_bot_channel()
 async def clearrelictest(ctx):
     message = relic_owner_clear('test')
     await ctx.send(message)
