@@ -227,7 +227,7 @@ async def scanrelic(ctx):
 
 # OCR scan command - TEST
 @bot.command()
-@check_bot_channel()
+# @check_bot_channel()
 async def scanrelictest(ctx):
     url = ctx.message.attachments[0].url
     message = process_image(image_from_url(url), 'test')
