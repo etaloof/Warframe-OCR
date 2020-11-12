@@ -68,7 +68,7 @@ def index():
     
         if user_filter != '' and quality_filter == '' and era_filter == '': # user
             print('choice 1')
-            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_User.Pseudo = ? GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (user_filter,))
+            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_User.Pseudo = %s GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (user_filter,))
             data = cursor.fetchall()  
             final_res = processing(data, cursor)
             close_db_con(db, cursor)  # Close DB session
@@ -76,7 +76,7 @@ def index():
             
         if user_filter != '' and quality_filter != '' and era_filter == '': # user & quality
             print('choice 2')
-            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_User.Pseudo = ? AND relic_Relic.Quality = ? GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (user_filter, quality_filter,))
+            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_User.Pseudo = %s AND relic_Relic.Quality = %s GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (user_filter, quality_filter,))
             data = cursor.fetchall()  
             final_res = processing(data, cursor)
             close_db_con(db, cursor)  # Close DB session
@@ -84,7 +84,7 @@ def index():
             
         if user_filter != '' and quality_filter == '' and era_filter != '': # user & era
             print('choice 3')
-            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_User.Pseudo = ? AND relic_Relic.Era = ? GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (user_filter, era_filter,))
+            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_User.Pseudo = %s AND relic_Relic.Era = %s GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (user_filter, era_filter,))
             data = cursor.fetchall()  
             final_res = processing(data, cursor)
             close_db_con(db, cursor)  # Close DB session
@@ -92,7 +92,7 @@ def index():
             
         if user_filter != '' and quality_filter != '' and era_filter != '': # user & quality & era
             print('choice 4')
-            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_User.Pseudo = ? AND relic_Relic.Quality = ? AND relic_Relic.Era = ? GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (user_filter, quality_filter, era_filter,))
+            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_User.Pseudo = %s AND relic_Relic.Quality = %s AND relic_Relic.Era = %s GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (user_filter, quality_filter, era_filter,))
             data = cursor.fetchall()  
             final_res = processing(data, cursor)
             close_db_con(db, cursor)  # Close DB session
@@ -100,7 +100,7 @@ def index():
             
         if user_filter == '' and quality_filter != '' and era_filter == '': # quality 
             print('choice 5')
-            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_Relic.Quality = ? GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (quality_filter,))
+            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_Relic.Quality = %s GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (quality_filter,))
             data = cursor.fetchall()  
             final_res = processing(data, cursor)
             close_db_con(db, cursor)  # Close DB session
@@ -108,7 +108,7 @@ def index():
             
         if user_filter == '' and quality_filter != '' and era_filter != '': # quality & era 
             print('choice 6')
-            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_Relic.Quality = ? AND relic_Relic.Era = ? GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (quality_filter, era_filter,))
+            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_Relic.Quality = %s AND relic_Relic.Era = %s GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (quality_filter, era_filter,))
             data = cursor.fetchall()  
             final_res = processing(data, cursor)
             close_db_con(db, cursor)  # Close DB session
@@ -116,7 +116,7 @@ def index():
             
         if user_filter == '' and quality_filter == '' and era_filter != '': # era 
             print('choice 7')
-            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_Relic.Era = ? GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (era_filter,))
+            cursor.execute('''SELECT relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality, GROUP_CONCAT(`Pseudo`) AS Pseudo_g, GROUP_CONCAT(`Quantity`) AS Number_g FROM relic_Relic INNER JOIN relic_User ON relic_Relic.IDOwner = relic_User.IDUser WHERE relic_Relic.Era = %s GROUP BY relic_Relic.Name, relic_Relic.Era, relic_Relic.Quality''', (era_filter,))
             data = cursor.fetchall()  
             final_res = processing(data, cursor)
             close_db_con(db, cursor)  # Close DB session
