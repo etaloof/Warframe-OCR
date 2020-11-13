@@ -88,39 +88,40 @@ def syntax_check_pass(arg1, arg2, arg3):
 def ocr_data_validation(era, name, quality):
     # Check for Era
     if era not in ref_list_era:
-        return False
+        print('Failed era check')
     else:
         # Check for Name
         if era == 'Lith':
             if name not in ref_list_lith:
+                print('Failed name check')
                 return False
             else:
                 if quality not in ref_list_quality:
-                    return False
+                    print('Failed quality check')
                 else:
                     return True
         if era == 'Meso':
             if name not in ref_list_meso:
-                return False
+                print('Failed name check')
             else:
                 if quality not in ref_list_quality:
-                    return False
+                    print('Failed quality check')
                 else:
                     return True
         if era == 'Neo':
             if name not in ref_list_neo:
-                return False
+                print('Failed name check')
             else:
                 if quality not in ref_list_quality:
-                    return False
+                    print('Failed quality check')
                 else:
                     return True
         if era == 'Axi':
             if name not in ref_list_axi:
-                return False
+                print('Failed name check')
             else:
                 if quality not in ref_list_quality:
-                    return False
+                    print('Failed quality check')
                 else:
                     return True
 
