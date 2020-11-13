@@ -7,6 +7,6 @@ numpy==1.16.4
 discord.py==1.1.1
 Flask==1.0.3
 fuzzywuzzy==0.17.0
-Pillow==6.0.0
+Pillow==7.1.0
 beautifulsoup4==4.7.1
 discord==1.0.1
