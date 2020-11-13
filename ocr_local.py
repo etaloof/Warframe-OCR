@@ -366,30 +366,6 @@ def relicarea_crop(upper_y, downer_y, left_x, right_x, img):
     return cropped
 
 
-def data_pass_nb(tess, pos1, pos2, pos3, pos4, image, theme, id):
-    # Generate rID
-    rid = str(randint(100, 999))
-    # Crop the relic part
-    cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, image)
-    greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
-    upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-    if check_for_sign(greyed_image) >= 1:
-        return False
-    else:
-        
-        log.debug('[' + id + '] ' + '[ Theme used is : ' + theme + ' ]')  # DEBUG
-
-        tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --psm 6 --oem 1 get.images'
-        text = tesseract_ocr(tess, get_treshold_2(cropped_img, theme), tessdata_dir_config)
-
-        log.debug('[' + id + '] ' + '[ Tesseract output for NB is : ' + text + ' ]')
-        
-        corrected_nbr = re.sub("G", "6", text)  # Replacing letter G by 6
-        corrected_nbr = re.sub("[^0-9]", "", corrected_nbr)  # Removing non-numbers characters from the OCR-test
-
-        return corrected_nbr.casefold()
-
-
 class OcrCheck:
     def __init__(self, tess, image):
         self.tess = tess
@@ -441,10 +417,33 @@ class OcrCheck:
             corrected_text = re.sub("'", " ", corrected_text)
             self.relic_list.append(extract_vals(corrected_text) + (quantity,))
 
+    def data_pass_nb(self, pos1, pos2, pos3, pos4, image, theme, id):
+        # Generate rID
+        rid = str(randint(100, 999))
+        # Crop the relic part
+        cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, image)
+        greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
+        upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+        if check_for_sign(greyed_image) >= 1:
+            return False
+        else:
+
+            log.debug('[' + id + '] ' + '[ Theme used is : ' + theme + ' ]')  # DEBUG
+
+            tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --psm 6 --oem 1 get.images'
+            text = tesseract_ocr(self.tess, get_treshold_2(cropped_img, theme), tessdata_dir_config)
+
+            log.debug('[' + id + '] ' + '[ Tesseract output for NB is : ' + text + ' ]')
+
+            corrected_nbr = re.sub("G", "6", text)  # Replacing letter G by 6
+            corrected_nbr = re.sub("[^0-9]", "", corrected_nbr)  # Removing non-numbers characters from the OCR-test
+
+            return corrected_nbr.casefold()
+
     def ocr_loop(self):
         print(self.theme)
         for i in self.pos_list:
-            nb = data_pass_nb(self.tess, i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme, self.imgID)
+            nb = self.data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme, self.imgID)
             if nb is False:
                 pass
             elif nb == '':
