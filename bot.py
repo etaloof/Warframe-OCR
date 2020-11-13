@@ -220,9 +220,14 @@ async def ressourcedrop(ctx):
 
 # OCR scan command 
 @bot.command()
-async def scanrelic(ctx):
+async def scanrelic(ctx, member: discord.Member=None):
     url = ctx.message.attachments[0].url
-    message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)))
+    if member is None:  # Default with no argument
+        message = process_image(image_from_url(url), clean_disctag(str(ctx.message.author)))
+    else:
+        print(clean_disctag(str(member)))
+        message = process_image(image_from_url(url), clean_disctag(str(member)))
+
     await ctx.send(message)
     
 
