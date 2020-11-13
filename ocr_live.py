@@ -1,5 +1,16 @@
+from cv2.cv2 import WINDOW_NORMAL, WINDOW_AUTOSIZE
+
 from screen_capture import mss, Screenshots
 from ocr_local import *
+
+
+def generate_overlay(image):
+    image = cv2.resize(image, None, image.shape[2:], 0.6, 0.6)
+    return image
+
+
+cv2.namedWindow('overlay', WINDOW_AUTOSIZE)
+cv2.moveWindow('overlay', 1600, 0)
 
 tessdata_dir = 'tessdata/'
 with mss.mss() as sct, PyTessBaseAPI(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY) as tess:
@@ -7,7 +18,7 @@ with mss.mss() as sct, PyTessBaseAPI(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOC
     while True:
         start = time.time()
 
-        image_input = screenshots.take_screenshot()
+        image_input = cv2.imread('ressources/100.png')  # screenshots.take_screenshot()
 
         if image_input.shape[:2] == (900, 1600):
             image_input = cv2.resize(image_input, (1920, 1080))
@@ -17,4 +28,7 @@ with mss.mss() as sct, PyTessBaseAPI(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOC
         end = time.time()
 
         pprint(ocr_data)
-        print(f'latency: {int((end-start) * 1000)}ms')
+        print(f'latency: {int((end - start) * 1000)}ms')
+
+        cv2.imshow('overlay', generate_overlay(image_input))
+        cv2.waitKey(1)
