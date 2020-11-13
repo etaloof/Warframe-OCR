@@ -57,7 +57,7 @@ def check_user_exist(owner):
         return result[0]
 
     else:
-        cursor.execute('''INSERT INTO User (Pseudo) VALUES (%s)''', (owner,))
+        cursor.execute('''INSERT INTO relic_User (Pseudo) VALUES (%s)''', (owner,))
 
         close_db_con(db, cursor, commit=True)  # Close DB session
 
