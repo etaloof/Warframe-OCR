@@ -374,6 +374,7 @@ class OcrCheck:
         self.relic_list = []
         self.theme = get_theme(self.image, 30)
         self.imgID = names.get_last_name()
+        self.debug_images = {}
         # Ecart X entre les reliques d'une même ligne : 218, y : 201
         # Block1 = Nombre, Block2 = Nom | LeftX, UpperY, RightX, DownerY
         self.pos_list = [((99, 204, 139, 226), (101, 319, 259, 365)),
@@ -408,9 +409,11 @@ class OcrCheck:
         rid = str(randint(100, 999))
         # Crop relic parts
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, image)
+        thresholded_image = get_treshold_2(cropped_img, theme)
+        self.debug_images[('name', pos1, pos2, pos3, pos4)] = thresholded_image
         # Actual OCR
         tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
-        textocr = tesseract_ocr(thread_local.tess, get_treshold_2(cropped_img, theme), tessdata_dir_config)
+        textocr = tesseract_ocr(thread_local.tess, thresholded_image, tessdata_dir_config)
         # Write log for result
         log.debug('[' + img_id + '] ' + '[ Tesseract output for TEXT is : ' + textocr + ' ]')  # DEBUG
         if textocr == '':
@@ -426,6 +429,7 @@ class OcrCheck:
         # Crop the relic part
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, image)
         greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
+        self.debug_images[('nb', pos1, pos2, pos3, pos4)] = cv2.cvtColor(greyed_image, cv2.COLOR_GRAY2BGR)
         upscaled = cv2.resize(cropped_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
         if check_for_sign(greyed_image) >= 1:
             return False

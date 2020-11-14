@@ -4,7 +4,17 @@ from screen_capture import mss, Screenshots
 from ocr_local import *
 
 
-def generate_overlay(image):
+def generate_overlay(image, ocr_check):
+    for ((kind, pos1, pos2, pos3, pos4), img) in sorted(ocr_check.debug_images.items()):
+        offset_y = offset_x = 0
+        if kind == 'name':
+            offset_y = pos2 - pos1
+            img = cv2.resize(img, None, img.shape[2:], 0.5, 0.5)
+        elif kind == 'nb':
+            offset_x = pos4 - pos3
+            img = 255 - img
+        image[pos1 + offset_y:pos2 + offset_y, pos3 + offset_x:pos4 + offset_x] = img
+
     image = cv2.resize(image, None, image.shape[2:], 0.6, 0.6)
     return image
 
@@ -30,5 +40,5 @@ with mss.mss() as sct, PyTessBaseAPI(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOC
         pprint(ocr_data)
         print(f'latency: {int((end - start) * 1000)}ms')
 
-        cv2.imshow('overlay', generate_overlay(image_input))
+        cv2.imshow('overlay', generate_overlay(image_input, ocr))
         cv2.waitKey(1)
