@@ -1,3 +1,6 @@
+import tempfile
+from functools import lru_cache
+
 import pytesseract
 import cv2
 import numpy as np
@@ -14,6 +17,8 @@ import os
 from pprint import pprint
 import sys
 import time
+
+from symspellpy import SymSpell, Verbosity
 from tesserocr import PyTessBaseAPI, PSM, OEM
 
 # Enable logging
@@ -294,11 +299,35 @@ def ocr_extract_era(string):
 
 
 # Try to correct mistakes
-def spell_correction_ocr(string, corr_list):
+def spell_correction_ocr(string, corr_list, set_selected=None, _select={'selected': 0}):
+    if set_selected is not None:
+        _select['selected'] = set_selected
+        return None
+    if _select['selected'] == 0:
+        return spell_correction_ocr1(string, corr_list)
+    else:
+        return spell_correction_ocr2(string, corr_list)
+
+
+def spell_correction_ocr1(string, corr_list):
     spell_check_ocr = SpellChecker(distance=2, language=None, case_sensitive=False)
     spell_check_ocr.word_frequency.load_words(corr_list)
     spell_check_ocr.correction(string)
     return spell_check_ocr.correction(string).strip().capitalize()
+
+
+def spell_correction_ocr2(string, corr_list):
+    sc = spell_checker(tuple(corr_list))
+    first_suggestion, *_ = sc.lookup(string, Verbosity.CLOSEST, max_edit_distance=2, include_unknown=True)
+    return first_suggestion.term.strip().capitalize()
+
+
+@lru_cache(maxsize=128)
+def spell_checker(corr_list):
+    sc = SymSpell(max_dictionary_edit_distance=2)
+    for word in corr_list:
+        sc.create_dictionary_entry(word, 1)
+    return sc
 
 
 # Check for specific sprite to see if the relic exist
@@ -428,7 +457,6 @@ class OcrCheck:
         return self.relic_list
 
 
-
 def tesseract_ocr(tess, image, config):
     if tess is None:
         return pytesseract.image_to_string(image, config=config)
@@ -452,7 +480,7 @@ def tesseract_ocr(tess, image, config):
     return text
 
 
-def benchmark(tess, image_path):
+def benchmark_tesserocr(tess, image_path):
     begin = time.time()
 
     image_input = cv2.imread(image_path)
@@ -484,10 +512,45 @@ def benchmark(tess, image_path):
         sys.stdout.flush()
 
 
+def benchmark_symspell(tess, image_path):
+    spell_correction_ocr(None, None, set_selected=0)
+    begin = time.time()
+
+    image_input = cv2.imread(image_path)
+    if image_input.shape[:2] == (900, 1600):
+        image_input = cv2.resize(image_input, (1920, 1080))
+    ocr = OcrCheck(tess, image_input)
+    ocr_data = ocr.ocr_loop()
+
+    end = time.time()
+    delta = end - begin
+    print(f'With spellchecker: {delta}s')
+
+    spell_correction_ocr(None, None, set_selected=1)
+    begin = time.time()
+
+    image_input = cv2.imread(image_path)
+    if image_input.shape[:2] == (900, 1600):
+        image_input = cv2.resize(image_input, (1920, 1080))
+    ocr = OcrCheck(tess, image_input)
+    ocr_data2 = ocr.ocr_loop()
+
+    end = time.time()
+    delta = end - begin
+    print(f'With symspell: {delta}s')
+
+    if not ocr_data == ocr_data2:
+        pprint(ocr_data, sys.stderr)
+        pprint(ocr_data2, sys.stderr)
+        print("ocr data must match!", file=sys.stderr)
+        sys.stdout.flush()
+
+
 if __name__ == "__main__":
     tessdata_dir = 'tessdata/'
     with PyTessBaseAPI(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY) as tess:
         for image_path in os.scandir('ressources'):
             print('image_path: ', image_path.path)
-            benchmark(tess, image_path.path)
+            benchmark_symspell(tess, image_path.path)
             print()
+            exit(0)
