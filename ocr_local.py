@@ -415,7 +415,7 @@ class OcrCheck:
         else:
             corrected_text = re.sub("\n", " ", textocr)
             corrected_text = re.sub("'", " ", corrected_text)
-            self.relic_list.append(extract_vals(corrected_text) + (quantity,))
+            return extract_vals(corrected_text) + (quantity,)
 
     def data_pass_nb(self, pos1, pos2, pos3, pos4, image, theme, id):
         # Generate rID
@@ -448,10 +448,14 @@ class OcrCheck:
                 pass
             elif nb == '':
                 quantity = '1'
-                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
+                relic = self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
+                if relic is not None:
+                    self.relic_list.append(relic)
             else:
                 quantity = nb
-                self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
+                relic = self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
+                if relic is not None:
+                    self.relic_list.append(relic)
         log.debug(self.relic_list)
         return self.relic_list
 
