@@ -922,13 +922,13 @@ def tess():
     path if path in expected_results else pytest.param(path, marks=pytest.mark.skip("no expected data available"))
     for path in all_paths
 ])
-def test_tesserocr(image_name, tess):
+def test_tesserocr(image_name):
     image_path = os.path.join(image_base_path, image_name)
     image_input = cv2.imread(image_path)
     if image_input.shape[:2] == (900, 1600):
         image_input = cv2.resize(image_input, (1920, 1080))
 
-    ocr = OcrCheck(tess, image_input)
+    ocr = OcrCheck('tess', image_input)
     ocr_data = ocr.ocr_loop()
 
     assert ocr_data == expected_results[image_name]

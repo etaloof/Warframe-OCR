@@ -1,5 +1,7 @@
 import tempfile
+import threading
 from functools import lru_cache
+from multiprocessing.pool import ThreadPool
 
 import pytesseract
 import cv2
@@ -399,6 +401,8 @@ class OcrCheck:
                          ((750, 813, 790, 832), (747, 928, 906, 974)),
                          ((966, 813, 1006, 832), (965, 928, 1124, 974))
                          ]
+        # we cannot init the thread pool here because it will fail during bootstrap
+        self.pool = None
 
     def data_pass_name(self, pos1, pos2, pos3, pos4, quantity, image, theme, img_id):
         # Generate rID
@@ -407,7 +411,7 @@ class OcrCheck:
         cropped_img = relicarea_crop(pos1, pos2, pos3, pos4, image)
         # Actual OCR
         tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
-        textocr = tesseract_ocr(self.tess, get_treshold_2(cropped_img, theme), tessdata_dir_config)
+        textocr = tesseract_ocr(thread_local.tess, get_treshold_2(cropped_img, theme), tessdata_dir_config)
         # Write log for result
         log.debug('[' + img_id + '] ' + '[ Tesseract output for TEXT is : ' + textocr + ' ]')  # DEBUG
         if textocr == '':
@@ -431,7 +435,7 @@ class OcrCheck:
             log.debug('[' + id + '] ' + '[ Theme used is : ' + theme + ' ]')  # DEBUG
 
             tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --psm 6 --oem 1 get.images'
-            text = tesseract_ocr(self.tess, get_treshold_2(cropped_img, theme), tessdata_dir_config)
+            text = tesseract_ocr(thread_local.tess, get_treshold_2(cropped_img, theme), tessdata_dir_config)
 
             log.debug('[' + id + '] ' + '[ Tesseract output for NB is : ' + text + ' ]')
 
@@ -440,24 +444,44 @@ class OcrCheck:
 
             return corrected_nbr.casefold()
 
+    def init_pool(self):
+        if self.pool is None:
+            self.pool = ThreadPool(initializer=init_tess)
+
     def ocr_loop(self):
         print(self.theme)
-        for i in self.pos_list:
-            nb = self.data_pass_nb(i[0][1], i[0][3], i[0][0], i[0][2], self.image, self.theme, self.imgID)
-            if nb is False:
-                pass
-            elif nb == '':
-                quantity = '1'
-                relic = self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
-                if relic is not None:
-                    self.relic_list.append(relic)
-            else:
-                quantity = nb
-                relic = self.data_pass_name(i[1][1], i[1][3], i[1][0], i[1][2], quantity, self.image, self.theme, self.imgID)
-                if relic is not None:
-                    self.relic_list.append(relic)
+
+        self.init_pool()
+
+        # detect the number of relics for each position
+        nbs = (
+            (b, d, a, c, self.image, self.theme, self.imgID)
+            for ((a, b, c, d), _)
+            in self.pos_list
+        )
+        nbs = self.pool.starmap(self.data_pass_nb, nbs, chunksize=1)
+
+        # if there is at least one relic try to detect the relic name
+        relic_names = (
+            (b, d, a, c, quantity if quantity != '' else '1', self.image, self.theme, self.imgID)
+            for (quantity, (_, (a, b, c, d)))
+            in zip(nbs, self.pos_list)
+            if quantity is not False
+        )
+        relic_names = self.pool.starmap(self.data_pass_name, relic_names, chunksize=1)
+        self.relic_list.extend(relic_name for relic_name in relic_names if relic_name is not None)
+
         log.debug(self.relic_list)
         return self.relic_list
+
+
+thread_local = threading.local()
+
+
+def init_tess():
+    global thread_local
+    tessdata_dir = 'tessdata/'
+    thread_local.tess = PyTessBaseAPI(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY)
 
 
 def tesseract_ocr(tess, image, config):
@@ -524,6 +548,8 @@ def benchmark_symspell(tess, image_path):
         image_input = cv2.resize(image_input, (1920, 1080))
     ocr = OcrCheck(tess, image_input)
     ocr_data = ocr.ocr_loop()
+    ocr.pool.close()
+    ocr.pool.join()
 
     end = time.time()
     delta = end - begin
@@ -537,6 +563,8 @@ def benchmark_symspell(tess, image_path):
         image_input = cv2.resize(image_input, (1920, 1080))
     ocr = OcrCheck(tess, image_input)
     ocr_data2 = ocr.ocr_loop()
+    ocr.pool.close()
+    ocr.pool.join()
 
     end = time.time()
     delta = end - begin
