@@ -528,6 +528,30 @@ class OcrCheck:
                 corrected_text = re.sub("'", " ", corrected_text)
                 return extract_vals(corrected_text) + (quantity,)
 
+
+class RustyOcrCheck:
+    def __init__(self, t_pool, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.tesserocr_pool = t_pool
+
+    def process_names(self, preprocessed):
+        tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
+
+        preprocessed = list(preprocessed)
+        texts = self.tesserocr_pool.ocr(tessdata_dir_config, list(img for _, img in preprocessed))
+
+        for (quantity,_), text in zip(preprocessed, texts):
+            yield quantity, text
+
+
+    def process_nbs(self, preprocessed):
+        tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --psm 6 --oem 1 get.images'
+
+        preprocessed = list(preprocessed)
+        texts = self.tesserocr_pool.ocr(tessdata_dir_config, preprocessed)
+
+        yield from texts
+
 thread_local = threading.local()
 
 
