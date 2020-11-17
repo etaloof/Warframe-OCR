@@ -1,4 +1,3 @@
-import tempfile
 import threading
 from functools import lru_cache
 from multiprocessing.pool import ThreadPool
@@ -454,26 +453,80 @@ class OcrCheck:
         self.init_pool()
 
         # detect the number of relics for each position
-        nbs = (
-            (b, d, a, c, self.image, self.theme, self.imgID)
-            for ((a, b, c, d), _)
-            in self.pos_list
-        )
-        nbs = self.pool.starmap(self.data_pass_nb, nbs, chunksize=1)
+        nbs = self.preprocess_nbs()
+        nbs = self.process_nbs(nbs)
+        nbs = self.postprocess_nbs(nbs)
 
         # if there is at least one relic try to detect the relic name
-        relic_names = (
-            (b, d, a, c, quantity if quantity != '' else '1', self.image, self.theme, self.imgID)
-            for (quantity, (_, (a, b, c, d)))
-            in zip(nbs, self.pos_list)
-            if quantity is not False
-        )
-        relic_names = self.pool.starmap(self.data_pass_name, relic_names, chunksize=1)
-        self.relic_list.extend(relic_name for relic_name in relic_names if relic_name is not None)
+        relic_names = self.preprocess_names(nbs)
+        relic_names = self.process_names(relic_names)
+        relic_names = self.postprocess_names(relic_names)
+        self.relic_list.extend(name for name in relic_names if name is not None)
 
         log.debug(self.relic_list)
         return self.relic_list
 
+    def preprocess_nbs(self):
+        for ((pos1, pos2, pos3, pos4), _) in self.pos_list:
+            cropped_img = relicarea_crop(pos2, pos4, pos1, pos3, self.image)
+            greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
+            sign_count = check_for_sign(greyed_image)
+            if sign_count < 1:
+                ocr_image = get_treshold_2(cropped_img, self.theme)
+                yield ocr_image
+            else:
+                yield None
+
+    def process_nbs(self, preprocessed):
+        tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --psm 6 --oem 1 get.images'
+
+        for preprocessed_image in preprocessed:
+            if preprocessed_image is None:
+                # deal with errors in the name detection event
+                # if we skip the error here all following detections will be out of sync
+                yield None
+                continue
+
+            text = tesseract_ocr(thread_local.tess, preprocessed_image, tessdata_dir_config)
+            yield text
+
+    def postprocess_nbs(self, processed):
+        for text in processed:
+            log.debug('[' + self.imgID + '] ' + '[ Theme used is : ' + self.theme + ' ]')  # DEBUG
+            log.debug('[' + self.imgID + '] ' + '[ Tesseract output for NB is : ' + text + ' ]')
+
+            corrected_nbr = re.sub("G", "6", text)  # Replacing letter G by 6
+            corrected_nbr = re.sub("[^0-9]", "", corrected_nbr)  # Removing non-numbers characters from the OCR-test
+
+            yield corrected_nbr.casefold() if corrected_nbr != '' else '1'
+
+    def preprocess_names(self, processed_nbs):
+        for (nb, (_, (pos1, pos2, pos3, pos4))) in zip(processed_nbs, self.pos_list):
+            if nb is None:
+                # we could not detect the quantity of the relic, skip it
+                continue
+
+            image = self.image
+            image = relicarea_crop(pos2, pos4, pos1, pos3, image)
+            image = get_treshold_2(image, self.theme)
+
+            yield nb, image
+
+    def process_names(self, preprocessed):
+        tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
+        for quantity, preprocessed_image in preprocessed:
+            text = tesseract_ocr(thread_local.tess, preprocessed_image, tessdata_dir_config)
+            yield quantity, text
+
+    def postprocess_names(self, processed):
+        for quantity, text in processed:
+            log.debug('[' + self.imgID + '] ' + '[ Tesseract output for TEXT is : ' + text + ' ]')  # DEBUG
+            if text == '':
+                pass
+            else:
+                corrected_text = re.sub("\n", " ", text)
+                corrected_text = re.sub("'", " ", corrected_text)
+                return extract_vals(corrected_text) + (quantity,)
 
 thread_local = threading.local()
 
