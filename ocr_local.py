@@ -21,6 +21,7 @@ import time
 
 from symspellpy import SymSpell, Verbosity
 from tesserocr import PyTessBaseAPI, PSM, OEM
+import tesserocr_pool
 
 # Enable logging
 log = logging.getLogger("BlackBot_log")
@@ -529,10 +530,10 @@ class OcrCheck:
                 return extract_vals(corrected_text) + (quantity,)
 
 
-class RustyOcrCheck:
-    def __init__(self, t_pool, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.tesserocr_pool = t_pool
+class RustyOcrCheck(OcrCheck):
+    def __init__(self, pool, image, *args, **kwargs):
+        super().__init__(None, image, *args, **kwargs)
+        self.tesserocr_pool = pool
 
     def process_names(self, preprocessed):
         tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
@@ -551,6 +552,24 @@ class RustyOcrCheck:
         texts = self.tesserocr_pool.ocr(tessdata_dir_config, preprocessed)
 
         yield from texts
+
+    def ocr_loop(self):
+        print(self.theme)
+
+        # detect the number of relics for each position
+        nbs = self.preprocess_nbs()
+        nbs = self.process_nbs(nbs)
+        nbs = self.postprocess_nbs(nbs)
+
+        # if there is at least one relic try to detect the relic name
+        relic_names = self.preprocess_names(nbs)
+        relic_names = self.process_names(relic_names)
+        relic_names = self.postprocess_names(relic_names)
+        self.relic_list.extend(name for name in relic_names if name is not None)
+
+        log.debug(self.relic_list)
+        return self.relic_list
+
 
 thread_local = threading.local()
 
@@ -623,7 +642,7 @@ def benchmark_symspell(tess, image_path):
     image_input = cv2.imread(image_path)
     if image_input.shape[:2] == (900, 1600):
         image_input = cv2.resize(image_input, (1920, 1080))
-    ocr = OcrCheck(tess, image_input)
+    ocr = RustyOcrCheck(tess, image_input)
     ocr_data = ocr.ocr_loop()
     ocr.pool.close()
     ocr.pool.join()
@@ -655,8 +674,7 @@ def benchmark_symspell(tess, image_path):
 
 
 if __name__ == "__main__":
-    tessdata_dir = 'tessdata/'
-    with PyTessBaseAPI(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY) as tess:
+    with tesserocr_pool.TesserocrPool() as tess:
         for image_path in os.scandir('ressources'):
             print('image_path: ', image_path.path)
             benchmark_symspell(tess, image_path.path)

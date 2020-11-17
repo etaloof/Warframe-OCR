@@ -8,6 +8,8 @@ edition = "2018"
 rayon = "1.5"
 pyo3 = { version = "0", features = ["extension-module"] }
 leptess = "0.9.0"
+numpy = "0.12"
+ndarray = "0.13"
 
 [lib]
 name = "tesserocr_pool"
