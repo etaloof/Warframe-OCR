@@ -1,0 +1,17 @@
+[package]
+authors = ["Stefan Lukas <etaloof@gmail.com>"]
+name = "tesserocr_pool"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+rayon = "1.5"
+pyo3 = { version = "0", features = ["extension-module"] }
+leptess = "0.9.0"
+
+[lib]
+name = "tesserocr_pool"
+crate-type = ["cdylib"]
+
+[profile.release]
+lto = true

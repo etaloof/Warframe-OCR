@@ -1,0 +1,4 @@
+target
+tesserocr_pool/tesserocr_pool.*
+vcpkg
+__pycache__
