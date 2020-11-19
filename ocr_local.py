@@ -21,7 +21,7 @@ import time
 
 from symspellpy import SymSpell, Verbosity
 from tesserocr import PyTessBaseAPI, PSM, OEM
-import tesserocr_pool
+from tesserocr_pool import TesserocrPool
 
 # Enable logging
 log = logging.getLogger("BlackBot_log")
@@ -488,7 +488,7 @@ class OcrCheck:
                 yield None
                 continue
 
-            text = tesseract_ocr(thread_local.tess, preprocessed_image, tessdata_dir_config)
+            text = tesseract_ocr(self.tess, preprocessed_image, tessdata_dir_config)
             yield text
 
     def postprocess_nbs(self, processed):
@@ -516,7 +516,7 @@ class OcrCheck:
     def process_names(self, preprocessed):
         tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
         for quantity, preprocessed_image in preprocessed:
-            text = tesseract_ocr(thread_local.tess, preprocessed_image, tessdata_dir_config)
+            text = tesseract_ocr(self.tess, preprocessed_image, tessdata_dir_config)
             yield quantity, text
 
     def postprocess_names(self, processed):
@@ -527,7 +527,7 @@ class OcrCheck:
             else:
                 corrected_text = re.sub("\n", " ", text)
                 corrected_text = re.sub("'", " ", corrected_text)
-                return extract_vals(corrected_text) + (quantity,)
+                yield extract_vals(corrected_text) + (quantity,)
 
 
 class RustyOcrCheck(OcrCheck):
