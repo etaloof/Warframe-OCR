@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from ocr_local import cv2, PyTessBaseAPI, PSM, OEM, OcrCheck, TesserocrPool
+from ocr_local import cv2, PyTessBaseAPI, PSM, OEM, OcrCheck, TesserocrPool, RustyOcrCheck
 
 image_base_path = 'ressources'
 expected_results = {
@@ -966,7 +966,7 @@ def test_tesserocr_rust(pool, image_name):
     if image_input.shape[:2] == (900, 1600):
         image_input = cv2.resize(image_input, (1920, 1080))
 
-    ocr = OcrCheck(pool, image_input)
+    ocr = RustyOcrCheck(pool, image_input)
     ocr_data = ocr.ocr_loop()
 
     assert ocr_data == expected_results[image_name]

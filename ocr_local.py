@@ -493,6 +493,10 @@ class OcrCheck:
 
     def postprocess_nbs(self, processed):
         for text in processed:
+            if text is None:
+                yield None
+                continue
+
             log.debug('[' + self.imgID + '] ' + '[ Theme used is : ' + self.theme + ' ]')  # DEBUG
             log.debug('[' + self.imgID + '] ' + '[ Tesseract output for NB is : ' + text + ' ]')
 
