@@ -10,6 +10,7 @@ pyo3 = { version = "0", features = ["extension-module"] }
 leptess = "0.9.0"
 numpy = "0.12"
 ndarray = "0.13"
+image = { version = "0.23", features = [ "bmp" ] }
 
 [lib]
 name = "tesserocr_pool"

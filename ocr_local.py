@@ -539,7 +539,7 @@ class RustyOcrCheck(OcrCheck):
         tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
 
         preprocessed = list(preprocessed)
-        texts = self.tesserocr_pool.ocr(tessdata_dir_config, list(img for _, img in preprocessed))
+        texts = self.tesserocr_pool.ocr(list(img for _, img in preprocessed), tessdata_dir_config)
 
         for (quantity,_), text in zip(preprocessed, texts):
             yield quantity, text
@@ -549,7 +549,7 @@ class RustyOcrCheck(OcrCheck):
         tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --psm 6 --oem 1 get.images'
 
         preprocessed = list(preprocessed)
-        texts = self.tesserocr_pool.ocr(tessdata_dir_config, preprocessed)
+        texts = self.tesserocr_pool.ocr(preprocessed, tessdata_dir_config)
 
         yield from texts
 
@@ -642,7 +642,7 @@ def benchmark_symspell(tess, image_path):
     image_input = cv2.imread(image_path)
     if image_input.shape[:2] == (900, 1600):
         image_input = cv2.resize(image_input, (1920, 1080))
-    ocr = RustyOcrCheck(tess, image_input)
+    ocr = OcrCheck(tess, image_input)
     ocr_data = ocr.ocr_loop()
     ocr.pool.close()
     ocr.pool.join()

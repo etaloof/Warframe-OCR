@@ -2,7 +2,7 @@ import os
 
 
 def set_env(name, value):
-    print('\t', name, '=', value, sep='')
+    print('\tset ', name, '=', value, sep='')
     os.putenv(name, value)
 
 
@@ -21,5 +21,5 @@ set_env('CARGO_TARGET_DIR', 'target')
 set_env('RUSTFLAGS', '-Ctarget-feature=+crt-static')
 
 print('Building rust extension')
-# os.system('maturin develop --release')
-os.system('maturin develop')
+os.system('maturin develop --release')
+#os.system('maturin develop')

@@ -2,27 +2,23 @@
 // https://github.com/tildeio/helix-website/blob/master/crates/word_count/src/lib.rs
 
 use std::fmt;
-use std::ops::{DerefMut, Deref};
 
-use pyo3::{
-    prelude::*,
-    wrap_pyfunction,
-    types::PyType,
-};
+use pyo3::{prelude::*, *};
 use rayon::{
     prelude::*,
     ThreadPool,
     ThreadPoolBuilder,
     ThreadPoolBuildError,
 };
-use ndarray::{ArrayD, ArrayViewD, ArrayViewMutD, Ix3};
-use numpy::{IntoPyArray, PyArrayDyn, PyReadonlyArrayDyn, PyReadonlyArray};
+use ndarray::*;
+use numpy::{*};
 
 use tess::TESS_API;
 use leptess::leptonica::PixError;
 use std::str::Utf8Error;
 use std::ffi::NulError;
 use leptess::tesseract::TessInitError;
+use std::error::Error;
 
 /// Searches for the word, parallelized by rayon
 #[pyfunction]
@@ -74,6 +70,8 @@ fn count_line(line: &str, needle: &str) -> usize {
 
 #[derive(Debug)]
 pub struct TesserocrError(String);
+
+impl Error for TesserocrError {}
 
 impl fmt::Display for TesserocrError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -153,9 +151,17 @@ impl TesserocrPool {
         if self.pool.is_none() {
             self.pool = ThreadPoolBuilder::new()
                 .start_handler(|arg| {
-                    let x = TESS_API.with(|tls| {
-                        let x = &mut tls.take().unwrap();
-                        format!("{:?}", x)
+                    let x = TESS_API.with(|cell| {
+                        let default = Err("".into());
+                        let mut tls = cell.replace(default);
+
+                        let y = format!("{:?}", &tls);
+                        if let Ok(tess_api) = &mut tls {
+                            let _ = tess_api.set_variable("debug_file", "/dev/null");
+                        }
+
+                        let _ = cell.replace(tls);
+                        y
                     });
                     println!("starting thread with arg: {} = {}", arg, x)
                 })
@@ -177,13 +183,26 @@ impl TesserocrPool {
         Ok(false)
     }
 
-    fn ocr(&mut self, images: Vec<Option<PyReadonlyArray<u8, Ix3>>>, config: Option<&str>) -> PyResult<Vec<Option<String>>> {
+    fn test(&mut self, arr: Vec<Option<PyReadonlyArray<u8, Ix3>>>) {
+        for arr in arr {
+            if let Some(arr) = arr {
+                println!("{:?}", Some(arr.as_ptr()))
+            } else {
+                let x = None;
+                let _ = Some(()) != x;
+                println!("{:?}", x)
+            }
+        }
+        println!();
+    }
+
+    fn ocr(&mut self, images: Vec<Option<PyReadonlyArrayDyn<u8>>>, config: Option<&str>) -> PyResult<Vec<Option<String>>> {
         let blacklist = match config {
             Some(config) if config.contains("blacklist") => {
                 Some(
                     config.split(" ")
                         .last()
-                        .ok_or(TesserocrError::from("invalid value for blacklist"))?
+                        .ok_or(TesserocrError::from("invalcid value for blacklist"))?
                         .split("=")
                         .last()
                         .ok_or(TesserocrError::from("invalid value for blacklist"))?
@@ -192,15 +211,33 @@ impl TesserocrPool {
             _ => None,
         };
 
+        // if it doesn't compile anymore without you changing anything
+        // remove the mut from the image argument list of this function
+        // and uncomment the following line
+        //
+        // let mut images = images;
+
         let images: Vec<_> = images
             .iter()
             .map(|option|
-                option.as_ref()
-                    .map(|image|
-                        image
-                            .as_slice()
+                option
+                    .as_ref()
+                    .map(|image| {
+                        image.to_vec()
+                            .map(|img| {
+                                let shape = image.shape();
+                                let (width, height) = if let &[a, b, 3] = shape {
+                                    (b as u32, a as u32)
+                                } else {
+                                    panic!("invalid for rgb image, expected [_, _, 3] but got {:?}", shape)
+                                };
+
+                                (img, width, height)
+                            })
                             .map_err(|_| r#"invalid layout, please make sure that the array data is in contiguous "C order""#.into())
-                    ).transpose()
+                    }
+                    )
+                    .transpose()
             )
             .collect::<Result<_, TesserocrError>>()?;
 
@@ -209,7 +246,7 @@ impl TesserocrPool {
             Python::acquire_gil()
                 .python()
                 .allow_threads(||
-                    Ok(ocr(pool, images, config)?)
+                    Ok(ocr(pool, images, blacklist)?)
                 )
         } else {
             Err(TesserocrError::from("Thread Pool is not initialized").into())
@@ -218,36 +255,38 @@ impl TesserocrPool {
 }
 
 fn ocr(pool: &mut ThreadPool,
-       images: Vec<Option<&[u8]>>,
+       images: Vec<Option<(Vec<u8>, u32, u32)>>,
        blacklist: Option<&str>) -> Result<Vec<Option<String>>, TesserocrError> {
-    pool.scope(|scope|
+    fn ocr(image: Option<(Vec<u8>, u32, u32)>,
+           blacklist: Option<&str>) -> Option<Result<String, TesserocrError>> {
+        image.map(|(image, width, height)|
+            // we can initialize the thread locals better once
+            // https://github.com/rayon-rs/rayon/issues/492 lands
+            // until then storing a Result<TessApi, TessInitError> is necessary
+            // to implement correct error handling
+            TESS_API.with(|cell| {
+                let default = Err("".into());
+                let mut tls = cell.replace(default);
+
+                let ret = match (&mut tls, blacklist) {
+                    (Ok(tess_api), Some(blacklist)) =>
+                        tess_api.set_variable("tesseract_char_blacklist", blacklist)
+                            .and_then(|_| tess_api.ocr(&image, width, height)),
+                    (Ok(tess_api), None) =>
+                        tess_api.ocr(&image, width, height),
+                    (Err(err), _) => Err(err.to_owned()),
+                };
+
+                let _ = cell.replace(tls);
+                ret
+            })
+        )
+    }
+
+    pool.scope(|_|
         images
             .into_par_iter()
-            .map(|image: Option<&[u8]>|
-                image.map(|image|
-                    // we can initialize the thread locals better once
-                    // https://github.com/rayon-rs/rayon/issues/493 lands
-                    // until then storing a Result<TessApi, TessInitError> is necessary
-                    // to implement correct error handling
-                    TESS_API.with(|tls| {
-                        // we are the only owner of the cell so we can simply unwrap
-                        let x = &mut tls.take().unwrap();
-
-                        match x {
-                            Ok(x) => {
-                                if let Some(blacklist) = blacklist {
-                                    x.set_variable("tesseract_char_blacklist", blacklist)
-                                        .and_then(|_| x.ocr(image))
-                                } else {
-                                    x.ocr(image)
-                                }
-                            }
-                            Err(err) => Err(err.to_owned()),
-                        }
-                        // image.map(|x| x.ocr(image))
-                    })
-                ).transpose()
-            )
+            .map(|image| ocr(image, blacklist).transpose())
             .collect()
     )
 }
@@ -263,7 +302,7 @@ fn tesserocr_pool(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 }
 
 
-mod tess {
+pub mod tess {
     use leptess::tesseract::*;
     use leptess::leptonica;
     use leptess::capi;
@@ -273,6 +312,30 @@ mod tess {
     use std::ops::Deref;
     use std::fmt::{Display, Formatter};
     use crate::TesserocrError;
+
+
+    fn bgr_to_rgb(mut image: Vec<u8>) -> Vec<u8> {
+        assert_eq!(image.len() % 3, 0, "bgr image must have an integer number of pixels");
+        for pixel in image.chunks_exact_mut(3) {
+            if let [b, _g, r] = pixel {
+                std::mem::swap(b, r);
+            } else {
+                panic!("chunks should have length of 3 but got length {}", pixel.len());
+            }
+        }
+
+        image
+    }
+
+    fn rgb_to_bmp(image: &[u8], width: u32, height: u32) -> Vec<u8> {
+        let mut buffer = Vec::with_capacity(image.len());
+
+        let _ = image::codecs::bmp::BmpEncoder::new(&mut buffer)
+            .encode(image, width, height, image::ColorType::Rgb8)
+            .unwrap();
+
+        buffer
+    }
 
     #[derive(Debug)]
     pub struct TessApi {
@@ -320,18 +383,24 @@ mod tess {
             unsafe { capi::TessBaseAPISetImage2(self.raw, img.raw as *mut capi::Pix) }
         }
 
-        pub fn set_image_from_mem(&mut self, img: &[u8]) -> Result<(), TesserocrError> {
-            let pix = leptonica::pix_read_mem(img)?;
+        pub fn set_image_from_mem(&mut self, img: &[u8], width: u32, height: u32) -> Result<(), TesserocrError> {
+            // convert from bgr to rgb and then to bmp
+            // because why not
+            let img = img.to_vec();
+            let img = bgr_to_rgb(img);
+            let img = rgb_to_bmp(&img, width, height);
+
+            let pix = pix_read_mem_bmp(&img)?;
             self.set_image(&pix);
             Ok(())
         }
 
-        pub fn ocr(&mut self, img: &[u8]) -> Result<String, TesserocrError> {
+        pub fn ocr(&mut self, img: &[u8], width: u32, height: u32) -> Result<String, TesserocrError> {
             unsafe {
                 capi::TessBaseAPISetPageSegMode(self.raw, capi::TessPageSegMode_PSM_SINGLE_BLOCK);
             }
 
-            self.set_image_from_mem(img)?;
+            self.set_image_from_mem(img, width, height)?;
             Ok(self.get_utf8_text()?)
         }
 
@@ -365,10 +434,10 @@ mod tess {
     }
 
     #[derive(Debug)]
-    pub struct TessString(*mut c_char);
+    pub struct TessString(pub *mut c_char);
 
     impl TessString {
-        fn new(string: &str) -> Result<Self, NulError> {
+        pub fn new(string: &str) -> Result<Self, NulError> {
             Ok(Self(CString::new(string)?.into_raw()))
         }
 
@@ -414,10 +483,40 @@ mod tess {
         }
     }
 
+    use leptonica::*;
+
+    // leptonica error messages are max 2000 bytes long
+    // leave one byte as null terminator
+    struct ErrorMessage([c_char; 2000 + 1]);
+
+    impl AsRef<CStr> for ErrorMessage {
+        fn as_ref(&self) -> &CStr {
+            assert_eq!(*self.0.last().unwrap(), 0);
+
+            // this is safe because
+            // - self.0.as_ptr() can not be null
+            // - the last byte of the array is always 0
+            unsafe { CStr::from_ptr(self.0.as_ptr()) }
+        }
+    }
+
+    pub fn pix_read_mem_bmp(img: &[u8]) -> Result<Pix, PixError> {
+        let img_len = img.len().try_into()?;
+        let pix = unsafe {
+            capi::pixReadMemBmp(img.as_ptr(), img_len)
+        };
+        if pix.is_null() {
+            Err(PixError::ReadFrom("memory"))
+        } else {
+            Ok(Pix { raw: pix })
+        }
+    }
+
     use std::cell::Cell;
+    use std::convert::TryInto;
 
     thread_local! {
-        pub static TESS_API: Cell<Option<Result<TessApi, TesserocrError>>> =
-            Cell::new(Some(TessApi::new(Some("tessdata/"), "Roboto")));
+        pub static TESS_API: Cell<Result<TessApi, TesserocrError>> =
+            Cell::new(TessApi::new(Some("tessdata/"), "Roboto"));
     }
 }
