@@ -7,7 +7,7 @@ def set_env(name, value):
 
 
 print('Installing tools')
-os.system('pip install maturin pytest pytest-benchmark')
+os.system('pip install maturin pytest pytest-benchmark pytest-benchmark[histogram]')
 
 print('Installing dependencies')
 if 'vcpkg' not in os.listdir():

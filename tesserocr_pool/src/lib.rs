@@ -202,7 +202,7 @@ impl TesserocrPool {
                 Some(
                     config.split(" ")
                         .last()
-                        .ok_or(TesserocrError::from("invalcid value for blacklist"))?
+                        .ok_or(TesserocrError::from("invalid value for blacklist"))?
                         .split("=")
                         .last()
                         .ok_or(TesserocrError::from("invalid value for blacklist"))?
@@ -226,8 +226,8 @@ impl TesserocrPool {
                         image.to_vec()
                             .map(|img| {
                                 let shape = image.shape();
-                                let (width, height) = if let &[a, b, 3] = shape {
-                                    (b as u32, a as u32)
+                                let (height, width) = if let &[a, b, 3] = shape {
+                                    (a as u32, b as u32)
                                 } else {
                                     panic!("invalid for rgb image, expected [_, _, 3] but got {:?}", shape)
                                 };

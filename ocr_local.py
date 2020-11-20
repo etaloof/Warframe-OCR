@@ -198,7 +198,8 @@ def get_treshold_2(image, theme):
         filter = cv2.inRange(upscaled, lowerBound, upperBound)
         filered = cv2.bitwise_not(filter)
         tresh = cv2.erode(filered, kernel, iterations=1)
-        
+        tresh = cv2.cvtColor(tresh, cv2.COLOR_GRAY2BGR)
+
     elif method == 'HSL':
         hsl_arr[combinedMask] = 0
         hsl_arr[~combinedMask] = 255
@@ -677,10 +678,50 @@ def benchmark_symspell(tess, image_path):
         sys.stdout.flush()
 
 
+def benchmark_tesserocr_rust(tess, pool, image_path):
+    spell_correction_ocr(None, None, set_selected=1)
+    begin = time.time()
+
+    image_input = cv2.imread(image_path)
+    if image_input.shape[:2] == (900, 1600):
+        image_input = cv2.resize(image_input, (1920, 1080))
+    ocr = OcrCheck(tess, image_input)
+    ocr_data = ocr.ocr_loop()
+
+    end = time.time()
+    delta = end - begin
+    print(f'With tesserocr: {delta}s')
+
+    spell_correction_ocr(None, None, set_selected=1)
+    begin = time.time()
+
+    image_input = cv2.imread(image_path)
+    if image_input.shape[:2] == (900, 1600):
+        image_input = cv2.resize(image_input, (1920, 1080))
+    ocr = RustyOcrCheck(pool, image_input)
+    ocr_data2 = ocr.ocr_loop()
+
+    end = time.time()
+    delta = end - begin
+    print(f'With tesserocr_pool: {delta}s')
+
+    if not ocr_data == ocr_data2:
+        for i, j in zip(ocr_data, ocr_data2):
+            if i == j:
+                print(i, flush=True)
+            else:
+                pprint([i, j], sys.stderr)
+        pprint(ocr_data, sys.stderr)
+        pprint(ocr_data2, sys.stderr)
+        print("ocr data must match!", file=sys.stderr)
+        sys.stdout.flush()
+
+
 if __name__ == "__main__":
-    with tesserocr_pool.TesserocrPool() as tess:
+    tessdata_dir = 'tessdata/'
+    with PyTessBaseAPI(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY) as tess,\
+        TesserocrPool(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY) as pool:
         for image_path in os.scandir('ressources'):
             print('image_path: ', image_path.path)
-            benchmark_symspell(tess, image_path.path)
+            benchmark_tesserocr_rust(tess, pool, image_path.path)
             print()
-            exit(0)
