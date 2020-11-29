@@ -5,12 +5,12 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-rayon = "1.5"
-pyo3 = { version = "0", features = ["extension-module"] }
+rayon = "1.5.0"
+pyo3 = { version = "0.12.3", features = ["extension-module"] }
 leptess = "0.9.0"
-numpy = "0.12"
-ndarray = "0.13"
-image = { version = "0.23", features = [ "bmp" ] }
+numpy = "0.12.1"
+image = { version = "0.23.12", features = [ "bmp" ], default_features = false }
+num_cpus = "1.13.0"
 
 [lib]
 name = "tesserocr_pool"
