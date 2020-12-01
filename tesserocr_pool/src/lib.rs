@@ -3,7 +3,7 @@ use std::error::Error;
 use std::ffi::NulError;
 use std::fmt;
 use std::str::Utf8Error;
-use std::sync::{Arc, Mutex, Barrier};
+use std::sync::{Arc, Barrier, Mutex};
 
 use leptess::leptonica::PixError;
 use leptess::tesseract::TessInitError;
@@ -130,44 +130,43 @@ impl TesserocrPool {
         let worker_count = num_cpus::get();
         let init = Arc::new(Mutex::new(vec![]));
         let barrier = Arc::new(Barrier::new(worker_count + 1));
-        if self.pool.is_none() {
-            let init = init.clone();
-            let barrier = barrier.clone();
 
-            self.pool = ThreadPoolBuilder::new()
-                .num_threads(worker_count)
-                .start_handler(move |arg| {
-                    let init = init.clone();
-                    let barrier = barrier.clone();
-                    let tessdata_dir = &tessdata_dir.clone();
-                    let lang = &lang.clone();
+        let init_copy = init.clone();
+        let barrier_copy = barrier.clone();
 
-                    let result = match TessApi::new(Some(tessdata_dir), lang) {
-                        Ok(mut tess_api) => {
-                            let ret =  tess_api
-                                .set_variable("debug_file", "/dev/null")
-                                .map(|_| format!("{:?}", &mut tess_api));
+        self.pool = ThreadPoolBuilder::new()
+            .num_threads(worker_count)
+            .start_handler(move |arg| {
+                let init = init_copy.clone();
+                let barrier = barrier_copy.clone();
+                let tessdata_dir = &tessdata_dir.clone();
+                let lang = &lang.clone();
 
-                            TESS_API.with(|tls|
-                                tls.set(Some(tess_api))
-                            );
+                let result = match TessApi::new(Some(tessdata_dir), lang) {
+                    Ok(mut tess_api) => {
+                        let ret =  tess_api
+                            .set_variable("debug_file", "/dev/null")
+                            .map(|_| format!("{:?}", &mut tess_api));
 
-                            ret
-                        }
-                        Err(err) => Err(err),
-                    };
+                        TESS_API.with(|tls|
+                            tls.set(Some(tess_api))
+                        );
 
-                    init
-                        .lock()
-                        .expect("Initialization result mutex is poisoned")
-                        .push((arg, result));
+                        ret
+                    }
+                    Err(err) => Err(err),
+                };
 
-                    barrier.wait();
-                })
-                .build()
-                .map_err(|err| TesserocrError::from(err))?
-                .into();
-        }
+                init
+                    .lock()
+                    .expect("Initialization result mutex is poisoned")
+                    .push((arg, result));
+
+                barrier.wait();
+            })
+            .build()
+            .map_err(|err| TesserocrError::from(err))?
+            .into();
 
         barrier.wait();
 
@@ -208,42 +207,25 @@ impl TesserocrPool {
     }
 
     fn ocr(&mut self, images: Vec<Option<PyReadonlyArray<u8, Ix3>>>, config: Option<&str>) -> PyResult<Vec<Option<String>>> {
-        let blacklist = match config {
-            Some(config) if config.contains("blacklist") => {
-                Some(
-                    config.split(" ")
-                        .last()
-                        .ok_or(TesserocrError::from("invalid value for blacklist"))?
-                        .split("=")
-                        .last()
-                        .ok_or(TesserocrError::from("invalid value for blacklist"))?
-                )
-            }
-            _ => None,
-        };
+        let blacklist = extract_blacklist(config)?;
 
         let images: Vec<_> = images
-            .iter()
-            .map(|option|
-                option
-                    .as_ref()
-                    .map(|image| {
-                        image.to_vec()
-                            .map(|img| {
-                                let shape = image.shape();
-                                let (height, width) = if let &[a, b, 3] = shape {
-                                    (a as u32, b as u32)
-                                } else {
-                                    panic!("invalid for rgb image, expected [_, _, 3] but got {:?}", shape)
-                                };
+            .into_iter()
+            .map(|option| option
+                .map(|image| {
+                    let shape = image.shape();
+                    let (height, width) = if let &[a, b, 3] = shape {
+                        (a as u32, b as u32)
+                    } else {
+                        panic!("invalid for rgb image, expected [_, _, 3] but got {:?}", shape)
+                    };
 
-                                (img, width, height)
-                            })
-                            .map_err(|_| r#"invalid layout, please make sure that the array data is in contiguous "C order""#.into())
-                    }
-                    )
-                    .transpose()
+                    image.to_vec()
+                        .map(|image| (image, width, height))
+                        .map_err(|_| r#"invalid layout, please make sure that the array data is in contiguous "C order""#.into())
+                })
             )
+            .map(|option| option.transpose())
             .collect::<Result<_, TesserocrError>>()?;
 
 
@@ -252,6 +234,20 @@ impl TesserocrPool {
         } else {
             Err(TesserocrError::from("Thread Pool is not initialized").into())
         }
+    }
+}
+
+fn extract_blacklist(config: Option<&str>) -> Result<Option<&str>, TesserocrError> {
+    match config {
+        Some(config) if config.contains("blacklist") => Ok(Some(
+            config.split(" ")
+                .last()
+                .ok_or("invalid value for blacklist")?
+                .split("=")
+                .last()
+                .ok_or("invalid value for blacklist")?
+        )),
+        _ => Ok(None),
     }
 }
 
@@ -278,11 +274,11 @@ fn ocr(pool: &mut ThreadPool,
         )
     }
 
-    pool.scope(|_|
-        images
-            .into_par_iter()
-            .map(|image| ocr(image, blacklist).transpose())
-            .collect()
+    pool.scope(|_| images
+        .into_par_iter()
+        .map(|image| ocr(image, blacklist))
+        .map(|x| x.transpose())
+        .collect()
     )
 }
 
