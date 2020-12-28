@@ -1,4 +1,6 @@
 import os
+import platform
+import sys
 
 
 def set_env(name, value):
@@ -10,10 +12,18 @@ print('Installing tools')
 os.system('pip install maturin pytest pytest-benchmark pytest-benchmark[histogram]')
 
 print('Installing dependencies')
-if 'vcpkg' not in os.listdir():
-    os.system('git clone https://github.com/microsoft/vcpkg')
-    os.system('.\\vcpkg\\bootstrap-vcpkg.bat')
-    os.system('.\\vcpkg\\vcpkg install tesseract:x64-windows-static leptonica:x64-windows-static')
+platform_name = platform.system()
+if platform_name == 'Windows':
+    if 'vcpkg' not in os.listdir():
+        os.system('git clone https://github.com/microsoft/vcpkg')
+        os.system('.\\vcpkg\\bootstrap-vcpkg.bat')
+        os.system('.\\vcpkg\\vcpkg install tesseract:x64-windows-static leptonica:x64-windows-static')
+elif platform_name == 'Linux':
+    os.system('sudo -A apt install tesseract-ocr ')
+    os.system('sudo -A pacman --noconfirm tesseract tesseract-data-eng leptonica clang')
+else:
+    print('Unsupported platform', platform_name, file=sys.stderr)
+    exit(1)
 
 print('Setting up environment')
 set_env('VCPKG_ROOT', os.path.abspath('vcpkg'))
@@ -21,5 +31,7 @@ set_env('CARGO_TARGET_DIR', 'target')
 set_env('RUSTFLAGS', '-Ctarget-feature=+crt-static')
 
 print('Building rust extension')
+os.system('pip uninstall -y tesserocr_pool')
+os.system('rm -rdf tesserocr_pool')
 os.system('maturin develop --release')
 #os.system('maturin develop')
