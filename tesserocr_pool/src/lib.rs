@@ -1,91 +1,16 @@
 use std::cell::Cell;
-use std::error::Error;
-use std::ffi::NulError;
-use std::fmt;
-use std::str::Utf8Error;
 use std::sync::{Arc, Barrier, Mutex};
 
-use leptess::leptonica::PixError;
-use leptess::tesseract::TessInitError;
 use numpy::{Ix3, PyReadonlyArray};
 use pyo3::{*, prelude::*};
 use rayon::{
     prelude::*,
     ThreadPool,
     ThreadPoolBuilder,
-    ThreadPoolBuildError,
 };
 
-use tess::TessApi;
-
-mod tess;
-
-#[derive(Debug)]
-pub struct TesserocrError(String);
-
-impl Error for TesserocrError {}
-
-impl fmt::Display for TesserocrError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<ThreadPoolBuildError> for TesserocrError {
-    fn from(value: ThreadPoolBuildError) -> Self {
-        Self(value.to_string())
-    }
-}
-
-impl From<&str> for TesserocrError {
-    fn from(value: &str) -> Self {
-        Self(value.to_string())
-    }
-}
-
-impl From<String> for TesserocrError {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-impl From<TesserocrError> for PyErr {
-    fn from(value: TesserocrError) -> Self {
-        value.into()
-    }
-}
-
-impl From<PixError> for TesserocrError {
-    fn from(value: PixError) -> Self {
-        Self(value.to_string())
-    }
-}
-
-impl From<Utf8Error> for TesserocrError {
-    fn from(value: Utf8Error) -> Self {
-        Self(value.to_string())
-    }
-}
-
-impl From<NulError> for TesserocrError {
-    fn from(value: NulError) -> Self {
-        Self(value.to_string())
-    }
-}
-
-impl From<TessInitError> for TesserocrError {
-    fn from(value: TessInitError) -> Self {
-        Self(value.to_string())
-    }
-}
-
-impl ToOwned for TesserocrError {
-    type Owned = Self;
-
-    fn to_owned(&self) -> Self::Owned {
-        Self(self.0.clone())
-    }
-}
+use tesserocr_pool::tess::TessApi;
+use tesserocr_pool::TesserocrError;
 
 #[pyclass]
 #[derive(Debug)]
@@ -106,7 +31,7 @@ impl TesserocrPool {
         oem = "1",
     )]
     #[new]
-    fn new(
+    pub fn new(
         tessdata_dir: impl Into<String>,
         lang: impl Into<String>,
         psm: u8,
@@ -123,7 +48,7 @@ impl TesserocrPool {
         let _ = self.pool.take();
     }
 
-    fn init(&mut self) -> PyResult<()> {
+    pub fn init(&mut self) -> PyResult<()> {
         let tessdata_dir = self.tessdata_dir.clone();
         let lang = self.lang.clone();
 
@@ -251,9 +176,9 @@ fn extract_blacklist(config: Option<&str>) -> Result<Option<&str>, TesserocrErro
     }
 }
 
-fn ocr(pool: &mut ThreadPool,
-       images: Vec<Option<(Vec<u8>, u32, u32)>>,
-       blacklist: Option<&str>) -> Result<Vec<Option<String>>, TesserocrError> {
+pub fn ocr(pool: &mut ThreadPool,
+           images: Vec<Option<(Vec<u8>, u32, u32)>>,
+           blacklist: Option<&str>) -> Result<Vec<Option<String>>, TesserocrError> {
     fn ocr(image: Option<(Vec<u8>, u32, u32)>,
            blacklist: Option<&str>) -> Option<Result<String, TesserocrError>> {
         image.map(|(image, width, height)|
@@ -274,6 +199,14 @@ fn ocr(pool: &mut ThreadPool,
         )
     }
 
+    // use std::io::BufWriter;
+    // use std::io::Write;
+    // use std::fs::File;
+    // let mut file = File::create("test_images.bincode").unwrap();
+    // let mut file = BufWriter::with_capacity(5*1024*1024,file);
+    // bincode::serialize_into(&mut file, &images).unwrap();
+    // file.flush().unwrap();
+
     pool.scope(|_| images
         .into_par_iter()
         .map(|image| ocr(image, blacklist))
@@ -291,4 +224,52 @@ fn tesserocr_pool(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
 thread_local! {
     static TESS_API: Cell<Option<TessApi>> = Cell::new(None);
+}
+
+
+
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn show_image() {
+        use std::fs::File;
+        let file = File::open("../test_images.bincode").unwrap();
+        let data: Vec<Option<(Vec<u8>, u32, u32)>> = bincode::deserialize_from(file).unwrap();
+
+        use image::Pixel;
+        use minifb::{Window, WindowOptions};
+
+        const WIDTH: usize = 640;
+        const HEIGHT: usize = 360;
+
+        let mut window = Window::new(
+            "Test - ESC to exit",
+            WIDTH,
+            HEIGHT,
+            WindowOptions::default(),
+        )
+            .unwrap_or_else(|e| {
+                panic!("{}", e);
+            });
+
+        // Limit to max ~60 fps update rate
+        window.limit_update_rate(Some(std::time::Duration::from_millis(200)));
+
+        // Create a window and display the image.
+        for (image, width, height) in data.into_iter().flatten() {
+            let image: image::RgbImage = image::ImageBuffer::from_raw(width, height, image).unwrap();
+
+            let image: Vec<_> = image.pixels()
+                .map(|pixel| match pixel.channels() {
+                    &[r, g, b] => {
+                        let (r, g, b) = (r as u32, g as u32, b as u32);
+                        (r << 16) | (g << 8) | b
+                    }
+                    _ => unreachable!(),
+                })
+                .collect();
+            window.update_with_buffer(&image, width as _, height as _).unwrap();
+        }
+    }
 }
