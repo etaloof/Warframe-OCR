@@ -1,3 +1,4 @@
 target
 vcpkg
 __pycache__
+.pytest_cache
