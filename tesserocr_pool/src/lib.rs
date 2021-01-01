@@ -180,31 +180,88 @@ fn extract_blacklist(config: Option<&str>) -> Result<Option<&str>, TesserocrErro
 pub fn ocr(pool: &mut ThreadPool,
            images: Vec<Option<(Vec<u8>, u32, u32)>>,
            blacklist: Option<&str>) -> Result<Vec<Option<String>>, TesserocrError> {
-    fn ocr(image: Option<(Vec<u8>, u32, u32)>,
-           blacklist: Option<&str>) -> Option<Result<String, TesserocrError>> {
-        image.map(|(image, width, height)|
-            TESS_API.with_inner_mut(|tess_api| {
-                if let Some(blacklist) = blacklist {
-                    tess_api.set_variable("tesseract_char_blacklist", blacklist)?;
-                };
+    fn ocr(image: &[u8], width: u32, height: u32,
+           blacklist: Option<&str>) -> Result<String, TesserocrError> {
+        TESS_API.with(|cell| {
+            let mut tess_api = cell.take().unwrap();
 
-                tess_api.ocr(image, width, height)
-            })
-        )
+            let ret = match blacklist {
+                Some(blacklist) =>
+                    tess_api.set_variable("tesseract_char_blacklist", blacklist)
+                        .and_then(|_| tess_api.ocr(&image, width, height)),
+                None => tess_api.ocr(&image, width, height),
+            };
+
+            cell.set(Some(tess_api));
+
+            ret
+        })
     }
 
-    // use std::io::BufWriter;
-    // use std::io::Write;
-    // use std::fs::File;
-    // let mut file = File::create("test_images.bincode").unwrap();
-    // let mut file = BufWriter::with_capacity(5*1024*1024,file);
-    // bincode::serialize_into(&mut file, &images).unwrap();
-    // file.flush().unwrap();
+    use std::hash::{Hash, Hasher};
+    use std::borrow::Cow;
+    use std::io::{BufReader};
+    use fasthash::{FastHasher};
+
+    fn hash(item: impl Hash) -> u64 {
+        let seed = 0xDEADBEEF;
+        let hash = &mut twox_hash::XxHash64::with_seed(seed);
+        item.hash(hash);
+        hash.finish()
+    }
+    ;
+
+    const CAP: usize = 5 * 1024 * 1024;
+    use std::io::BufWriter;
+    use std::io::Write;
+    use std::fs::File;
+    let path = &format!("test_images_{:x}.bincode", hash(&images));
+    let file = File::create(path).unwrap();
+    let mut file = BufWriter::with_capacity(CAP, file);
+    bincode::serialize_into(&mut file, &images).unwrap();
+    file.flush().unwrap();
+
+    match std::fs::create_dir(".cache") {
+        Ok(()) => {}
+        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {}
+        result => result.unwrap()
+    }
+
+    type CachedImage<'a> = ((Cow<'a, [u8]>, u32, u32), Cow<'a, str>);
 
     pool.install(|| images
         .into_par_iter()
-        .map(|image| ocr(image, blacklist))
-        .map(|x| x.transpose())
+        .map(|image| {
+            let (image, width, height) = match image {
+                Some(image) => image,
+                _ => return Ok(None),
+            };
+
+            let image_hash = hash(&image);
+            let path = format!(".cache/{}.bincode", image_hash);
+            if let Ok(file) = File::open(&path) {
+                let result = bincode::deserialize_from(BufReader::with_capacity(CAP, file));
+                let result: Result<CachedImage, _> = result;
+                match result {
+                    Ok(((cached_image, ..), result))
+                    if image_hash == hash(&cached_image) && image.as_slice() == cached_image.as_ref() =>
+                        return Ok(Some(result.into_owned())),
+                    _ => {}
+                }
+            }
+
+            let result = ocr(&image, width, height, blacklist);
+            if let Ok(result) = &result {
+                if let Ok(file) = File::create(path) {
+                    let mut file = BufWriter::with_capacity(CAP, file);
+                    let image = (Cow::from(&image), width, height);
+                    let value = (image, Cow::from(result));
+                    let _ = bincode::serialize_into(&mut file, &value);
+                };
+            }
+
+            result.map(Some)
+        })
         .collect()
     )
 }
