@@ -132,34 +132,34 @@ impl TesserocrPool {
         println!();
     }
 
-    fn ocr(&mut self, images: Vec<Option<PyReadonlyArray<u8, Ix3>>>, config: Option<&str>) -> PyResult<Vec<Option<String>>> {
+    fn ocr(&mut self, py: Python<'_>, images: Vec<Option<PyReadonlyArray<u8, Ix3>>>, config: Option<&str>) -> PyResult<Vec<Option<String>>> {
         let blacklist = extract_blacklist(config)?;
 
         let images: Vec<_> = images
             .into_iter()
-            .map(|option| option
-                .map(|image| {
+            .map(|option| match option {
+                Some(image) => Some({
                     let shape = image.shape();
                     let (height, width) = if let &[a, b, 3] = shape {
                         (a as u32, b as u32)
                     } else {
-                        panic!("invalid for rgb image, expected [_, _, 3] but got {:?}", shape)
+                        let err = format!("invalid for rgb image, expected [_, _, 3] but got {:?}", shape);
+                        return Err(TesserocrError::from(err));
                     };
 
                     image.to_vec()
                         .map(|image| (image, width, height))
                         .map_err(|_| r#"invalid layout, please make sure that the array data is in contiguous "C order""#.into())
-                })
-            )
-            .map(|option| option.transpose())
+                }),
+                None => None,
+            }.transpose())
             .collect::<Result<_, TesserocrError>>()?;
 
-
-        if let Some(pool) = &mut self.pool {
+        py.allow_threads(move || if let Some(pool) = &mut self.pool {
             Ok(ocr(pool, images, blacklist)?)
         } else {
             Err(TesserocrError::from("Thread Pool is not initialized").into())
-        }
+        })
     }
 }
 
@@ -188,8 +188,8 @@ pub fn ocr(pool: &mut ThreadPool,
             let ret = match blacklist {
                 Some(blacklist) =>
                     tess_api.set_variable("tesseract_char_blacklist", blacklist)
-                        .and_then(|_| tess_api.ocr(&image, width, height)),
-                None => tess_api.ocr(&image, width, height),
+                        .and_then(|_| tess_api.ocr(image, width, height)),
+                None => tess_api.ocr(image, width, height),
             };
 
             cell.set(Some(tess_api));
@@ -198,10 +198,14 @@ pub fn ocr(pool: &mut ThreadPool,
         })
     }
 
+    const CAP: usize = 5 * 1024 * 1024;
+    use std::io::BufWriter;
+    use std::io::Write;
+    use std::fs::File;
+    use std::path::Path;
     use std::hash::{Hash, Hasher};
     use std::borrow::Cow;
-    use std::io::{BufReader};
-    use fasthash::{FastHasher};
+    use std::io::BufReader;
 
     fn hash(item: impl Hash) -> u64 {
         let seed = 0xDEADBEEF;
@@ -209,17 +213,18 @@ pub fn ocr(pool: &mut ThreadPool,
         item.hash(hash);
         hash.finish()
     }
-    ;
 
-    const CAP: usize = 5 * 1024 * 1024;
-    use std::io::BufWriter;
-    use std::io::Write;
-    use std::fs::File;
-    let path = &format!("test_images_{:x}.bincode", hash(&images));
-    let file = File::create(path).unwrap();
-    let mut file = BufWriter::with_capacity(CAP, file);
-    bincode::serialize_into(&mut file, &images).unwrap();
-    file.flush().unwrap();
+    // store some images on disk (for testing rust code independently from python)
+    fn persist_test_images(images: &Vec<Option<(Vec<u8>, u32, u32)>>) {
+        let path = &format!("test_images_{:x}.bincode", hash(&images));
+        let file = File::create(path).unwrap();
+        let mut file = BufWriter::with_capacity(CAP, file);
+        bincode::serialize_into(&mut file, &images).unwrap();
+        file.flush().unwrap();
+    }
+
+    persist_test_images(&images);
+
 
     match std::fs::create_dir(".cache") {
         Ok(()) => {}
@@ -229,39 +234,52 @@ pub fn ocr(pool: &mut ThreadPool,
 
     type CachedImage<'a> = ((Cow<'a, [u8]>, u32, u32), Cow<'a, str>);
 
+    fn cache_get(path: impl AsRef<Path>, image_hash: u64, image: &[u8]) -> Option<String> {
+        let result: Result<CachedImage, _> = if let Ok(file) = File::open(&path) {
+            bincode::deserialize_from(BufReader::with_capacity(CAP, file))
+        } else {
+            return None;
+        };
+
+        match result {
+            Ok(((cached_image, ..), ocr_result))
+            if image_hash == hash(&cached_image) && image == cached_image.as_ref() =>
+                return Some(ocr_result.into_owned()),
+            _ =>
+                None
+        }
+    }
+
+    fn cache_put(path: impl AsRef<Path>, image: &[u8], width: u32, height: u32, ocr_result: &str) {
+        if let Ok(file) = File::create(path) {
+            let mut file = BufWriter::with_capacity(CAP, file);
+            let image = (Cow::from(image), width, height);
+            let value = (image, Cow::from(ocr_result));
+            let _ = bincode::serialize_into(&mut file, &value);
+        };
+    }
+
+    fn lookup_or_compute_image(image: &[u8], width: u32, height: u32, blacklist: Option<&str>) -> Result<String, TesserocrError> {
+        let image_hash = hash(&image);
+        let path = &format!(".cache/{}.bincode", image_hash);
+        if let Some(ocr_result) = cache_get(path, image_hash, &image) {
+            return Ok(ocr_result);
+        }
+
+        let result = ocr(&image, width, height, blacklist);
+        if let Ok(ocr_result) = &result {
+            cache_put(path, &image, width, height, ocr_result)
+        }
+
+        result
+    }
+
     pool.install(|| images
         .into_par_iter()
-        .map(|image| {
-            let (image, width, height) = match image {
-                Some(image) => image,
-                _ => return Ok(None),
-            };
-
-            let image_hash = hash(&image);
-            let path = format!(".cache/{}.bincode", image_hash);
-            if let Ok(file) = File::open(&path) {
-                let result = bincode::deserialize_from(BufReader::with_capacity(CAP, file));
-                let result: Result<CachedImage, _> = result;
-                match result {
-                    Ok(((cached_image, ..), result))
-                    if image_hash == hash(&cached_image) && image.as_slice() == cached_image.as_ref() =>
-                        return Ok(Some(result.into_owned())),
-                    _ => {}
-                }
-            }
-
-            let result = ocr(&image, width, height, blacklist);
-            if let Ok(result) = &result {
-                if let Ok(file) = File::create(path) {
-                    let mut file = BufWriter::with_capacity(CAP, file);
-                    let image = (Cow::from(&image), width, height);
-                    let value = (image, Cow::from(result));
-                    let _ = bincode::serialize_into(&mut file, &value);
-                };
-            }
-
-            result.map(Some)
-        })
+        .map(|image| match image {
+            Some((image, width, height)) => Some(lookup_or_compute_image(&image, width, height, blacklist)),
+            None => None
+        }.transpose())
         .collect()
     )
 }
