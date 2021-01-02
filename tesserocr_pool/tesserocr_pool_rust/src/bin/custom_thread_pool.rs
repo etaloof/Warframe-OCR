@@ -33,7 +33,6 @@ fn main() {
     }
 
 
-
     //
     // images
     //     .map(|_| dispatcher_rx.recv().unwrap())

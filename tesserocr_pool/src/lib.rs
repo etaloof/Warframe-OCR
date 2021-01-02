@@ -25,10 +25,10 @@ struct TesserocrPool {
 #[pymethods]
 impl TesserocrPool {
     #[args(
-        tessdata_dir = r#" "tessdata/" "#,
-        lang = r#" "eng" "#,
-        psm = "0",
-        oem = "1",
+    tessdata_dir = r#" "tessdata/" "#,
+    lang = r#" "eng" "#,
+    psm = "0",
+    oem = "1",
     )]
     #[new]
     pub fn new(
@@ -69,7 +69,7 @@ impl TesserocrPool {
 
                 let result = match TessApi::new(Some(tessdata_dir), lang) {
                     Ok(mut tess_api) => {
-                        let ret =  tess_api
+                        let ret = tess_api
                             .set_variable("debug_file", "/dev/null")
                             .map(|_| format!("{:?}", &mut tess_api));
 
@@ -188,8 +188,8 @@ pub fn ocr(pool: &mut ThreadPool,
                 let ret = match blacklist {
                     Some(blacklist) =>
                         tess_api.set_variable("tesseract_char_blacklist", blacklist)
-                            .and_then(|_| tess_api.ocr(&image, width, height)),
-                    None => tess_api.ocr(&image, width, height),
+                            .and_then(|_| tess_api.ocr(image, width, height)),
+                    None => tess_api.ocr(image, width, height),
                 };
 
                 cell.set(Some(tess_api));
