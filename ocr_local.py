@@ -450,6 +450,9 @@ class OcrCheck:
             self.pool = ThreadPool(initializer=init_tess)
 
     def ocr_loop(self):
+        """
+        Perform ocr and return all relics recognized on the image.
+        """
         print(self.theme)
 
         self.init_pool()
@@ -469,6 +472,9 @@ class OcrCheck:
         return self.relic_list
 
     def preprocess_nbs(self):
+        """
+        Pre processing step for relic count ocr: crop image region and apply image filters / thresholding
+        """
         for ((pos1, pos2, pos3, pos4), _) in self.pos_list:
             cropped_img = relicarea_crop(pos2, pos4, pos1, pos3, self.image)
             greyed_image = cv2.cvtColor(cropped_img, cv2.COLOR_BGR2GRAY)
@@ -480,6 +486,9 @@ class OcrCheck:
                 yield None
 
     def process_nbs(self, preprocessed):
+        """
+        Main processing step for relic count ocr: perform ocr with tesseract
+        """
         tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --psm 6 --oem 1 get.images'
 
         for preprocessed_image in preprocessed:
@@ -493,6 +502,9 @@ class OcrCheck:
             yield text
 
     def postprocess_nbs(self, processed):
+        """
+        Post processing step for relic count ocr: correct ocr output
+        """
         for text in processed:
             if text is None:
                 yield None
@@ -507,6 +519,9 @@ class OcrCheck:
             yield corrected_nbr.casefold() if corrected_nbr != '' else '1'
 
     def preprocess_names(self, processed_nbs):
+        """
+        Pre processing step for relic name ocr: crop image region and apply image filters / thresholding
+        """
         for (nb, (_, (pos1, pos2, pos3, pos4))) in zip(processed_nbs, self.pos_list):
             if nb is None:
                 # we could not detect the quantity of the relic, skip it
@@ -519,12 +534,18 @@ class OcrCheck:
             yield nb, image
 
     def process_names(self, preprocessed):
+        """
+        Main processing step for relic name ocr: perform ocr with tesseract
+        """
         tessdata_dir_config = '--tessdata-dir tessdata -l Roboto --oem 1 --psm 6 -c tessedit_char_blacklist=jJyY'
         for quantity, preprocessed_image in preprocessed:
             text = tesseract_ocr(self.tess, preprocessed_image, tessdata_dir_config)
             yield quantity, text
 
     def postprocess_names(self, processed):
+        """
+        Post processing step for relic count ocr: correct ocr output
+        """
         for quantity, text in processed:
             log.debug('[' + self.imgID + '] ' + '[ Tesseract output for TEXT is : ' + text + ' ]')  # DEBUG
             if text == '':
