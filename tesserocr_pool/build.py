@@ -28,7 +28,11 @@ else:
 print('Setting up environment')
 set_env('VCPKG_ROOT', os.path.abspath('vcpkg'))
 set_env('CARGO_TARGET_DIR', 'target')
-set_env('RUSTFLAGS', '-Ctarget-feature=+crt-static')
+if platform_name == 'Linux':
+    # compile with '+crt-static' once https://github.com/rust-lang/rust/issues/78210 is fixed (broken as of rustc 1.49)
+    set_env('RUSTFLAGS', '-Ctarget-feature=-crt-static')
+else:
+    set_env('RUSTFLAGS', '-Ctarget-feature=+crt-static')
 
 print('Building rust extension')
 os.system('pip uninstall -y tesserocr_pool')
