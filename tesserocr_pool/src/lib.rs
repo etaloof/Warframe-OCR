@@ -207,7 +207,7 @@ pub fn ocr(pool: &mut ThreadPool,
     // bincode::serialize_into(&mut file, &images).unwrap();
     // file.flush().unwrap();
 
-    pool.scope(|_| images
+    pool.install(|| images
         .into_par_iter()
         .map(|image| ocr(image, blacklist))
         .map(|x| x.transpose())
