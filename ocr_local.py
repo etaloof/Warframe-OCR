@@ -333,15 +333,13 @@ def spell_checker(corr_list):
     return sc
 
 
+RELIC_TEMPLATE = cv2.imread(r'./relic_template.png', 0)
+RELIC_MASK = cv2.imread(r'./relic_mask.png', 0)
 # Check for specific sprite to see if the relic exist
 def check_for_sign(img):
     precision = 0.95
-    path_to_img = r'./relic_template.png'
-    path_to_mask = r'./relic_mask.png'
-    template = cv2.imread(path_to_img, 0)
-    mask = cv2.imread(path_to_mask, 0)
-    w, h = template.shape[::-1]
-    res = cv2.matchTemplate(img, template, cv2.TM_CCORR_NORMED, mask=mask)
+    w, h = RELIC_TEMPLATE.shape[::-1]
+    res = cv2.matchTemplate(img, RELIC_TEMPLATE, cv2.TM_CCORR_NORMED, mask=RELIC_MASK)
     loc = np.where(res >= precision)
     count = 0
     for pt in zip(*loc[::-1]):  # Swap columns and rows
