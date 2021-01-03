@@ -744,5 +744,18 @@ if __name__ == "__main__":
         TesserocrPool(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY) as pool:
         for image_path in os.scandir('ressources'):
             print('image_path: ', image_path.path)
-            benchmark_tesserocr_rust(tess, pool, image_path.path)
+
+            spell_correction_ocr(None, None, set_selected=1)
+            begin = time.time()
+
+            image_input = cv2.imread(image_path.path)
+            if image_input.shape[:2] == (900, 1600):
+                image_input = cv2.resize(image_input, (1920, 1080))
+            ocr = RustyOcrCheck(pool, image_input)
+            ocr_data2 = ocr.ocr_loop()
+
+            end = time.time()
+            delta = end - begin
+            print(f'With tesserocr_pool: {delta}s')
+
             print()
