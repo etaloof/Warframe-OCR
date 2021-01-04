@@ -527,6 +527,7 @@ class OcrCheck:
         for (nb, (_, (pos1, pos2, pos3, pos4))) in zip(processed_nbs, self.pos_list):
             if nb is None:
                 # we could not detect the quantity of the relic, skip it
+                yield None, None
                 continue
 
             image = self.image
@@ -549,9 +550,9 @@ class OcrCheck:
         Post processing step for relic count ocr: correct ocr output
         """
         for quantity, text in processed:
-            log.debug('[' + self.imgID + '] ' + '[ Tesseract output for TEXT is : ' + text + ' ]')  # DEBUG
-            if text == '':
-                pass
+            log.debug('[' + self.imgID + '] ' + '[ Tesseract output for TEXT is : ' + '' if text is None else text + ' ]')  # DEBUG
+            if text == '' or text is None:
+                yield None
             else:
                 corrected_text = re.sub("\n", " ", text)
                 corrected_text = re.sub("'", " ", corrected_text)
@@ -593,7 +594,7 @@ class RustyOcrCheck(OcrCheck):
         relic_names = self.preprocess_names(nbs)
         relic_names = self.process_names(relic_names)
         relic_names = self.postprocess_names(relic_names)
-        self.relic_list.extend(name for name in relic_names if name is not None)
+        self.relic_list.extend(name for name in relic_names)
 
         log.debug(self.relic_list)
         return self.relic_list
