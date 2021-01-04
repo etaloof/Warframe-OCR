@@ -199,13 +199,15 @@ pub fn ocr(pool: &mut ThreadPool,
     }
 
     const CAP: usize = 5 * 1024 * 1024;
-    use std::io::BufWriter;
+    use async_std::io::BufWriter;
     use std::io::Write;
-    use std::fs::File;
-    use std::path::Path;
+    use async_std::fs::File;
+    use async_std::path::Path;
     use std::hash::{Hash, Hasher};
     use std::borrow::Cow;
-    use std::io::BufReader;
+    use async_std::io::BufReader;
+    use async_std::prelude::*;
+    use parallel_stream::*;
 
     fn hash(item: impl Hash) -> u64 {
         let seed = 0xDEADBEEF;
@@ -217,10 +219,9 @@ pub fn ocr(pool: &mut ThreadPool,
     // store some images on disk (for testing rust code independently from python)
     fn persist_test_images(images: &Vec<Option<(Vec<u8>, u32, u32)>>) {
         let path = &format!("test_images_{:x}.bincode", hash(&images));
-        let file = File::create(path).unwrap();
-        let mut file = BufWriter::with_capacity(CAP, file);
-        bincode::serialize_into(&mut file, &images).unwrap();
-        file.flush().unwrap();
+        let mut buffer = Vec::with_capacity(CAP);
+        bincode::serialize_into(&mut buffer, &images).unwrap();
+        std::fs::write(path, &buffer).unwrap();
     }
 
     persist_test_images(&images);
@@ -234,9 +235,9 @@ pub fn ocr(pool: &mut ThreadPool,
 
     type CachedImage<'a> = ((Cow<'a, [u8]>, u32, u32), Cow<'a, str>);
 
-    fn cache_get(path: impl AsRef<Path>, image_hash: u64, image: &[u8]) -> Option<String> {
-        let result: Result<CachedImage, _> = if let Ok(file) = File::open(&path) {
-            bincode::deserialize_from(BufReader::with_capacity(CAP, file))
+    async fn cache_get(path: impl AsRef<Path>, image_hash: u64, image: &[u8]) -> Option<String> {
+        let result: Result<CachedImage, _> = if let Ok(file) = async_std::fs::read(&path).await {
+            bincode::deserialize_from(std::io::Cursor::new(file))
         } else {
             return None;
         };
@@ -250,38 +251,46 @@ pub fn ocr(pool: &mut ThreadPool,
         }
     }
 
-    fn cache_put(path: impl AsRef<Path>, image: &[u8], width: u32, height: u32, ocr_result: &str) {
-        if let Ok(file) = File::create(path) {
-            let mut file = BufWriter::with_capacity(CAP, file);
-            let image = (Cow::from(image), width, height);
-            let value = (image, Cow::from(ocr_result));
-            let _ = bincode::serialize_into(&mut file, &value);
-        };
+    async fn cache_put(path: impl AsRef<Path>, image: &[u8], width: u32, height: u32, ocr_result: &str) {
+        let image = (Cow::from(image), width, height);
+        let value = (image, Cow::from(ocr_result));
+        let mut file = Vec::with_capacity(CAP);
+        let _ = bincode::serialize_into(&mut file, &value);
+        let _ = async_std::fs::write(path, &file).await;
     }
 
-    fn lookup_or_compute_image(image: &[u8], width: u32, height: u32, blacklist: Option<&str>) -> Result<String, TesserocrError> {
+    async fn lookup_or_compute_image(image: &[u8], width: u32, height: u32, blacklist: Option<&str>) -> Result<String, TesserocrError> {
         let image_hash = hash(&image);
         let path = &format!(".cache/{}.bincode", image_hash);
-        if let Some(ocr_result) = cache_get(path, image_hash, &image) {
+        if let Some(ocr_result) = cache_get(path, image_hash, &image).await {
             return Ok(ocr_result);
         }
 
         let result = ocr(&image, width, height, blacklist);
         if let Ok(ocr_result) = &result {
-            cache_put(path, &image, width, height, ocr_result)
+            cache_put(path, &image, width, height, ocr_result).await
         }
 
         result
     }
 
-    pool.install(|| images
-        .into_par_iter()
-        .map(|image| match image {
-            Some((image, width, height)) => Some(lookup_or_compute_image(&image, width, height, blacklist)),
-            None => None
-        }.transpose())
-        .collect()
-    )
+    let blacklist =  blacklist.map(|x| x.to_owned());
+    let vec_result:Vec<_> = async_std::task::block_on(async {
+        images
+            .into_par_stream()
+            // TODO: fork parallel_stream and remove the unnecessary `Copy` bound
+            .map(|image| async move {
+                let blacklist = blacklist.clone();
+                let blacklist = blacklist.as_deref();
+                match image {
+                    Some((image, width, height)) => Some(lookup_or_compute_image(&image, width, height, blacklist).await),
+                    None => None
+                }.transpose()
+            })
+            .collect().await
+    });
+
+    vec_result.into_iter().collect()
 }
 
 #[pymodule]
