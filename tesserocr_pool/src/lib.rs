@@ -1,5 +1,6 @@
 use std::cell::Cell;
 use std::sync::{Arc, Barrier, Mutex};
+use std::thread::LocalKey;
 
 use numpy::{Ix3, PyReadonlyArray};
 use pyo3::{*, prelude::*};
@@ -182,19 +183,12 @@ pub fn ocr(pool: &mut ThreadPool,
     fn ocr(image: Option<(Vec<u8>, u32, u32)>,
            blacklist: Option<&str>) -> Option<Result<String, TesserocrError>> {
         image.map(|(image, width, height)|
-            TESS_API.with(|cell| {
-                let mut tess_api = cell.take().unwrap();
-
-                let ret = match blacklist {
-                    Some(blacklist) =>
-                        tess_api.set_variable("tesseract_char_blacklist", blacklist)
-                            .and_then(|_| tess_api.ocr(image, width, height)),
-                    None => tess_api.ocr(image, width, height),
+            TESS_API.with_inner_mut(|tess_api| {
+                if let Some(blacklist) = blacklist {
+                    tess_api.set_variable("tesseract_char_blacklist", blacklist)?;
                 };
 
-                cell.set(Some(tess_api));
-
-                ret
+                tess_api.ocr(image, width, height)
             })
         )
     }
@@ -226,7 +220,30 @@ thread_local! {
     static TESS_API: Cell<Option<TessApi>> = Cell::new(None);
 }
 
+trait LocalKeyExt<T> {
+    fn with<F, R>(&'static self, f: F) -> R
+        where
+            F: FnOnce(&Cell<Option<T>>) -> R;
 
+    fn with_inner_mut<F, R>(&'static self, f: F) -> R
+        where
+            F: FnOnce(&mut T) -> R,
+    {
+        self.with(|cell| {
+            let mut tess_api = cell.take().unwrap();
+            let ret = f(&mut tess_api);
+            cell.set(Some(tess_api));
+            ret
+        })
+    }
+}
+
+impl<T> LocalKeyExt<T> for LocalKey<Cell<Option<T>>> {
+    fn with<F, R>(&'static self, f: F) -> R where
+        F: FnOnce(&Cell<Option<T>>) -> R {
+        self.with(f)
+    }
+}
 
 
 #[cfg(test)]
