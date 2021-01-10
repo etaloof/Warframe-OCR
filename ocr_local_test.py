@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from ocr_local import cv2, PyTessBaseAPI, PSM, OEM, OcrCheck, TesserocrPool, RustyOcrCheck
+from ocr_local import cv2, PyTessBaseAPI, PSM, OEM, OcrCheck, TesserocrPool, RustyOcrCheck, spell_correction_ocr
 
 image_base_path = 'ressources'
 expected_results = {
@@ -930,6 +930,7 @@ class TestPytesseract:
         for path in all_paths
     ])
     def test_pytesseract(self, image_name):
+        spell_correction_ocr(None, None, set_selected=1)
         image_path = os.path.join(image_base_path, image_name)
         image_input = cv2.imread(image_path)
         if image_input.shape[:2] == (900, 1600):
@@ -947,6 +948,7 @@ class TestTesserocr:
         for path in all_paths
     ])
     def test_tesserocr(self, tess, image_name):
+        spell_correction_ocr(None, None, set_selected=1)
         image_path = os.path.join(image_base_path, image_name)
         image_input = cv2.imread(image_path)
         if image_input.shape[:2] == (900, 1600):
@@ -964,6 +966,7 @@ class TestTesserocrRust:
         for path in all_paths
     ])
     def test_tesserocr_rust(self, pool, image_name):
+        spell_correction_ocr(None, None, set_selected=1)
         image_path = os.path.join(image_base_path, image_name)
         image_input = cv2.imread(image_path)
         if image_input.shape[:2] == (900, 1600):
@@ -979,6 +982,7 @@ class TestTesserocrRust:
         for path in all_paths
     ])
     def test_benchmark(self, pool, benchmark, image_name):
+        spell_correction_ocr(None, None, set_selected=1)
         image_path = os.path.join(image_base_path, image_name)
         image_input = cv2.imread(image_path)
         if image_input.shape[:2] == (900, 1600):
