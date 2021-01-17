@@ -19,7 +19,7 @@ if platform_name == 'Windows':
         os.system('.\\vcpkg\\bootstrap-vcpkg.bat')
         os.system('.\\vcpkg\\vcpkg install tesseract:x64-windows-static leptonica:x64-windows-static')
 elif platform_name == 'Linux':
-    os.system('sudo -A apt install tesseract-ocr ')
+    os.system('sudo -A apt install libleptonica-dev libtesseract-dev clang')
     os.system('sudo -A pacman --noconfirm tesseract tesseract-data-eng leptonica clang')
 else:
     print('Unsupported platform', platform_name, file=sys.stderr)
