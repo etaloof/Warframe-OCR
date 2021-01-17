@@ -2,6 +2,8 @@ import os
 
 import pytest
 
+import locale
+locale.setlocale(locale.LC_ALL, 'C')
 from ocr_local import cv2, PyTessBaseAPI, PSM, OEM, OcrCheck, TesserocrPool, RustyOcrCheck, spell_correction_ocr
 
 image_base_path = 'ressources'

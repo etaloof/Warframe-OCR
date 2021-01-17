@@ -737,6 +737,8 @@ def benchmark_tesserocr_rust(tess, pool, image_path):
 
 
 if __name__ == "__main__":
+    import locale
+    locale.setlocale(locale.LC_ALL, 'C')
     tessdata_dir = 'tessdata/'
     with PyTessBaseAPI(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY) as tess,\
         TesserocrPool(tessdata_dir, 'Roboto', psm=PSM.SINGLE_BLOCK, oem=OEM.LSTM_ONLY) as pool:
