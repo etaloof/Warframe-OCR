@@ -49,7 +49,7 @@ else:
     set_env('RUSTFLAGS', '-Ctarget-feature=+crt-static')
 
 print('Building rust extension')
-os.system('pip uninstall -y tesserocr_pool')
-os.system('rm -rdf tesserocr_pool')
-os.system('maturin develop --release')
-#os.system('maturin develop')
+# move the old version of the extension module
+# should build errors occur, importing the module will fail instead of succeeding with the outdated version
+os.system(r'move target\release\tesserocr_pool.dll target\release\tesserocr_pool.dll.old')
+os.system('cargo build --release --lib')
