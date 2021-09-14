@@ -483,6 +483,7 @@ class OcrCheck:
             sign_count = check_for_sign(greyed_image)
             if sign_count < 1:
                 ocr_image = get_treshold_2(cropped_img, self.theme)
+                self.debug_images[('nb', pos1, pos2, pos3, pos4)] = (cropped_img, ocr_image)
                 yield ocr_image
             else:
                 yield None
@@ -533,6 +534,7 @@ class OcrCheck:
             image = self.image
             image = relicarea_crop(pos2, pos4, pos1, pos3, image)
             image = get_treshold_2(image, self.theme)
+            self.debug_images[('name', pos1, pos2, pos3, pos4)] = image
 
             yield nb, image
 
