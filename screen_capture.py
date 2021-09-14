@@ -8,7 +8,6 @@ from queue import Full as QueueFullException
 import cv2
 import mss
 import numpy as np
-import requests
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QPainter, QColor
 from PyQt5.QtWidgets import QWidget, QApplication
@@ -21,6 +20,8 @@ from relic_data import get_relic_data, find_relic_rewards_from_relic_name
 def do_ocr(pool, image_input):
     spell_correction_ocr(None, None, set_selected=1)
     begin = time.time()
+
+    image_input = cv2.imread('ressources/100.png')
 
     if image_input.shape[:2] == (900, 1600):
         image_input = cv2.resize(image_input, (1920, 1080))
@@ -72,7 +73,7 @@ def show_screenshots_with_fps():
 
 def show_screenshots_without_fps():
     with mss.mss() as sct:
-        for img in Screenshots(sct):
+        for img in Screenshots(sct, monitor=2):
             width = int(img.shape[1] * 0.3)
             height = int(img.shape[0] * 0.3)
             dim = (width, height)
@@ -89,7 +90,12 @@ class Widget(QWidget):
 
         self.data = get_relic_data()
 
-        self.setGeometry(1700, 300, 400, 350)
+        self.pad = 10
+        self.width = 175
+        self.height = 100
+
+        pad = 6 * self.pad
+        self.setGeometry(1921, 100, 5 * self.width + pad, 5 * self.height + pad)
         self.setWindowTitle('Current relic detection state')
         self.show()
 
@@ -98,9 +104,9 @@ class Widget(QWidget):
         self.timer.start(500)
 
     def paintEvent(self, e):
-        pad = 10
-        width = 60
-        height = 60
+        pad = self.pad
+        width = self.width
+        height = self.height
         text = "Each square shows where a relic is expected on the screen. " \
                "Red squares indicate that the relic at this position could not be detected, " \
                "green squares indicate that it could be detected (but the result could still be wrong)."
