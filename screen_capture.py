@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import QWidget, QApplication
 from tesserocr import PSM, OEM
 
 from ocr_local import spell_correction_ocr, RustyOcrCheck, TesserocrPool
+from relic_data import get_relic_data, find_relic_rewards_from_relic_name
 
 
 def do_ocr(pool, image_input):
@@ -80,67 +81,13 @@ def show_screenshots_without_fps():
             cv2.waitKey(1000)
 
 
-def get_relic_data():
-    urls = """All.json
-Arcanes.json
-Arch-Gun.json
-Arch-Melee.json
-Archwing.json
-Enemy.json
-Fish.json
-Gear.json
-Glyphs.json
-Melee.json
-Misc.json
-Mods.json
-Node.json
-Pets.json
-Primary.json
-Quests.json
-Relics.json
-Resources.json
-Secondary.json
-SentinelWeapons.json
-Sentinels.json
-Sigils.json
-Skins.json
-Warframes.json"""
-
-    for url in urls.splitlines():
-        name, *_ = url.split('.')
-        url = 'https://raw.githubusercontent.com/WFCD/warframe-items/development/data/json/' + url
-        yield name, requests.get(url).json()
-
-
-def is_vaulted_relic(data, name):
-    return not any(['drops' in relic for relic in data['Relics'] if name in relic['name']])
-
-
-def find_relic_rewards_from_relic_name(data, name):
-    """
-    Find all rewards which can be obtained from the given relic.
-    Returns duplicates.
-    """
-    era, name, *_ = name.split()
-    name = f'{era.capitalize()} {name.capitalize()} Relic'
-
-    for category in data.values():
-        for item in category:
-            if 'components' in item and 'Prime' in item['name']:
-                for component in item['components']:
-                    if 'drops' in component:
-                        for drop in component['drops']:
-                            if drop['location'] == name:
-                                yield drop['type']
-
-
 class Widget(QWidget):
 
     def __init__(self, q):
         super().__init__()
         self.q = q
 
-        self.data = {k: v for k, v in get_relic_data()}
+        self.data = get_relic_data()
 
         self.setGeometry(1700, 300, 400, 350)
         self.setWindowTitle('Current relic detection state')
