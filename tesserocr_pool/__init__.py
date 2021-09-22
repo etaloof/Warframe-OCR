@@ -15,10 +15,26 @@ def import_extension_module(module_name: str, path_to_extension_module: str):
 path_base = pathlib.Path(__file__).parent.joinpath('target/release/')
 
 name = 'tesserocr_pool'
-path = path_base.joinpath(name).with_suffix('.dll')
+path = path_base.joinpath(name)
 
+import_paths = []
+tesserocr_pool = None
+options = (
+    ['', '.dll'],  # on windows: "tesserocr_pool.dll"
+    ['lib', '.so']  # on linux: "libtesserocr_pool.so"
+)
+for prefix, suffix in options:
+    try:
+        p = path.with_stem(prefix + path.stem).with_suffix(suffix)
+        tesserocr_pool = import_extension_module(name, str(p))
+        break
+    except ImportError as e:
+        import_paths.append(e.path)
 
-tesserocr_pool = import_extension_module(name, str(path))
+if tesserocr_pool is None:
+    join = ', '.join(f'"{p}"' for p in import_paths)
+    raise ImportError('Cannot import tesserocr_pool; these paths there tried: ' + join)
+
 __all__ = set(tesserocr_pool.__all__)
 reexported = {k: v for k, v in tesserocr_pool.__dict__.items() if k in __all__}
 globals().update(reexported)
