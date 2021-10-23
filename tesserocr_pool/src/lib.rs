@@ -96,15 +96,17 @@ impl TesserocrPool {
 
         barrier.wait();
 
-        println!("thread count in thread pool is {}", init.lock().unwrap().len());
+        // after reaching the barrier, all threads will have completed initialization
+        // and we can take ownership of the vec containing the initialization results
+        let mut init: Vec<_> = std::mem::take(&mut *init.lock().unwrap());
+        println!("thread count in thread pool is {}", init.len());
 
-        init.lock().unwrap().sort_by_key(|&(n, _)| n);
-        for (n, r) in init.lock().unwrap().iter() {
-            if let Err(err) = r {
-                let err = format!("Thread {} failed to start: {}", n, err);
-                Err(TesserocrError::from(err))?;
-            }
-        }
+        init.sort_by_key(|&(n, _)| n);
+        init.into_iter()
+            .map(|(n, err)| err.map(|_| ()).map_err(
+                |err|format!("Thread {} failed to start: {}", n, err).into()
+            ))
+            .collect::<Result<(), TesserocrError>>()?;
 
         Ok(())
     }
