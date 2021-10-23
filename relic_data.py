@@ -1,5 +1,6 @@
 import json
 import os
+import os.path
 from collections import OrderedDict
 
 import requests
@@ -55,7 +56,8 @@ def collect_unique_ordered(func):
     return wrapper
 
 
-WFDATA_VERSION_PATH = '.cache/wfdata.version'
+DEFAULT_CACHE_DIR = '.cache'
+WFDATA_VERSION_PATH = 'wfdata.version'
 WFDATA_FILES = """All.json
 Arcanes.json
 Arch-Gun.json
@@ -83,16 +85,17 @@ Warframes.json"""
 
 
 @collect_custom(dict)
-def get_relic_data():
-    os.makedirs('.cache', exist_ok=True)
+def get_relic_data(cache_dir=DEFAULT_CACHE_DIR):
+    os.makedirs(cache_dir, exist_ok=True)
 
     def local_version(new=None):
+        version_path = os.path.join(cache_dir, WFDATA_VERSION_PATH)
         if new and int(new, base=16):
-            with open(WFDATA_VERSION_PATH, 'w', encoding='utf-8') as f:
+            with open(version_path, 'w', encoding='utf-8') as f:
                 f.write(new)
                 return
         try:
-            with open(WFDATA_VERSION_PATH, encoding='utf-8') as f:
+            with open(version_path, encoding='utf-8') as f:
                 new = f.read()
                 if new and int(new, base=16):
                     return new
@@ -111,13 +114,13 @@ def get_relic_data():
 
     for file_name in WFDATA_FILES.splitlines():
         name, *_ = file_name.split('.')
-        yield name, fetch(file_name, is_cache_fresh)
+        yield name, fetch(file_name, cache_dir, from_cache=is_cache_fresh)
 
     local_version(version)
 
 
-def fetch(name, from_cache=False):
-    path = '.cache/' + name
+def fetch(name, cache_dir, from_cache=False):
+    path = os.path.join(cache_dir, name)
     if from_cache:
         with open(path, encoding='utf-8') as f:
             return json.loads(f.read())
@@ -174,6 +177,8 @@ def is_vaulted_relic(data, name):
 
 
 if __name__ == '__main__':
+    import tempfile
+
     BLACK = '\033[30m'
     RED = '\033[31m'
     GREEN = '\033[32m'
@@ -187,7 +192,8 @@ if __name__ == '__main__':
     VAULTED = RED + 'V'
     UNVAULTED = GREEN + ' '
 
-    item_data = get_relic_data()
+    with tempfile.TemporaryDirectory() as cache:
+        item_data = get_relic_data(cache)
     for relic_name in relic_names(item_data):
         v = is_vaulted_relic(item_data, relic_name)
         v = VAULTED if v else UNVAULTED
